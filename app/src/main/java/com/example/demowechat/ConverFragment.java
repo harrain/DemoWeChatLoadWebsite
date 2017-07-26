@@ -3,8 +3,12 @@ package com.example.demowechat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +22,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.StringLoader;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Stack;
 import java.util.zip.Inflater;
 
 
@@ -33,6 +40,9 @@ public class ConverFragment extends Fragment {
     ListView lv;
 
     List<WebsiteBean> list ;
+    Stack<Pic> pics;
+    RecyclerView rl;
+    GalaryInfoAdapter adapter;
 
     public ConverFragment() {
 
@@ -44,26 +54,48 @@ public class ConverFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_conver,null,false);
         mContext = getContext();
-        lv = (ListView) view.findViewById(R.id.lv);
-        list= new ArrayList<>();
 
-        loadData();
+        pics = new Stack<>();
 
-//        for (int i = 0; i < 30; i++) {
-//            list.add(++i);
-//        }
+        rl = (RecyclerView) view.findViewById(R.id.rl);
+//        GridLayoutManager layoutManager = new GridLayoutManager(mContext,3);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+        rl.setLayoutManager(layoutManager);
+        adapter = new GalaryInfoAdapter(mContext,pics);
+        rl.setAdapter(adapter);
 
-        lv.setAdapter(new LvAdapter());
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(mContext, WebsiteShowActivity.class);
-                intent.putExtra("title",list.get(position).getWebsiteTitle());
-                intent.putExtra("text",list.get(position).getWebsiteText());
-                startActivity(intent);
-            }
-        });
+//        lv = (ListView) view.findViewById(R.id.lv);
+//        list= new ArrayList<>();
+//
+//        loadData();
+//
+////        for (int i = 0; i < 30; i++) {
+////            list.add(++i);
+////        }
+//
+//        lv.setAdapter(new LvAdapter());
+//        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Intent intent = new Intent(mContext, WebsiteShowActivity.class);
+//                intent.putExtra("title",list.get(position).getWebsiteTitle());
+//                intent.putExtra("text",list.get(position).getWebsiteText());
+//                startActivity(intent);
+//            }
+//        });
         return view;
+    }
+
+    public void addUri(Uri uri){
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+
+
+        Pic pic = new Pic(uri,sdf.format(date));
+        pics.add(pic);
+
+        adapter.notifyDataSetChanged();
     }
 
     private void loadData() {
@@ -141,7 +173,7 @@ public class ConverFragment extends Fragment {
                 Glide.with(mContext).load(list.get(position).getPictureId()).into(viewHoler.imageView);
                 viewHoler.textView.setText(list.get(position).getWebsiteTitle());
                 viewHoler.content.setText(list.get(position).getWebsiteText());
-                Log.e("list",list.get(position).toString());
+//                Log.e("list",list.get(position).toString());
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -153,6 +185,25 @@ public class ConverFragment extends Fragment {
             ImageView imageView;
             TextView textView;
             TextView content;
+        }
+    }
+
+
+    class Pic{
+        Uri uri;
+        String data;
+
+        public Pic(Uri uri, String data) {
+            this.uri = uri;
+            this.data = data;
+        }
+
+        public Uri getUri() {
+            return uri;
+        }
+
+        public String getData() {
+            return data;
         }
     }
 
