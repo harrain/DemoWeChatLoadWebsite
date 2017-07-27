@@ -54,14 +54,15 @@ public class ImageActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         imagePath = intent.getStringExtra("imagepath");
-        Bitmap bitmap = null;
+//        Bitmap bitmap = null;
         try {
-            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(Uri.parse(imagePath)));
-        } catch (FileNotFoundException e) {
+//            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(Uri.parse(imagePath)));
+//            imaIv.setImageBitmap(bitmap);
+            Glide.with(mContext).load(Uri.parse(imagePath)).into(imaIv);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 //        Glide.with(this).load(bitmap).into(imaIv);
-        imaIv.setImageBitmap(bitmap);
 
 
     }

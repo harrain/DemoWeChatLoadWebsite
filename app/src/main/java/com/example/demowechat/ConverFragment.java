@@ -63,6 +63,7 @@ public class ConverFragment extends Fragment {
         rl.setLayoutManager(layoutManager);
         adapter = new GalaryInfoAdapter(mContext,pics);
         rl.setAdapter(adapter);
+        rl.addItemDecoration(new MyDecoration(mContext, MyDecoration.VERTICAL_LIST));
 
 //        lv = (ListView) view.findViewById(R.id.lv);
 //        list= new ArrayList<>();

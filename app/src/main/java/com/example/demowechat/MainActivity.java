@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         // 启动相机程序
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+//        intent.putExtra(MediaStore.CA)
         //启动相机程序
         startActivityForResult(intent,CAMERA_REQUEST);
         pw.dismiss();

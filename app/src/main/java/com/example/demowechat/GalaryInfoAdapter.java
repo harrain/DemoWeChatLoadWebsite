@@ -56,13 +56,14 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
         Log.e(TAG,"imagePath:"+imagePaths.get(position));
 //        Glide.with(mContext).load(imagePaths.get(position)).into(holder.galaryinfoIv);
         // 将拍摄的照片显示出来
-        Bitmap bitmap = null;
+//        Bitmap bitmap = null;
         try {
-            bitmap = BitmapFactory.decodeStream(mContext.getContentResolver().openInputStream(imagePaths.get(position).getUri()));
-//            Glide.with(mContext).load(bitmap).into();
-            holder.imageView.setImageBitmap(bitmap);
+//            bitmap = BitmapFactory.decodeStream(mContext.getContentResolver().openInputStream(imagePaths.get(position).getUri()));
+//            bitmap = BitmapUtils.getBitmap(mContext,imagePaths.get(position).getUri(),holder.imageView.getWidth(),holder.imageView.getHeight());
+            Glide.with(mContext).load(imagePaths.get(position).getUri()).into(holder.imageView);
+//            holder.imageView.setImageBitmap(bitmap);
             holder.textView.setText(imagePaths.get(position).getData());
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         holder.rl.setOnClickListener(new View.OnClickListener() {
