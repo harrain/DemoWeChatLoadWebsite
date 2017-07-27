@@ -35,6 +35,7 @@ public class ImageActivity extends AppCompatActivity {
     private String TAG = "ImageActivity";
     Context mContext;
     private String imagePath;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +53,9 @@ public class ImageActivity extends AppCompatActivity {
         });
         mContext = this;
 
-        Intent intent = getIntent();
+        intent = getIntent();
         imagePath = intent.getStringExtra("imagepath");
+        Log.e(TAG+"imagepath",imagePath);
 //        Bitmap bitmap = null;
         try {
 //            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(Uri.parse(imagePath)));
@@ -67,6 +69,10 @@ public class ImageActivity extends AppCompatActivity {
 
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        intent = null;
+        imagePath = null;
+    }
 }

@@ -94,9 +94,13 @@ public class ConverFragment extends Fragment {
 
 
         Pic pic = new Pic(uri,sdf.format(date));
-        pics.add(pic);
+        pics.push(pic);
 
         adapter.notifyDataSetChanged();
+    }
+
+    public int getImageCount(){
+        return pics.size();
     }
 
     private void loadData() {
@@ -138,56 +142,55 @@ public class ConverFragment extends Fragment {
 
     }
 
-    class LvAdapter extends BaseAdapter{
-
-        @Override
-        public int getCount() {
-            return list.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return list.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHoler viewHoler;
-            if (convertView == null) {
-                View view = View.inflate(parent.getContext(), R.layout.list_item, null);
-                 viewHoler = new ViewHoler();
-                viewHoler.imageView = (ImageView) view.findViewById(R.id.iv);
-                viewHoler.textView = (TextView) view.findViewById(R.id.tv);
-                viewHoler.content = (TextView) view.findViewById(R.id.content);
-                view.setTag(viewHoler);
-                convertView= view;
-            }else {
-                viewHoler = (ViewHoler) convertView.getTag();
-            }
-
-            try {
-                Glide.with(mContext).load(list.get(position).getPictureId()).into(viewHoler.imageView);
-                viewHoler.textView.setText(list.get(position).getWebsiteTitle());
-                viewHoler.content.setText(list.get(position).getWebsiteText());
-//                Log.e("list",list.get(position).toString());
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
-            return convertView;
-        }
-
-        class ViewHoler {
-            ImageView imageView;
-            TextView textView;
-            TextView content;
-        }
-    }
+//    class LvAdapter extends BaseAdapter{
+//
+//        @Override
+//        public int getCount() {
+//            return list.size();
+//        }
+//
+//        @Override
+//        public Object getItem(int position) {
+//            return list.get(position);
+//        }
+//
+//        @Override
+//        public long getItemId(int position) {
+//            return position;
+//        }
+//
+//        @Override
+//        public View getView(int position, View convertView, ViewGroup parent) {
+//            ViewHoler viewHoler;
+//            if (convertView == null) {
+//                View view = View.inflate(parent.getContext(), R.layout.list_item, null);
+//                 viewHoler = new ViewHoler();
+//                viewHoler.imageView = (ImageView) view.findViewById(R.id.iv);
+//                viewHoler.textView = (TextView) view.findViewById(R.id.tv);
+//                view.setTag(viewHoler);
+//                convertView= view;
+//            }else {
+//                viewHoler = (ViewHoler) convertView.getTag();
+//            }
+//
+//            try {
+//                Glide.with(mContext).load(list.get(position).getPictureId()).into(viewHoler.imageView);
+//                viewHoler.textView.setText(list.get(position).getWebsiteTitle());
+//                viewHoler.content.setText(list.get(position).getWebsiteText());
+////                Log.e("list",list.get(position).toString());
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//
+//            return convertView;
+//        }
+//
+//        class ViewHoler {
+//            ImageView imageView;
+//            TextView textView;
+//            TextView content;
+//        }
+//    }
 
 
     class Pic{

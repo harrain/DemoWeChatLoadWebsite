@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void capture() {
         // 创建File对象，用于存储拍照后的图片
-        File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+        File outputImage = new File(getExternalCacheDir(), SystemClock.elapsedRealtime()+"_output_image.jpg");
         try {
             if (outputImage.exists()) {
                 outputImage.delete();
@@ -109,8 +110,10 @@ public class MainActivity extends AppCompatActivity {
         }
         // 启动相机程序
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+//        intent.putExtra("camerasensortype", 2); // 调用前置摄像头
+        intent.putExtra("android.intent.extras.CAMERA_FACING", 1); // 调用前置摄像头
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-//        intent.putExtra(MediaStore.CA)
+
         //启动相机程序
         startActivityForResult(intent,CAMERA_REQUEST);
         pw.dismiss();
@@ -136,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG,"imageUri:"+imageUri);
             try {
                 converf.addUri(imageUri);
+
+                getSupportActionBar().setTitle("拍照("+converf.getImageCount()+")");
+
                 // 将拍摄的照片显示出来
 //                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
 //                pic.setImageBitmap(bitmap);

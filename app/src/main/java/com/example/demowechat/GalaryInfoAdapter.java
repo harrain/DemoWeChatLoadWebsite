@@ -60,9 +60,9 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
         try {
 //            bitmap = BitmapFactory.decodeStream(mContext.getContentResolver().openInputStream(imagePaths.get(position).getUri()));
 //            bitmap = BitmapUtils.getBitmap(mContext,imagePaths.get(position).getUri(),holder.imageView.getWidth(),holder.imageView.getHeight());
-            Glide.with(mContext).load(imagePaths.get(position).getUri()).into(holder.imageView);
+            Glide.with(mContext).load(imagePaths.get(imagePaths.size()-1-position).getUri()).into(holder.imageView);
 //            holder.imageView.setImageBitmap(bitmap);
-            holder.textView.setText(imagePaths.get(position).getData());
+            holder.textView.setText(imagePaths.get(imagePaths.size()-1-position).getData());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -70,7 +70,7 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext,ImageActivity.class);
-                intent.putExtra("imagepath",imagePaths.get(position).getUri().toString());
+                intent.putExtra("imagepath",imagePaths.get(imagePaths.size()-1-position).getUri().toString());
                 mContext.startActivity(intent);
             }
         });
@@ -97,15 +97,13 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
         RelativeLayout rl;
         ImageView imageView;
         TextView textView;
-        TextView content;
 
         ImageHolder(View view) {
             super(view);
             rl = (RelativeLayout) view.findViewById(R.id.relative);
             imageView = (ImageView) view.findViewById(R.id.iv);
             textView = (TextView) view.findViewById(R.id.tv);
-            content = (TextView) view.findViewById(R.id.content);
-            content.setVisibility(View.INVISIBLE);
+
         }
     }
 }
