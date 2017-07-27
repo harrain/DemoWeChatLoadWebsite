@@ -31,7 +31,7 @@ import java.util.zip.Inflater;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * 加载列表的fragment.
  */
 public class ConverFragment extends Fragment {
 
@@ -87,13 +87,9 @@ public class ConverFragment extends Fragment {
         return view;
     }
 
-    public void addUri(Uri uri){
+    public void addUri(Uri uri,String time){
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date();
-
-
-        Pic pic = new Pic(uri,sdf.format(date));
+        Pic pic = new Pic(uri,time);
         pics.push(pic);
 
         adapter.notifyDataSetChanged();

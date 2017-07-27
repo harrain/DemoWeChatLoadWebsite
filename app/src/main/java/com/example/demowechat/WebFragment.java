@@ -11,7 +11,7 @@ import android.webkit.WebViewClient;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * 加载网页的fragment
  */
 public class WebFragment extends Fragment {
 

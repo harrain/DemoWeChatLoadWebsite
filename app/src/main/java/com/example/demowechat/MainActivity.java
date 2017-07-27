@@ -36,6 +36,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * 主容器，切换fragment
+ */
 public class MainActivity extends AppCompatActivity {
 
     private  final String TAG = "MainActivity";
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Uri imageUri;
     private PopupWindow pw;
+    private String time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,8 +97,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void capture() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
+        Date date = new Date();
+        time = sdf.format(date);
         // 创建File对象，用于存储拍照后的图片
-        File outputImage = new File(getExternalCacheDir(), SystemClock.elapsedRealtime()+"_output_image.jpg");
+        File outputImage = new File(getExternalCacheDir(), time +"_output_image.jpg");
         try {
             if (outputImage.exists()) {
                 outputImage.delete();
@@ -119,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
         pw.dismiss();
     }
 
+    /**
+     * 导航按钮1点击事件
+     * @param v
+     */
     public void front(View v){
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl,converf);
@@ -126,6 +137,10 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    /**
+     * 导航按钮2点击事件
+     * @param v
+     */
     public void search(View v){
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl,webFragment);
@@ -138,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK ) {
             Log.e(TAG,"imageUri:"+imageUri);
             try {
-                converf.addUri(imageUri);
+                converf.addUri(imageUri,time);//保存URI到fragment里，并更新adapter的数据源
 
                 getSupportActionBar().setTitle("拍照("+converf.getImageCount()+")");
 
@@ -148,79 +163,9 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//                Log.e(TAG,"data !=null");
-//                handleImageOnKitKat(data);
-//            }
 
-        }else if(data == null){
-            Log.e(TAG,"data == null");
         }
     }
 
-    /**
-     * api 19以后
-     *  4.4版本后 调用系统相机返回的不在是真实的uri 而是经过封装过后的uri，
-     * 所以要对其记性数据解析，然后在调用displayImage方法尽心显示
-     * @param data
-     */
 
-    @TargetApi(19)
-    private void handleImageOnKitKat(Intent data) {
-        String imagePath = null;
-        Uri uri = data.getData();
-        Log.e("TAG", "handleImageOnKitKat: uri is " + uri);
-        if (DocumentsContract.isDocumentUri(this, uri)) {
-            // 如果是document类型的Uri，则通过document id处理
-            String docId = DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                String id = docId.split(":")[1]; // 解析出数字格式的id
-                String selection = MediaStore.Images.Media._ID + "=" + id;
-                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
-            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
-                imagePath = getImagePath(contentUri, null);
-            }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            // 如果是content类型的Uri，则使用普通方式处理
-            imagePath = getImagePath(uri, null);
-        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            // 如果是file类型的Uri，直接获取图片路径即可
-            imagePath = uri.getPath();
-        }
-        displayImage(imagePath); // 根据图片路径显示图片
-    }
-
-    /**
-     * 通过 uri seletion选择来获取图片的真实uri
-     * @param uri
-     * @param
-     * @return
-     */
-    private String getImagePath(Uri uri, String selection) {
-        String path = null;
-        // 通过Uri和selection来获取真实的图片路径
-        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            cursor.close();
-        }
-        return path;
-    }
-
-    /**
-     * 通过imagepath来绘制immageview图像
-     * @param imagPath
-     */
-    private void displayImage(String imagPath){
-        Log.e(TAG+":"+"imagePath",imagPath);
-        if (imagPath != null){
-            Bitmap bitmap = BitmapFactory.decodeFile(imagPath);
-
-        }else{
-            Toast.makeText(this,"图片获取失败",Toast.LENGTH_SHORT).show();
-        }
-    }
 }

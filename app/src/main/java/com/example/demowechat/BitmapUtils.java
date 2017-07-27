@@ -12,6 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * 图片操作类 压缩，本地文件读取，保存到本地
+ */
 public final class BitmapUtils {
 
 	public static Bitmap getBitmap(Context context,Uri uri, int width, int height) throws FileNotFoundException {

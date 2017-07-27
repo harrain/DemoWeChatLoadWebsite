@@ -10,6 +10,9 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+/**
+ * 显示网页的activity
+ */
 public class WebsiteShowActivity extends AppCompatActivity {
 
     Toolbar toolbar;

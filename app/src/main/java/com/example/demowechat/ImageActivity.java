@@ -26,7 +26,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
-
+/**
+ * 显示大图
+ */
 public class ImageActivity extends AppCompatActivity {
 
 

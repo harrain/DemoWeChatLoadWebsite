@@ -23,7 +23,7 @@ import java.util.Stack;
 
 
 /**
- * Created by stephen on 2017/5/30.
+ * 列表内容适配器，维系数据源和布局的显示
  */
 
 public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.ImageHolder>{
@@ -31,6 +31,8 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
 
     private Context mContext;
     private Stack<ConverFragment.Pic> imagePaths;
+
+    private OnClickListener listener;
     private static  final String TAG = "GalaryInfoAdapter";
 
     public GalaryInfoAdapter(Context context, Stack<ConverFragment.Pic> images) {
@@ -44,6 +46,17 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
     }
 
 
+
+    public interface OnClickListener{
+        void onShortClick(View v,int position);
+        void onLongClick(View v,int position);
+    }
+
+    public void setOnClickListener(OnClickListener listener){
+        this.listener = listener;
+    }
+
+
     @Override
     public ImageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.list_item, parent, false);
@@ -52,7 +65,7 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
     }
 
     @Override
-    public void onBindViewHolder(ImageHolder holder, final int position) {
+    public void onBindViewHolder(final ImageHolder holder, final int position) {
         Log.e(TAG,"imagePath:"+imagePaths.get(position));
 //        Glide.with(mContext).load(imagePaths.get(position)).into(holder.galaryinfoIv);
         // 将拍摄的照片显示出来
@@ -72,8 +85,19 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
                 Intent intent = new Intent(mContext,ImageActivity.class);
                 intent.putExtra("imagepath",imagePaths.get(imagePaths.size()-1-position).getUri().toString());
                 mContext.startActivity(intent);
+
+//                listener.onShortClick(holder.rl,position); //传递短按事件
             }
         });
+
+
+//        holder.rl.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                listener.onLongClick(v,position);//传递长按事件
+//                return false;
+//            }
+//        });
     }
 
 //    public void addUri(Uri uri){

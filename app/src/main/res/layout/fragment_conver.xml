@@ -14,6 +14,7 @@
         android:scrollbarStyle="outsideOverlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+    <!-- 默认的scrollbar是自适应高度的，条目少 长，条目多 短。如果去掉自适应，应该能固定scrollbar的长度-->
 
     <!--<ListView-->
         <!--android:id="@+id/lv"-->
