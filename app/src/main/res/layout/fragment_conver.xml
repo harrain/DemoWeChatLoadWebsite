@@ -3,17 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.example.demowechat.ConverFragment">
+    >
 
-    <android.support.v7.widget.RecyclerView
+    <com.example.demowechat.SwipeMenuRecyclerView
         android:id="@+id/rl"
         android:scrollbars="vertical"
         android:scrollbarSize="3dp"
-        android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"
-        android:scrollbarTrackVertical="@android:color/transparent"
         android:scrollbarStyle="outsideOverlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
+
+    <!--<android.support.v7.widget.RecyclerView-->
+        <!--android:id="@+id/rl"-->
+        <!--android:scrollbars="vertical"-->
+        <!--android:scrollbarSize="3dp"-->
+        <!--android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"-->
+        <!--android:scrollbarTrackVertical="@android:color/transparent"-->
+        <!--android:scrollbarStyle="outsideOverlay"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"/>-->
     <!-- 默认的scrollbar是自适应高度的，条目少 长，条目多 短。如果去掉自适应，应该能固定scrollbar的长度-->
 
     <!--<ListView-->

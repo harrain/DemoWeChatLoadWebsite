@@ -2,32 +2,23 @@ package com.example.demowechat;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.model.StringLoader;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
-import java.util.zip.Inflater;
+
 
 
 /**
@@ -40,14 +31,20 @@ public class ConverFragment extends Fragment {
     ListView lv;
 
     List<WebsiteBean> list ;
-    Stack<Pic> pics;
-    RecyclerView rl;
+    List<Pic> pics;
+    SwipeMenuRecyclerView rl;
     GalaryInfoAdapter adapter;
+    private static final String TAG = "ConverFragment";
 
     public ConverFragment() {
 
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        pics = new LinkedList<>();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,15 +52,18 @@ public class ConverFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_conver,null,false);
         mContext = getContext();
 
-        pics = new Stack<>();
 
-        rl = (RecyclerView) view.findViewById(R.id.rl);
+        rl = (SwipeMenuRecyclerView) view.findViewById(R.id.rl);
 //        GridLayoutManager layoutManager = new GridLayoutManager(mContext,3);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         rl.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration =
+                new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL);
+        rl.addItemDecoration(dividerItemDecoration);
+//        rl.addItemDecoration(new MyDecoration(mContext, MyDecoration.VERTICAL_LIST));
         adapter = new GalaryInfoAdapter(mContext,pics);
         rl.setAdapter(adapter);
-        rl.addItemDecoration(new MyDecoration(mContext, MyDecoration.VERTICAL_LIST));
+
 
 //        lv = (ListView) view.findViewById(R.id.lv);
 //        list= new ArrayList<>();
@@ -87,10 +87,23 @@ public class ConverFragment extends Fragment {
         return view;
     }
 
-    public void addUri(Uri uri,String time){
 
-        Pic pic = new Pic(uri,time);
-        pics.push(pic);
+    public void addUri(Uri uri, String time){
+
+        File file = new File(uri.getPath());
+        Log.e(TAG,"file size:"+file.length());
+        Log.e(TAG,"file path:"+file.getAbsolutePath());
+        Pic pic = new Pic(uri,time,Formatter.formatFileSize(mContext,file.length()));
+        pics.add(pic);
+        
+        Log.e(TAG,"weizhi----"+pics.indexOf(pic));
+        adapter.notifyDataSetChanged();
+    }
+
+    public void addUri(Uri uri, String time,String size){
+
+        Pic pic = new Pic(uri,time,size);
+        pics.add(pic);
 
         adapter.notifyDataSetChanged();
     }
@@ -136,6 +149,21 @@ public class ConverFragment extends Fragment {
         list.add(annet);
         list.add(develop);
 
+    }
+
+    public void loadData(Uri uri, String time, String size) {
+        Pic pic = new Pic(uri,time,size);
+        pics.add(pic);
+    }
+
+    public void notifyDataSetChanged(){
+        adapter.notifyDataSetChanged();
+    }
+
+    public void clearPics() {
+        if (pics !=null && pics.size()>0) {
+            pics.clear();
+        }
     }
 
 //    class LvAdapter extends BaseAdapter{
@@ -192,10 +220,20 @@ public class ConverFragment extends Fragment {
     class Pic{
         Uri uri;
         String data;
+        String size;
+
+        public Pic() {
+        }
 
         public Pic(Uri uri, String data) {
             this.uri = uri;
             this.data = data;
+        }
+
+        public Pic(Uri uri, String data, String size) {
+            this.uri = uri;
+            this.data = data;
+            this.size = size;
         }
 
         public Uri getUri() {
@@ -204,6 +242,10 @@ public class ConverFragment extends Fragment {
 
         public String getData() {
             return data;
+        }
+
+        public String getSize() {
+            return size;
         }
     }
 
