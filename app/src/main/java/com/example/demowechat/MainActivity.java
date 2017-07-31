@@ -21,6 +21,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
+import com.example.demowechat.diyCamera.ShowPicActivity;
+import com.example.demowechat.utils.AppConstant;
+import com.example.demowechat.utils.CameraUtil;
+import com.example.demowechat.utils.LogUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -46,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private String time;
     private File outputImage;
 
+    private boolean isLoad ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,12 +74,15 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.show(converf);
         fragmentTransaction.commit();
 
+        isLoad = false;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        loadFromLocal();
+        if (!isLoad) {
+            loadFromLocal();
+        }
     }
 
     /**
@@ -88,14 +98,14 @@ public class MainActivity extends AppCompatActivity {
             if (file.isFile()) {
                 Uri uri = Uri.fromFile(file);
                 converf.loadData(uri, parseTime(file.getName()), caculateFileSize(file.length()));
-                Log.e(TAG, "pic:" + uri.getPath());
+//                Log.e(TAG, "pic:" + uri.getPath());
 
             }
 
         }
         setToolbarTitle();//更新mainactivity的标题
         converf.notifyDataSetChanged();
-
+        isLoad = true;
     }
 
     /**
@@ -112,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
      * 从文件名中解析出时间点
      */
     private String parseTime(String fileName) {
-        Log.e(TAG, "parseTime:" + fileName.substring(0, 19));
+//        Log.e(TAG, "parseTime:" + fileName.substring(0, 19));
         return fileName.substring(0, 19);
 
     }
@@ -120,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
     public void add(View v) {
         View popupView = View.inflate(mContext, R.layout.popupview_add_menu, null);
         LinearLayout ll = (LinearLayout) popupView.findViewById(R.id.scan_own);
+        LinearLayout captureNow = (LinearLayout) popupView.findViewById(R.id.capture_now);
         pw = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             pw.showAsDropDown(v, Gravity.BOTTOM, 0, 0);
@@ -129,9 +140,22 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 //                startActivityForResult(cameraIntent, CAMERA_REQUEST);
-                capture();
+//                capture();
+                captureByDIYCamera();
+                pw.dismiss();
             }
         });
+        captureNow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CameraUtil.getInstance().camera(MainActivity.this,1000);
+                pw.dismiss();
+            }
+        });
+    }
+
+    private void captureByDIYCamera() {
+        CameraUtil.getInstance().camera(MainActivity.this);
     }
 
     /**
@@ -165,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
         //启动相机程序
         startActivityForResult(intent, CAMERA_REQUEST);
-        pw.dismiss();
+
     }
 
     public void setToolbarTitle() {
@@ -198,17 +222,37 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        goToShowPic(requestCode, resultCode, data);
+
+        updateAdapterData(requestCode, resultCode,data);
+    }
+
+    private void updateAdapterData(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AppConstant.REQUEST_CODE.SHOW_PIC && resultCode == RESULT_OK && data != null){
+            Uri uri = Uri.parse(data.getStringExtra(AppConstant.KEY.IMG_PATH));
+            LogUtils.i("AppConstant.KEY.IMG_PATH",data.getStringExtra(AppConstant.KEY.IMG_PATH));
+            String picTime = data.getStringExtra(AppConstant.KEY.PIC_TIME);
+            String longitude = data.getStringExtra(AppConstant.KEY.LONGITUDE);
+            String latitude = data.getStringExtra(AppConstant.KEY.LATITUDE);
+            LogUtils.i("updateAdapterData",longitude+"-"+latitude);
+            try {
+                converf.addUri(uri, picTime,longitude,latitude);//保存URI到fragment里，并更新adapter的数据源
+                getSupportActionBar().setTitle("拍照(" + converf.getImageCount() + ")");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void updateAdapterData(int requestCode, int resultCode) {
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             Log.e(TAG, "imageUri:" + imageUri);
-
-
             try {
-
-
                 converf.addUri(imageUri, time);//保存URI到fragment里，并更新adapter的数据源
 
                 getSupportActionBar().setTitle("拍照(" + converf.getImageCount() + ")");
-
 
 //                // 将拍摄的照片显示出来
 //                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
@@ -217,11 +261,30 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         } else {
-            if (outputImage.exists()) {
-                outputImage.delete();
-            }
+//            if (outputImage.exists()) {
+//                outputImage.delete();
+//            }
+        }
+    }
+
+    private void goToShowPic(int requestCode, int resultCode, Intent data) {
+        if(requestCode == AppConstant.REQUEST_CODE.CAMERA && resultCode == RESULT_OK){
+            String img_path = data.getStringExtra(AppConstant.KEY.IMG_PATH);
+
+            int picWidth = data.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
+            int picHeight = data.getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
+            String millis = data.getStringExtra(AppConstant.KEY.PIC_TIME);
+/*
+            img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
+            img.setImageURI(Uri.parse(img_path));
+            */
+            Intent intent = new Intent(mContext, ShowPicActivity.class);
+            intent.putExtra(AppConstant.KEY.PIC_WIDTH, picWidth);
+            intent.putExtra(AppConstant.KEY.PIC_HEIGHT, picHeight);
+            intent.putExtra(AppConstant.KEY.IMG_PATH, img_path);
+            intent.putExtra(AppConstant.KEY.PIC_TIME,millis);
+            startActivityForResult(intent,AppConstant.REQUEST_CODE.SHOW_PIC);
         }
     }
 

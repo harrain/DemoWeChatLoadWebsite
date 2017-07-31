@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.example.demowechat.utils.LogUtils;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +33,7 @@ public class ConverFragment extends Fragment {
     ListView lv;
 
     List<WebsiteBean> list ;
-    List<Pic> pics;
+    LinkedList<Pic> pics;
     SwipeMenuRecyclerView rl;
     GalaryInfoAdapter adapter;
     private static final String TAG = "ConverFragment";
@@ -94,8 +96,8 @@ public class ConverFragment extends Fragment {
         Log.e(TAG,"file size:"+file.length());
         Log.e(TAG,"file path:"+file.getAbsolutePath());
         Pic pic = new Pic(uri,time,Formatter.formatFileSize(mContext,file.length()));
-        pics.add(pic);
-        
+        pics.add(pics.size()+1,pic);
+
         Log.e(TAG,"weizhi----"+pics.indexOf(pic));
         adapter.notifyDataSetChanged();
     }
@@ -166,6 +168,17 @@ public class ConverFragment extends Fragment {
         }
     }
 
+    public void addUri(Uri uri, String picTime, String longitude, String latitude) {
+        LogUtils.i("addUri",uri.toString());
+        File file = new File(uri.toString());
+
+        Pic pic = new Pic(uri,picTime,Formatter.formatFileSize(mContext,file.length()),longitude,latitude);
+        pics.add(pic);
+        LogUtils.i("addUri",longitude+"-"+latitude);
+        Log.e(TAG,"weizhi----"+pics.indexOf(pic));
+        adapter.notifyDataSetChanged();
+    }
+
 //    class LvAdapter extends BaseAdapter{
 //
 //        @Override
@@ -222,6 +235,9 @@ public class ConverFragment extends Fragment {
         String data;
         String size;
 
+        String longitude;
+        String latitude;
+
         public Pic() {
         }
 
@@ -236,6 +252,14 @@ public class ConverFragment extends Fragment {
             this.size = size;
         }
 
+        public Pic(Uri uri, String picTime, String size, String longitude, String latitude) {
+            this.uri = uri;
+            this.data = picTime;
+            this.size = size;
+            this.longitude = longitude;
+            this.latitude = latitude;
+        }
+
         public Uri getUri() {
             return uri;
         }
@@ -246,6 +270,14 @@ public class ConverFragment extends Fragment {
 
         public String getSize() {
             return size;
+        }
+
+        public String getLongitude() {
+            return longitude;
+        }
+
+        public String getLatitude() {
+            return latitude;
         }
     }
 

@@ -13,9 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.demowechat.utils.LogUtils;
 
 import java.io.File;
-import java.util.List;
+import java.util.LinkedList;
 
 
 
@@ -27,18 +28,18 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
 
 
     private Context mContext;
-    private List<ConverFragment.Pic> imagePaths;
+    private LinkedList<ConverFragment.Pic> imagePaths;
 
     private OnClickListener listener;
     private  final String TAG = "GalaryInfoAdapter";
 
-    public GalaryInfoAdapter(Context context, List<ConverFragment.Pic> images) {
+    public GalaryInfoAdapter(Context context, LinkedList<ConverFragment.Pic> images) {
         mContext = context;
         imagePaths = images;
         if (imagePaths == null) {
             Log.e(TAG, "image集合空");
         }else {
-            Log.e(TAG,"imagepath0:"+imagePaths.size());
+            Log.e(TAG,"imagepath size:"+imagePaths.size());
         }
     }
 
@@ -64,9 +65,7 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
     @Override
     public void onBindViewHolder(final ImageHolder holder, final int position) {
 //        Log.e(TAG,"imagePath:"+imagePaths.get(position));
-        Log.e(TAG,"position:-----"+position);
         final int index = imagePaths.size()-1-position;
-        Log.e(TAG,"index:bind-----"+index);
 //        Glide.with(mContext).load(imagePaths.get(position)).into(holder.galaryinfoIv);
         // 将拍摄的照片显示出来
 //        Bitmap bitmap = null;
@@ -78,6 +77,8 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
             holder.textView.setText(imagePaths.get(index).getData());
 
             holder.tv1.setText(imagePaths.get(index).getSize());
+            LogUtils.i("adapter",imagePaths.get(index).getLongitude()+"-"+imagePaths.get(index).getLatitude());
+            holder.locat_tv.setText("经度："+imagePaths.get(index).getLongitude()+" "+"纬度："+imagePaths.get(index).getLatitude());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,8 +128,8 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
         Log.e(TAG,"imageSize----"+imagePaths.size());
         int index = imagePaths.size() - position -  1;
         File file = new File(imagePaths.remove(imagePaths.size()-1-position).getUri().getPath());
-        Log.e(TAG,"delete ----"+String.valueOf(index));
-        Log.e(TAG,"imageSize----"+imagePaths.size());
+        Log.e(TAG,"delete item----"+String.valueOf(index));
+        Log.e(TAG,"delete File item----"+String.valueOf(imagePaths.size()-1-position));
         Log.e(TAG,"deFile size: "+file.length());
         if (file.exists()) {
             boolean delete = file.delete();
@@ -161,6 +162,7 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
         ImageView imageView;
         TextView textView;
         TextView tv1;
+        TextView locat_tv;
 
         private  View mLeftMenu;
         private  View mRightMenu;
@@ -173,6 +175,7 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
             imageView = (ImageView) view.findViewById(R.id.iv);
             textView = (TextView) view.findViewById(R.id.tv);
             tv1 = (TextView) view.findViewById(R.id.tv1);
+            locat_tv = (TextView) view.findViewById(R.id.tv_below);
 
             mSwipeItemLayout = (SwipeItemLayout) itemView.findViewById(R.id.swipe_layout);
             mContent = (RelativeLayout) itemView.findViewById(R.id.relative);
