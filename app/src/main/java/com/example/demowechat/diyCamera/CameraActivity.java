@@ -476,7 +476,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
                 Date date = new Date();
                 String time = sdf.format(date);
-                String img_path = getExternalCacheDir() +
+                String img_path = AppConstant.KEY.IMG_DIR +
                         File.separator + time + ".jpeg";
 
 //                String img_path = "/storage/emulated/0/DCIM/Camera/"+ time + ".jpg";

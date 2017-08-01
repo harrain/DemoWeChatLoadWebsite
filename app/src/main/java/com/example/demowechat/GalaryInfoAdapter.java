@@ -13,10 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.Link;
 
 import java.io.File;
-import java.util.LinkedList;
 
 
 
@@ -28,12 +27,12 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
 
 
     private Context mContext;
-    private LinkedList<ConverFragment.Pic> imagePaths;
+    private Link<ConverFragment.Pic> imagePaths;
 
     private OnClickListener listener;
     private  final String TAG = "GalaryInfoAdapter";
 
-    public GalaryInfoAdapter(Context context, LinkedList<ConverFragment.Pic> images) {
+    public GalaryInfoAdapter(Context context, Link<ConverFragment.Pic> images) {
         mContext = context;
         imagePaths = images;
         if (imagePaths == null) {
@@ -66,19 +65,17 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
     public void onBindViewHolder(final ImageHolder holder, final int position) {
 //        Log.e(TAG,"imagePath:"+imagePaths.get(position));
         final int index = imagePaths.size()-1-position;
-//        Glide.with(mContext).load(imagePaths.get(position)).into(holder.galaryinfoIv);
         // 将拍摄的照片显示出来
 //        Bitmap bitmap = null;
         try {
 //            bitmap = BitmapFactory.decodeStream(mContext.getContentResolver().openInputStream(imagePaths.get(position).getUri()));
 //            bitmap = BitmapUtils.getBitmap(mContext,imagePaths.get(position).getUri(),holder.imageView.getWidth(),holder.imageView.getHeight());
-            Glide.with(mContext).load(imagePaths.get(index).getUri()).into(holder.imageView);
-//            holder.imageView.setImageBitmap(bitmap);
+            Glide.with(mContext).load(imagePaths.get(index).getPath()).into(holder.imageView);
             holder.textView.setText(imagePaths.get(index).getData());
 
             holder.tv1.setText(imagePaths.get(index).getSize());
-            LogUtils.i("adapter",imagePaths.get(index).getLongitude()+"-"+imagePaths.get(index).getLatitude());
-            holder.locat_tv.setText("经度："+imagePaths.get(index).getLongitude()+" "+"纬度："+imagePaths.get(index).getLatitude());
+//            LogUtils.i("adapter",imagePaths.get(index).getLongitude()+"-"+imagePaths.get(index).getLatitude());
+            holder.locat_tv.setText("经:"+imagePaths.get(index).getLongitude()+"  "+"纬:"+imagePaths.get(index).getLatitude());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,7 +83,7 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext,ImageActivity.class);
-                intent.putExtra("imagepath",imagePaths.get(index).getUri().toString());
+                intent.putExtra("imagepath",imagePaths.get(index).getPath());
                 mContext.startActivity(intent);
 
 //                listener.onShortClick(holder.rl,position); //传递短按事件
@@ -108,9 +105,10 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
 //                Toast.makeText(mContext,"you",Toast.LENGTH_SHORT).show();
 
                 deleteFile(position);
-                notifyItemRemoved(position);
+
 //                notifyDataSetChanged();
                 Log.e(TAG,"position:点击-----"+position);
+
 
             }
         });
@@ -127,14 +125,17 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
     private void deleteFile(int position) {
         Log.e(TAG,"imageSize----"+imagePaths.size());
         int index = imagePaths.size() - position -  1;
-        File file = new File(imagePaths.remove(imagePaths.size()-1-position).getUri().getPath());
+        File file = new File(imagePaths.remove(index).getPath());
         Log.e(TAG,"delete item----"+String.valueOf(index));
-        Log.e(TAG,"delete File item----"+String.valueOf(imagePaths.size()-1-position));
-        Log.e(TAG,"deFile size: "+file.length());
+        Log.e(TAG,"delete File item----"+String.valueOf(index));
+        Log.e(TAG,"deFile: "+file.getAbsolutePath()+" - "+file.length());
         if (file.exists()) {
             boolean delete = file.delete();
             if (delete){
+
                 Toast.makeText(mContext,"删除成功！",Toast.LENGTH_SHORT).show();
+                notifyItemRemoved(position);
+                ((MainActivity)mContext).setToolbarTitle();
             }
         }
 

@@ -20,6 +20,7 @@ public class AppConstant {
 
         String LONGITUDE = "LONGITUDE";
         String LATITUDE = "LATITUDE";
+        String IMG_DIR = "/storage/emulated/0/Android/data/com.example.demowechat/files/DCIM";
     }
 
     public interface REQUEST_CODE {

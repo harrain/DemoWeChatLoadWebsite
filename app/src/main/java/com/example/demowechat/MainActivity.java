@@ -91,13 +91,17 @@ public class MainActivity extends AppCompatActivity {
     private void loadFromLocal() {
         converf.clearPics();
 
-        File cacheDir = new File(String.valueOf(mContext.getExternalCacheDir()));
+        File cacheDir = new File(AppConstant.KEY.IMG_DIR);
         Log.e(TAG, "file:" + cacheDir.getAbsolutePath());
+        if (!cacheDir.exists()) {
+            setToolbarTitle();
+            return;
+        }
         File[] files = cacheDir.listFiles();
         for (File file : files) {
             if (file.isFile()) {
                 Uri uri = Uri.fromFile(file);
-                converf.loadData(uri, parseTime(file.getName()), caculateFileSize(file.length()));
+                converf.loadData(uri, parseTime(file.getName()), caculateFileSize(file.length()),parseLocation(file.getName()));
 //                Log.e(TAG, "pic:" + uri.getPath());
 
             }
@@ -127,14 +131,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private String parseLocation(String name) {
+        if (name.indexOf(".") == 20){
+            return "";
+        }else {
+//            LogUtils.i("parseLocation",name.indexOf(".jpeg")+"");
+//            LogUtils.i("parseLocation",name.substring(20,name.indexOf(".jpeg")));
+            return name.substring(20,name.indexOf(".jpeg"));
+        }
+    }
+
     public void add(View v) {
         View popupView = View.inflate(mContext, R.layout.popupview_add_menu, null);
         LinearLayout ll = (LinearLayout) popupView.findViewById(R.id.scan_own);
         LinearLayout captureNow = (LinearLayout) popupView.findViewById(R.id.capture_now);
         pw = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            pw.showAsDropDown(v, Gravity.BOTTOM, 0, 0);
+            pw.showAsDropDown(v,  0, 0,Gravity.BOTTOM);
+
+        }else {
+            pw.showAsDropDown(popupView);
         }
+
         ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -193,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setToolbarTitle() {
-        getSupportActionBar().setTitle("拍照(" + converf.getImageCount() + ")");
+        getSupportActionBar().setTitle("记录(" + converf.getImageCount() + ")");
     }
 
     /**
@@ -238,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
             LogUtils.i("updateAdapterData",longitude+"-"+latitude);
             try {
                 converf.addUri(uri, picTime,longitude,latitude);//保存URI到fragment里，并更新adapter的数据源
-                getSupportActionBar().setTitle("拍照(" + converf.getImageCount() + ")");
+                getSupportActionBar().setTitle("记录(" + converf.getImageCount() + ")");
 
             } catch (Exception e) {
                 e.printStackTrace();
