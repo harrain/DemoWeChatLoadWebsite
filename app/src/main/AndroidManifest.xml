@@ -35,6 +35,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="MxId0RKRDWrHFGZkyfcw1wZnP5C5a2ba" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,6 +52,12 @@
         <activity android:name=".diyCamera.CameraActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".diyCamera.ShowPicActivity"/>
+
+        <activity
+            android:name=".map.LocationDemo"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="地图定位"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content" />
 
         <TextView
-            android:text="自拍"
+            android:text="拍照"
             android:layout_marginLeft="13dp"
             android:textColor="@android:color/white"
             android:textSize="18sp"
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content" />
 
         <TextView
-            android:text="即刻拍"
+            android:text="即拍"
             android:layout_marginLeft="13dp"
             android:textColor="@android:color/white"
             android:textSize="18sp"

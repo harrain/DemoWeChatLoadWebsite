@@ -8,8 +8,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.demowechat.map.LocationDemo;
 
 
 /**
@@ -31,6 +33,7 @@ public class ImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image);
         imaIv = (ImageView) findViewById(R.id.ima_iv);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        TextView geoTv = (TextView) findViewById(R.id.geo_tv);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +57,12 @@ public class ImageActivity extends AppCompatActivity {
         }
 //        Glide.with(this).load(bitmap).into(imaIv);
 
-
+        geoTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mContext, LocationDemo.class));
+            }
+        });
     }
 
     @Override

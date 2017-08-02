@@ -12,8 +12,6 @@ import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -21,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.demowechat.R;
+import com.example.demowechat.operation.WaterMarkOperation;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.BitmapUtils;
 import com.example.demowechat.utils.CameraUtil;
@@ -116,7 +115,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
         //top 的view
         home_custom_top_relative = (LinearLayout) findViewById(R.id.home_custom_top_relative);
-        home_custom_top_relative.setAlpha(0.5f);
+//        home_custom_top_relative.setAlpha(0.5f);
 
         //前后摄像头切换
         camera_frontback = (ImageView) findViewById(R.id.camera_frontback);
@@ -157,13 +156,13 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         screenWidth = dm.widthPixels;
         screenHeight = dm.heightPixels;
 
-        menuPopviewHeight = screenHeight - screenWidth * 4 / 3;
+        menuPopviewHeight = screenHeight - screenWidth * 4 / 3 - home_custom_top_relative.getMeasuredHeight();
         animHeight = (screenHeight - screenWidth - menuPopviewHeight - SystemUtils.dp2px(context, 44)) / 2;
 
         //这里相机取景框我这是为宽高比3:4 所以限制底部控件的高度是剩余部分
-        RelativeLayout.LayoutParams bottomParam = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, menuPopviewHeight);
-        bottomParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        homecamera_bottom_relative.setLayoutParams(bottomParam);
+//        RelativeLayout.LayoutParams bottomParam = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, menuPopviewHeight);
+//        bottomParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+//        homecamera_bottom_relative.setLayoutParams(bottomParam);
     }
 
     private Handler mHandler = new Handler() {
@@ -244,14 +243,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                 }
                 break;
 
-            case R.id.camera_square:
-                if (index == 0) {
-                    camera_square_0();
-                } else if (index == 1) {
-                    camera_square_1();
-                }
-                break;
-
             //前后置摄像头拍照
             case R.id.camera_frontback:
                 switchCamera();
@@ -301,34 +292,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
                 break;
 
-            //延迟拍照时间
-//            case R.id.camera_delay_time:
-//                switch (delay_time) {
-//                    case 0:
-//                        delay_time = 3;
-//                        delay_time_temp = delay_time;
-//                        camera_delay_time.setImageResource(R.drawable.btn_camera_timing_3);
-//                        break;
-//
-//                    case 3:
-//                        delay_time = 5;
-//                        delay_time_temp = delay_time;
-//                        camera_delay_time.setImageResource(R.drawable.btn_camera_timing_5);
-//                        break;
-//
-//                    case 5:
-//                        delay_time = 10;
-//                        delay_time_temp = delay_time;
-//                        camera_delay_time.setImageResource(R.drawable.btn_camera_timing_10);
-//                        break;
-//
-//                    case 10:
-//                        delay_time = 0;
-//                        delay_time_temp = delay_time;
-//                        camera_delay_time.setImageResource(R.drawable.btn_camera_timing_0);
-//                        break;
-//
-//                }
         }
     }
 
@@ -342,63 +305,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         }
         SharePrefrenceUtils.getInstance().setCameraTurn(mCameraId);
     }
-
-    /**
-     * 正方形拍摄
-     */
-    public void camera_square_0() {
-//        camera_square.setImageResource(R.drawable.btn_camera_size1_n);
-//
-//        //属性动画
-//        ValueAnimator anim = ValueAnimator.ofInt(0, animHeight);
-//        anim.setDuration(300);
-//        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                int currentValue = Integer.parseInt(animation.getAnimatedValue().toString());
-//                RelativeLayout.LayoutParams Params = new RelativeLayout.LayoutParams(screenWidth, currentValue);
-//                Params.setMargins(0, SystemUtils.dp2px(context, 44), 0, 0);
-//                homeCustom_cover_top_view.setLayoutParams(Params);
-//
-//                RelativeLayout.LayoutParams bottomParams = new RelativeLayout.LayoutParams(screenWidth, currentValue);
-//                bottomParams.setMargins(0, screenHeight - menuPopviewHeight - currentValue, 0, 0);
-//                homeCustom_cover_bottom_view.setLayoutParams(bottomParams);
-//            }
-//
-//        });
-//        anim.start();
-//
-//        homeCustom_cover_top_view.bringToFront();
-//        home_custom_top_relative.bringToFront();
-//        homeCustom_cover_bottom_view.bringToFront();
-//        index++;
-    }
-
-    /**
-     * 长方形方形拍摄
-     */
-    public void camera_square_1() {
-//        camera_square.setImageResource(R.drawable.btn_camera_size2_n);
-//
-//        ValueAnimator anim = ValueAnimator.ofInt(animHeight, 0);
-//        anim.setDuration(300);
-//        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                int currentValue = Integer.parseInt(animation.getAnimatedValue().toString());
-//                RelativeLayout.LayoutParams Params = new RelativeLayout.LayoutParams(screenWidth, currentValue);
-//                Params.setMargins(0, SystemUtils.dp2px(context, 44), 0, 0);
-//                homeCustom_cover_top_view.setLayoutParams(Params);
-//
-//                RelativeLayout.LayoutParams bottomParams = new RelativeLayout.LayoutParams(screenWidth, currentValue);
-//                bottomParams.setMargins(0, screenHeight - menuPopviewHeight - currentValue, 0, 0);
-//                homeCustom_cover_bottom_view.setLayoutParams(bottomParams);
-//            }
-//        });
-//        anim.start();
-//        index = 0;
-    }
-
 
     @Override
     protected void onResume() {
@@ -475,7 +381,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
                 Date date = new Date();
-                String time = sdf.format(date);
+                final String time = sdf.format(date);
                 String img_path = AppConstant.KEY.IMG_DIR +
                         File.separator + time + ".jpeg";
 
@@ -483,6 +389,33 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 //                String img_path = "/storage/0D99-9B24/DCIM/Camera/"+ time + ".jpg";
 
                 LogUtils.i("img_path",img_path);
+
+                //即拍去掉拍照预览，直接获取经纬度，加水印
+                if (captureMills > 0){
+                    final WaterMarkOperation waterMarkOperation = new WaterMarkOperation(CameraActivity.this);
+                    waterMarkOperation.setOnFinishListener(new WaterMarkOperation.OnFinishListener() {
+                        @Override
+                        public void onfinish(String imgPath, String longitude, String latitude) {
+
+                            Intent intent = new Intent();
+                            intent.putExtra(AppConstant.KEY.IMG_PATH, imgPath);
+                            intent.putExtra(AppConstant.KEY.PIC_TIME, time);
+                            intent.putExtra(AppConstant.KEY.LONGITUDE,longitude);
+                            intent.putExtra(AppConstant.KEY.LATITUDE,latitude);
+
+                            LogUtils.i("CameraActivity",longitude+"-"+latitude);
+                            setResult(RESULT_OK,intent);
+                            finish();
+                            waterMarkOperation.release();
+                        }
+                    });
+                    waterMarkOperation.initWaterMark(time,img_path,saveBitmap);
+
+                    return;
+                }
+
+                //正常预览下的操作
+
                 BitmapUtils.saveJPGE_After(context, saveBitmap, img_path, 100);
 
                 if(!bitmap.isRecycled()){
@@ -493,13 +426,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                     saveBitmap.recycle();
                 }
 
-                Intent intent = new Intent();
-                intent.putExtra(AppConstant.KEY.IMG_PATH, img_path);
-                intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth);
-                intent.putExtra(AppConstant.KEY.PIC_HEIGHT, picHeight);
-                intent.putExtra(AppConstant.KEY.PIC_TIME,time);
-                setResult(AppConstant.RESULT_CODE.RESULT_OK, intent);
-                finish();
+                setResultToMainActivity(time, img_path);
 
                 //这里打印宽高 就能看到 CameraUtil.getInstance().getPropPictureSize(parameters.getSupportedPictureSizes(), 200);
                 // 这设置的最小宽度影响返回图片的大小 所以这里一般这是1000左右把我觉得
@@ -507,6 +434,16 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 //                Log.d("bitmapHeight==", bitmap.getHeight() + "");
             }
         });
+    }
+
+    private void setResultToMainActivity(String time, String img_path) {
+        Intent intent = new Intent();
+        intent.putExtra(AppConstant.KEY.IMG_PATH, img_path);
+        intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth);
+        intent.putExtra(AppConstant.KEY.PIC_HEIGHT, picHeight);
+        intent.putExtra(AppConstant.KEY.PIC_TIME,time);
+        setResult(AppConstant.RESULT_CODE.RESULT_OK, intent);
+        finish();
     }
 
     /**
@@ -539,10 +476,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
         picHeight = (screenWidth * pictrueSize.width) / pictrueSize.height;
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(screenWidth, (screenWidth * pictrueSize.width) / pictrueSize.height);
+//        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(screenWidth, (screenWidth * pictrueSize.width) / pictrueSize.height);
         //这里当然可以设置拍照位置 比如居中 我这里就置顶了
         //params.gravity = Gravity.CENTER;
-        surfaceView.setLayoutParams(params);
+//        surfaceView.setLayoutParams(params);
     }
 
     /**
@@ -573,4 +510,9 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         releaseCamera();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
 }

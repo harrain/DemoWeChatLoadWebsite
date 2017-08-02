@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         captureNow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CameraUtil.getInstance().camera(MainActivity.this,1000);
+                CameraUtil.getInstance().camera(MainActivity.this,800);
                 pw.dismiss();
             }
         });

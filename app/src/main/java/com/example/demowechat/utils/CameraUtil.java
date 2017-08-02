@@ -45,7 +45,7 @@ public class CameraUtil {
     public void camera(Activity activity,int time){
         Intent intent = new Intent(activity, CameraActivity.class);
         intent.putExtra("time",time);
-        activity.startActivityForResult(intent, AppConstant.REQUEST_CODE.CAMERA);
+        activity.startActivityForResult(intent, AppConstant.REQUEST_CODE.SHOW_PIC);
     }
 
     public int getRecorderRotation(int cameraId){

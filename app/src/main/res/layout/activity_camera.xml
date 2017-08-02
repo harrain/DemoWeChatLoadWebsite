@@ -31,6 +31,7 @@
         android:background="@color/Black4" />
 
     <FrameLayout
+        android:layout_below="@+id/home_custom_top_relative"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -39,26 +40,38 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <RelativeLayout
+            android:id="@+id/homecamera_bottom_relative"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent">
+
+            <!--<TextView-->
+                <!--android:id="@+id/extra_tv"-->
+                <!--android:text="nihao  a text"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:textSize="20sp"-->
+                <!--android:layout_marginTop="16dp"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content" />-->
+
+            <ImageView
+                android:id="@+id/img_camera"
+                android:layout_alignParentBottom="true"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/btn_camera" />
+
+
+
+        </RelativeLayout>
+
     </FrameLayout>
 
-    <RelativeLayout
-        android:id="@+id/homecamera_bottom_relative"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/White">
 
-
-        <ImageView
-            android:id="@+id/img_camera"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_centerInParent="true"
-            android:scaleType="fitXY"
-            android:src="@drawable/camera" />
-
-
-    </RelativeLayout>
 
     <TextView
         android:id="@+id/camera_delay_time_text"
@@ -74,7 +87,7 @@
         android:layout_width="match_parent"
         android:layout_height="44dp"
         android:layout_alignParentTop="true"
-        android:background="@color/Black4"
+        android:background="@android:color/black"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
