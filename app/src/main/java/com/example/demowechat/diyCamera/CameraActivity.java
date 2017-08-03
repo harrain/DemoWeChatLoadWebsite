@@ -44,14 +44,9 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private int screenWidth;
     private int screenHeight;
     private LinearLayout home_custom_top_relative;
-    private ImageView camera_delay_time;
-    private View homeCustom_cover_top_view;
-    private View homeCustom_cover_bottom_view;
-    private View home_camera_cover_top_view;
-    private View home_camera_cover_bottom_view;
+    private RelativeLayout homecamera_bottom_relative;
     private ImageView flash_light;
     private TextView camera_delay_time_text;
-    private ImageView camera_square;
     private int index;
     //底部高度 主要是计算切换正方形时的动画高度
     private int menuPopviewHeight;
@@ -66,7 +61,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private boolean is_camera_delay;
     private ImageView camera_frontback;
     private ImageView camera_close;
-    private RelativeLayout homecamera_bottom_relative;
     private ImageView img_camera;
     private int picHeight;
     private int captureMills;
@@ -83,10 +77,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
         mCameraId = SharePrefrenceUtils.getInstance().getCameraTurn();
 
-
     }
-
-
 
     private void startAutoCapture() {
         new Thread(new Runnable() {
@@ -115,32 +106,12 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
         //top 的view
         home_custom_top_relative = (LinearLayout) findViewById(R.id.home_custom_top_relative);
-//        home_custom_top_relative.setAlpha(0.5f);
+        home_custom_top_relative.setAlpha(0.5f);
 
         //前后摄像头切换
         camera_frontback = (ImageView) findViewById(R.id.camera_frontback);
         camera_frontback.setOnClickListener(this);
 
-        //延迟拍照时间
-        camera_delay_time = (ImageView) findViewById(R.id.camera_delay_time);
-        camera_delay_time.setOnClickListener(this);
-
-        //正方形切换
-        camera_square = (ImageView) findViewById(R.id.camera_square);
-        camera_square.setOnClickListener(this);
-
-        //切换正方形时候的动画
-        homeCustom_cover_top_view = findViewById(R.id.homeCustom_cover_top_view);
-        homeCustom_cover_bottom_view = findViewById(R.id.homeCustom_cover_bottom_view);
-
-        homeCustom_cover_top_view.setAlpha(0.5f);
-        homeCustom_cover_bottom_view.setAlpha(0.5f);
-
-        //拍照时动画
-        home_camera_cover_top_view = findViewById(R.id.home_camera_cover_top_view);
-        home_camera_cover_bottom_view = findViewById(R.id.home_camera_cover_bottom_view);
-        home_camera_cover_top_view.setAlpha(1);
-        home_camera_cover_bottom_view.setAlpha(1);
 
         //闪光灯
         flash_light = (ImageView) findViewById(R.id.flash_light);
@@ -156,7 +127,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         screenWidth = dm.widthPixels;
         screenHeight = dm.heightPixels;
 
-        menuPopviewHeight = screenHeight - screenWidth * 4 / 3 - home_custom_top_relative.getMeasuredHeight();
+        menuPopviewHeight = screenHeight - screenWidth * 4 / 3;
         animHeight = (screenHeight - screenWidth - menuPopviewHeight - SystemUtils.dp2px(context, 44)) / 2;
 
         //这里相机取景框我这是为宽高比3:4 所以限制底部控件的高度是剩余部分
@@ -371,13 +342,13 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
                 saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
 
-                if (index == 1) {
-                    //正方形 animHeight(动画高度)
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, animHeight + SystemUtils.dp2px(context, 44), screenWidth, screenWidth);
-                } else {
-                    //正方形 animHeight(动画高度)
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4/3);
-                }
+//                if (index == 1) {
+//                    //正方形 animHeight(动画高度)
+//                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, animHeight + SystemUtils.dp2px(context, 44), screenWidth, screenWidth);
+//                } else {
+//                    //正方形 animHeight(动画高度)
+//                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4/3);
+//                }
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
                 Date date = new Date();

@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_alignParentTop="true"
+        app:navigationIcon="@drawable/ease_mm_title_back"
+        app:titleTextColor="@color/white"
+        app:title="地图定位"
+        android:background="@android:color/black"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+
+    </android.support.v7.widget.Toolbar>
 
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapView"
+        android:layout_below="@id/toolbar"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:clickable="true" />
@@ -12,8 +26,9 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/button1"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="80dip"
+        android:layout_marginTop="10dip"
         android:background="#D000"
         android:minWidth="100dip"
         android:orientation="vertical"
@@ -30,6 +45,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
+                android:textColor="@color/white"
+                android:background="@color/Black4"
                 android:text="默认图标" >
             </RadioButton>
 
@@ -37,6 +54,9 @@
                 android:id="@+id/customicon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:textColor="@color/white"
+                android:background="@color/Black4"
                 android:text="自定义图标" >
             </RadioButton>
         </RadioGroup>
@@ -44,11 +64,13 @@
 
     <Button
         android:id="@+id/button1"
+        android:textColor="@color/white"
+        android:background="@color/Black4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/toolbar"
+        android:layout_alignParentEnd="true"
         android:layout_marginRight="25dp"
-        android:layout_marginTop="10dip" />
+        android:layout_marginTop="20dp" />
 
 </RelativeLayout>

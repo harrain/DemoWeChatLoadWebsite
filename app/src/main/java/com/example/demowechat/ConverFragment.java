@@ -145,14 +145,18 @@ public class ConverFragment extends Fragment {
 //        LogUtils.i("addUri",uri.toString());
         File file = new File(uri.toString());
 
-        Pic pic = new Pic(uri.toString(),picTime,Formatter.formatFileSize(mContext,file.length()),longitude,latitude);
+        Pic pic = new Pic(uri.toString(),picTime,Formatter.formatFileSize(mContext,file.length()),longitude,latitude,false);
         pics.add(pic);
 //        LogUtils.i("addUri",longitude+"-"+latitude);
 //        Log.e(TAG,"weizhi----"+pics.indexOf(pic));
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemInserted(0);
+        notifyDataSetChanged();
     }
 
     class Pic{
+
+        boolean isRead;
+
         String path;
         String data;
         String size;
@@ -169,6 +173,7 @@ public class ConverFragment extends Fragment {
             this.path = path;
             this.data = data;
             this.size = size;
+            isRead = true;
         }
 
         public Pic(String path, String picTime, String size, String longitude, String latitude) {
@@ -177,6 +182,16 @@ public class ConverFragment extends Fragment {
             this.size = size;
             this.longitude = longitude;
             this.latitude = latitude;
+            isRead = true;
+        }
+
+        public Pic(String path, String picTime, String size, String longitude, String latitude,boolean isRead) {
+            this.path = path;
+            this.data = picTime;
+            this.size = size;
+            this.longitude = longitude;
+            this.latitude = latitude;
+            this.isRead = isRead;
         }
 
         public String getPath() {
@@ -197,6 +212,14 @@ public class ConverFragment extends Fragment {
 
         public String getLatitude() {
             return latitude;
+        }
+
+        public boolean isRead() {
+            return isRead;
+        }
+
+        public void setRead(boolean read) {
+            isRead = read;
         }
     }
 

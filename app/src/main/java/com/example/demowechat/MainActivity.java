@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         if (!isLoad) {
             loadFromLocal();
         }
+        converf.notifyDataSetChanged();
     }
 
     /**
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String parseLocation(String name) {
-        if (name.indexOf(".") == 20){
+        if (name.indexOf(".jpeg") == 19){
             return "";
         }else {
 //            LogUtils.i("parseLocation",name.indexOf(".jpeg")+"");

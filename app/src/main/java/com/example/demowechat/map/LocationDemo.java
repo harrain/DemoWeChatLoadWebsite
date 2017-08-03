@@ -1,11 +1,12 @@
 package com.example.demowechat.map;
 
-import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -32,7 +33,7 @@ import com.example.demowechat.R;
 /**
  * 此demo用来展示如何结合定位SDK实现定位，并使用MyLocationOverlay绘制定位位置 同时展示如何使用自定义图标绘制并点击时弹出泡泡
  */
-public class LocationDemo extends Activity implements SensorEventListener {
+public class LocationDemo extends AppCompatActivity implements SensorEventListener {
 
     // 定位相关
     LocationClient mLocClient;
@@ -58,10 +59,23 @@ public class LocationDemo extends Activity implements SensorEventListener {
     private MyLocationData locData;
     private float direction;
 
+    Toolbar toolbar;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+
+            }
+        });
+
         requestLocButton = (Button) findViewById(R.id.button1);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);//获取传感器管理服务
         mCurrentMode = LocationMode.NORMAL;
@@ -214,6 +228,12 @@ public class LocationDemo extends Activity implements SensorEventListener {
         //取消注册传感器监听
         mSensorManager.unregisterListener(this);
         super.onStop();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 
     @Override

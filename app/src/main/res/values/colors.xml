@@ -14,4 +14,5 @@
     <color name="title_bg">#fafafa</color>
     <color name="Transparent">#00000000</color>
     <color name="Gray">#eeeeee</color>
+    <color name="light_grey">#6c6b6b</color>
 </resources>

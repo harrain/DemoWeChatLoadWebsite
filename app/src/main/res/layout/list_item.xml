@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/relative"
-    android:background="@color/white"
+    android:background="@drawable/listitem_touch_bg"
+    android:clickable="true"
+    android:focusable="true"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_item_height">
     <ImageView
@@ -44,8 +46,18 @@
         android:textSize="16sp"
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
-        android:layout_centerVertical="true"
+        android:layout_marginTop="15dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/dot_tv"
+        android:src="@color/white"
+        android:layout_below="@id/tv1"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="21dp"
+        android:layout_marginTop="5dp"
+        android:layout_width="15dp"
+        android:layout_height="15dp"/>
 
 </RelativeLayout>

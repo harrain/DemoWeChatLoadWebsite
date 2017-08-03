@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.demowechat.utils.Link;
+import com.example.demowechat.utils.LogUtils;
+
+import org.ninetripods.mq.badgelibrary.BadgeViewPro;
 
 import java.io.File;
-
 
 
 /**
@@ -56,6 +59,7 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
 
     @Override
     public ImageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+//        mContext = parent.getContext();
         View view = LayoutInflater.from(mContext).inflate(R.layout.item_left_and_right_menu, parent, false);
         ImageHolder holder = new ImageHolder(view);
         return holder;
@@ -63,27 +67,37 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
 
     @Override
     public void onBindViewHolder(final ImageHolder holder, final int position) {
-//        Log.e(TAG,"imagePath:"+imagePaths.get(position));
         final int index = imagePaths.size()-1-position;
-        // 将拍摄的照片显示出来
-//        Bitmap bitmap = null;
         try {
 //            bitmap = BitmapFactory.decodeStream(mContext.getContentResolver().openInputStream(imagePaths.get(position).getUri()));
 //            bitmap = BitmapUtils.getBitmap(mContext,imagePaths.get(position).getUri(),holder.imageView.getWidth(),holder.imageView.getHeight());
-            Glide.with(mContext).load(imagePaths.get(index).getPath()).into(holder.imageView);
-            holder.textView.setText(imagePaths.get(index).getData());
+            ConverFragment.Pic pic = imagePaths.get(index);
+            Glide.with(mContext).load(pic.getPath()).into(holder.imageView);
+            holder.textView.setText(pic.getData());
 
-            holder.tv1.setText(imagePaths.get(index).getSize());
-//            LogUtils.i("adapter",imagePaths.get(index).getLongitude()+"-"+imagePaths.get(index).getLatitude());
-            holder.locat_tv.setText("经:"+imagePaths.get(index).getLongitude()+"  "+"纬:"+imagePaths.get(index).getLatitude());
+            holder.tv1.setText(pic.getSize());
+            holder.locat_tv.setText("经:"+pic.getLongitude()+"  "+"纬:"+pic.getLatitude());
+
+            if (!pic.isRead){
+                LogUtils.i("onBindViewHolder","pic.isRead--"+pic.isRead);
+                BadgeViewPro bv = new BadgeViewPro(mContext);
+                bv.setBgGravity(Gravity.CENTER).setTargetView(holder.dotTv);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         holder.mContent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                imagePaths.get(index).setRead(true);
+                ConverFragment.Pic p = imagePaths.get(index);
+
                 Intent intent = new Intent(mContext,ImageActivity.class);
-                intent.putExtra("imagepath",imagePaths.get(index).getPath());
+                intent.putExtra("imagepath",p.getPath());
+                intent.putExtra("longitude",p.getLongitude());
+                intent.putExtra("latitude",p.getLatitude());
                 mContext.startActivity(intent);
 
 //                listener.onShortClick(holder.rl,position); //传递短按事件
@@ -103,12 +117,9 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
             public void onClick(View v) {
                 holder.mSwipeItemLayout.close();
 //                Toast.makeText(mContext,"you",Toast.LENGTH_SHORT).show();
-
                 deleteFile(position);
 
-//                notifyDataSetChanged();
                 Log.e(TAG,"position:点击-----"+position);
-
 
             }
         });
@@ -164,6 +175,7 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
         TextView textView;
         TextView tv1;
         TextView locat_tv;
+        ImageView dotTv;
 
         private  View mLeftMenu;
         private  View mRightMenu;
@@ -177,11 +189,14 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
             textView = (TextView) view.findViewById(R.id.tv);
             tv1 = (TextView) view.findViewById(R.id.tv1);
             locat_tv = (TextView) view.findViewById(R.id.tv_below);
+            dotTv = (ImageView) view.findViewById(R.id.dot_tv);
 
             mSwipeItemLayout = (SwipeItemLayout) itemView.findViewById(R.id.swipe_layout);
             mContent = (RelativeLayout) itemView.findViewById(R.id.relative);
             mLeftMenu = itemView.findViewById(R.id.left_menu);
             mRightMenu = itemView.findViewById(R.id.right_menu);
+
+
 
         }
     }
