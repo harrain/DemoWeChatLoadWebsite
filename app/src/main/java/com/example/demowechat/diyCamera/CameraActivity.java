@@ -162,6 +162,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                     break;
                 case AppConstant.CAPTURE_NOW:
                     img_camera.performClick();
+                    img_camera.setVisibility(View.INVISIBLE);
                     break;
 
             }

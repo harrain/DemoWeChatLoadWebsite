@@ -1,5 +1,6 @@
 package com.example.demowechat.map;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,10 +14,6 @@ import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -28,6 +25,7 @@ import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.R;
+import com.example.demowechat.utils.LogUtils;
 
 
 /**
@@ -35,9 +33,7 @@ import com.example.demowechat.R;
  */
 public class LocationDemo extends AppCompatActivity implements SensorEventListener {
 
-    // 定位相关
-    LocationClient mLocClient;
-    public MyLocationListenner myListener = new MyLocationListenner();
+
     private LocationMode mCurrentMode;
     BitmapDescriptor mCurrentMarker;
     private static final int accuracyCircleFillColor = 0xAAFFFF88;
@@ -60,11 +56,20 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
     private float direction;
 
     Toolbar toolbar;
+    Intent i;
+    private String longitude;
+    private String latitude;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
+
+        i = getIntent();
+        longitude = i.getStringExtra("longitude");
+        latitude = i.getStringExtra("latitude");
+        mCurrentLon = Double.parseDouble(longitude);
+        mCurrentLat = Double.parseDouble(latitude);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -87,7 +92,7 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
                         requestLocButton.setText("跟随");
                         mCurrentMode = LocationMode.FOLLOWING;
                         mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(
-                                        mCurrentMode, true, mCurrentMarker));
+                                mCurrentMode, true, mCurrentMarker));
                         MapStatus.Builder builder = new MapStatus.Builder();
                         builder.overlook(0);
                         mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
@@ -96,7 +101,7 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
                         requestLocButton.setText("普通");
                         mCurrentMode = LocationMode.NORMAL;
                         mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(
-                                        mCurrentMode, true, mCurrentMarker));
+                                mCurrentMode, true, mCurrentMarker));
                         MapStatus.Builder builder1 = new MapStatus.Builder();
                         builder1.overlook(0);
                         mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder1.build()));
@@ -105,7 +110,7 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
                         requestLocButton.setText("罗盘");
                         mCurrentMode = LocationMode.COMPASS;
                         mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(
-                                        mCurrentMode, true, mCurrentMarker));
+                                mCurrentMode, true, mCurrentMarker));
                         break;
                     default:
                         break;
@@ -130,8 +135,8 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
                     mCurrentMarker = BitmapDescriptorFactory
                             .fromResource(R.drawable.icon_gcoding);
                     mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(
-                                    mCurrentMode, true, mCurrentMarker,
-                                    accuracyCircleFillColor, accuracyCircleStrokeColor));
+                            mCurrentMode, true, mCurrentMarker,
+                            accuracyCircleFillColor, accuracyCircleStrokeColor));
                 }
             }
         };
@@ -143,14 +148,27 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
         // 开启定位图层
         mBaiduMap.setMyLocationEnabled(true);
         // 定位初始化
-        mLocClient = new LocationClient(this);
-        mLocClient.registerLocationListener(myListener);
-        LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(true); // 打开gps
-        option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(1000);
-        mLocClient.setLocOption(option);
-        mLocClient.start();
+        locData = new MyLocationData.Builder()
+                .accuracy(0)
+                // 此处设置开发者获取到的方向信息，顺时针0-360
+                .direction(mCurrentDirection).latitude(mCurrentLat)
+                .longitude(mCurrentLon).build();
+        mBaiduMap.setMyLocationData(locData);
+
+        LatLng ll = new LatLng(mCurrentLat,
+                mCurrentLon);
+        MapStatus.Builder builder = new MapStatus.Builder();
+        builder.target(ll).zoom(19.0f);
+        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+
+//        if (isFirstLoc) {
+//            isFirstLoc = false;
+//            LatLng ll = new LatLng(Double.parseDouble(latitude),
+//                    Double.parseDouble(longitude));
+//            MapStatus.Builder builder = new MapStatus.Builder();
+//            builder.target(ll).zoom(18.0f);
+//            mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+//        }
     }
 
     @Override
@@ -164,6 +182,7 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
                     .direction(mCurrentDirection).latitude(mCurrentLat)
                     .longitude(mCurrentLon).build();
             mBaiduMap.setMyLocationData(locData);
+            LogUtils.i("onSensorChanged", "------------------------" + mCurrentLon + "--" + mCurrentLat);
         }
         lastX = x;
 
@@ -174,39 +193,6 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
 
     }
 
-    /**
-     * 定位SDK监听函数, 需实现BDLocationListener里的方法
-     */
-    public class MyLocationListenner implements BDLocationListener {
-
-        @Override
-        public void onReceiveLocation(BDLocation location) {
-            // map view 销毁后不在处理新接收的位置
-            if (location == null || mMapView == null) {
-                return;
-            }
-            mCurrentLat = location.getLatitude();
-            mCurrentLon = location.getLongitude();
-            mCurrentAccracy = location.getRadius();
-            locData = new MyLocationData.Builder()
-                    .accuracy(location.getRadius())
-                    // 此处设置开发者获取到的方向信息，顺时针0-360
-                    .direction(mCurrentDirection).latitude(location.getLatitude())
-                    .longitude(location.getLongitude()).build();
-            mBaiduMap.setMyLocationData(locData);
-            if (isFirstLoc) {
-                isFirstLoc = false;
-                LatLng ll = new LatLng(location.getLatitude(),
-                        location.getLongitude());
-                MapStatus.Builder builder = new MapStatus.Builder();
-                builder.target(ll).zoom(18.0f);
-                mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
-            }
-        }
-
-        @Override
-        public void onConnectHotSpotMessage(String var1, int var2){}
-    }
 
     @Override
     protected void onPause() {
@@ -238,8 +224,7 @@ public class LocationDemo extends AppCompatActivity implements SensorEventListen
 
     @Override
     protected void onDestroy() {
-        // 退出时销毁定位
-        mLocClient.stop();
+
         // 关闭定位图层
         mBaiduMap.setMyLocationEnabled(false);
         mMapView.onDestroy();

@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import com.example.demowechat.diyCamera.ShowPicActivity;
+import com.example.demowechat.map.TrackShowDemo;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.CameraUtil;
 import com.example.demowechat.utils.LogUtils;
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         View popupView = View.inflate(mContext, R.layout.popupview_add_menu, null);
         LinearLayout ll = (LinearLayout) popupView.findViewById(R.id.scan_own);
         LinearLayout captureNow = (LinearLayout) popupView.findViewById(R.id.capture_now);
+        LinearLayout trackDraw = (LinearLayout) popupView.findViewById(R.id.track_draw);
         pw = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             pw.showAsDropDown(v,  0, 0,Gravity.BOTTOM);
@@ -169,6 +171,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 CameraUtil.getInstance().camera(MainActivity.this,800);
                 pw.dismiss();
+            }
+        });
+        trackDraw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mContext, TrackShowDemo.class));
             }
         });
     }

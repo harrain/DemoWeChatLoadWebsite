@@ -27,7 +27,8 @@
         android:id="@+id/geo_tv"
         android:text="xxxxxx"
         android:textSize="18sp"
-        android:textColor="@color/white"
+        android:textColor="@color/textview_textcolor_selector"
+
         android:layout_below="@id/ima_iv"
         android:layout_marginTop="18dp"
         android:layout_centerHorizontal="true"

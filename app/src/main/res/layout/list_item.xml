@@ -53,6 +53,7 @@
     <ImageView
         android:id="@+id/dot_tv"
         android:src="@color/white"
+        android:scaleType="centerCrop"
         android:layout_below="@id/tv1"
         android:layout_alignParentRight="true"
         android:layout_marginRight="21dp"

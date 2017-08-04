@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +15,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.demowechat.utils.Link;
 import com.example.demowechat.utils.LogUtils;
-
-import org.ninetripods.mq.badgelibrary.BadgeViewPro;
 
 import java.io.File;
 
@@ -80,8 +77,12 @@ public class GalaryInfoAdapter extends RecyclerView.Adapter <GalaryInfoAdapter.I
 
             if (!pic.isRead){
                 LogUtils.i("onBindViewHolder","pic.isRead--"+pic.isRead);
-                BadgeViewPro bv = new BadgeViewPro(mContext);
-                bv.setBgGravity(Gravity.CENTER).setTargetView(holder.dotTv);
+                holder.dotTv.setVisibility(View.VISIBLE);
+                holder.dotTv.setImageResource(R.drawable.dot_drawable);
+//                BadgeViewPro bv = new BadgeViewPro(mContext);
+//                bv.setBgGravity(Gravity.CENTER).setTargetView(holder.dotTv);
+            }else {
+                holder.dotTv.setVisibility(View.INVISIBLE);
             }
         } catch (Exception e) {
             e.printStackTrace();

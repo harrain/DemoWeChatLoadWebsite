@@ -155,7 +155,7 @@ public class ConverFragment extends Fragment {
 
     class Pic{
 
-        boolean isRead;
+        boolean isRead = true;
 
         String path;
         String data;

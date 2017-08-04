@@ -18,7 +18,7 @@ import com.example.demowechat.map.LocationDemo;
 /**
  * 显示大图
  */
-public class ImageActivity extends AppCompatActivity {
+public class ImageActivity extends AppCompatActivity implements View.OnClickListener {
 
 
     ImageView imaIv;
@@ -67,12 +67,7 @@ public class ImageActivity extends AppCompatActivity {
         }
 //        Glide.with(this).load(bitmap).into(imaIv);
 
-        geoTv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(mContext, LocationDemo.class));
-            }
-        });
+        geoTv.setOnClickListener(this);
     }
 
     @Override
@@ -86,5 +81,15 @@ public class ImageActivity extends AppCompatActivity {
         super.onDestroy();
         intent = null;
         imagePath = null;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.geo_tv){
+            Intent intent = new Intent(mContext, LocationDemo.class);
+            intent.putExtra("longitude",longitude);
+            intent.putExtra("latitude",latitude);
+            startActivity(intent);
+        }
     }
 }

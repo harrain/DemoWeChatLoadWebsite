@@ -58,6 +58,12 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="地图定位"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".map.TrackShowDemo"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            />
     </application>
 
 </manifest>
