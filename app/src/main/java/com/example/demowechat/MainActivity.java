@@ -26,6 +26,8 @@ import com.example.demowechat.map.TrackShowDemo;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.CameraUtil;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.ToastFactory;
+import com.google.zxing.activity.CaptureActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -148,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout ll = (LinearLayout) popupView.findViewById(R.id.scan_own);
         LinearLayout captureNow = (LinearLayout) popupView.findViewById(R.id.capture_now);
         LinearLayout trackDraw = (LinearLayout) popupView.findViewById(R.id.track_draw);
+        LinearLayout zxing = (LinearLayout) popupView.findViewById(R.id.qrcode_zxing);
         pw = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             pw.showAsDropDown(v,  0, 0,Gravity.BOTTOM);
@@ -177,12 +180,128 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(mContext, TrackShowDemo.class));
+                pw.dismiss();
+            }
+        });
+        zxing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+                startActivityForResult(intent, AppConstant.REQUEST_CODE.ZXING_CODE);
+                pw.dismiss();
             }
         });
     }
 
     private void captureByDIYCamera() {
         CameraUtil.getInstance().camera(MainActivity.this);
+    }
+
+    public void setToolbarTitle() {
+        getSupportActionBar().setTitle("记录(" + converf.getImageCount() + ")");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode != RESULT_OK){
+            return;
+        }
+
+        goToShowPic(requestCode, data);
+
+        updateAdapterData(requestCode,data);
+
+        obtainZXingData(requestCode,data);
+    }
+
+    private void obtainZXingData(int requestCode, Intent data) {
+        if (requestCode == AppConstant.REQUEST_CODE.ZXING_CODE){
+
+            if (data == null){
+                ToastFactory.showLongToast("扫描结果为null");
+                return;
+            }
+            Bundle bundle = data.getExtras();
+            String scanResult = bundle.getString("qr_scan_result");
+            if (scanResult != null){
+                if (scanResult.contains("http")){
+                    Intent intent = new Intent(mContext,WebsiteShowActivity.class);
+                    intent.putExtra("text",scanResult);
+                    startActivity(intent);
+                    return;
+                }
+                ToastFactory.showShortToast(scanResult);
+                return;
+            }
+        }
+    }
+
+    private void updateAdapterData(int requestCode, Intent data) {
+        if (requestCode == AppConstant.REQUEST_CODE.SHOW_PIC){
+
+            if (data == null){
+                ToastFactory.showLongToast("拍照数据为null");
+                return;
+            }
+            Uri uri = Uri.parse(data.getStringExtra(AppConstant.KEY.IMG_PATH));
+            LogUtils.i("AppConstant.KEY.IMG_PATH",data.getStringExtra(AppConstant.KEY.IMG_PATH));
+            String picTime = data.getStringExtra(AppConstant.KEY.PIC_TIME);
+            String longitude = data.getStringExtra(AppConstant.KEY.LONGITUDE);
+            String latitude = data.getStringExtra(AppConstant.KEY.LATITUDE);
+            LogUtils.i("updateAdapterData",longitude+"-"+latitude);
+            try {
+                converf.addUri(uri, picTime,longitude,latitude);//保存URI到fragment里，并更新adapter的数据源
+                getSupportActionBar().setTitle("记录(" + converf.getImageCount() + ")");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void goToShowPic(int requestCode, Intent data) {
+        if(requestCode == AppConstant.REQUEST_CODE.CAMERA){
+            String img_path = data.getStringExtra(AppConstant.KEY.IMG_PATH);
+
+            int picWidth = data.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
+            int picHeight = data.getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
+            String millis = data.getStringExtra(AppConstant.KEY.PIC_TIME);
+/*
+            img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
+            img.setImageURI(Uri.parse(img_path));
+            */
+            Intent intent = new Intent(mContext, ShowPicActivity.class);
+            intent.putExtra(AppConstant.KEY.PIC_WIDTH, picWidth);
+            intent.putExtra(AppConstant.KEY.PIC_HEIGHT, picHeight);
+            intent.putExtra(AppConstant.KEY.IMG_PATH, img_path);
+            intent.putExtra(AppConstant.KEY.PIC_TIME,millis);
+            startActivityForResult(intent,AppConstant.REQUEST_CODE.SHOW_PIC);
+        }
+    }
+
+    /**
+     * 导航按钮1点击事件
+     *
+     * @param v
+     */
+    public void front(View v) {
+        fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.fl, converf);
+        fragmentTransaction.show(converf);
+        fragmentTransaction.commit();
+    }
+
+    /**
+     * 导航按钮2点击事件
+     *
+     * @param v
+     */
+    public void search(View v) {
+        fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.fl, webFragment);
+        fragmentTransaction.show(webFragment);
+        fragmentTransaction.commit();
     }
 
     /**
@@ -219,60 +338,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void setToolbarTitle() {
-        getSupportActionBar().setTitle("记录(" + converf.getImageCount() + ")");
-    }
-
-    /**
-     * 导航按钮1点击事件
-     *
-     * @param v
-     */
-    public void front(View v) {
-        fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.fl, converf);
-        fragmentTransaction.show(converf);
-        fragmentTransaction.commit();
-    }
-
-    /**
-     * 导航按钮2点击事件
-     *
-     * @param v
-     */
-    public void search(View v) {
-        fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.fl, webFragment);
-        fragmentTransaction.show(webFragment);
-        fragmentTransaction.commit();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        goToShowPic(requestCode, resultCode, data);
-
-        updateAdapterData(requestCode, resultCode,data);
-    }
-
-    private void updateAdapterData(int requestCode, int resultCode, Intent data) {
-        if (requestCode == AppConstant.REQUEST_CODE.SHOW_PIC && resultCode == RESULT_OK && data != null){
-            Uri uri = Uri.parse(data.getStringExtra(AppConstant.KEY.IMG_PATH));
-            LogUtils.i("AppConstant.KEY.IMG_PATH",data.getStringExtra(AppConstant.KEY.IMG_PATH));
-            String picTime = data.getStringExtra(AppConstant.KEY.PIC_TIME);
-            String longitude = data.getStringExtra(AppConstant.KEY.LONGITUDE);
-            String latitude = data.getStringExtra(AppConstant.KEY.LATITUDE);
-            LogUtils.i("updateAdapterData",longitude+"-"+latitude);
-            try {
-                converf.addUri(uri, picTime,longitude,latitude);//保存URI到fragment里，并更新adapter的数据源
-                getSupportActionBar().setTitle("记录(" + converf.getImageCount() + ")");
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private void updateAdapterData(int requestCode, int resultCode) {
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             Log.e(TAG, "imageUri:" + imageUri);
@@ -292,26 +357,6 @@ public class MainActivity extends AppCompatActivity {
 //            if (outputImage.exists()) {
 //                outputImage.delete();
 //            }
-        }
-    }
-
-    private void goToShowPic(int requestCode, int resultCode, Intent data) {
-        if(requestCode == AppConstant.REQUEST_CODE.CAMERA && resultCode == RESULT_OK){
-            String img_path = data.getStringExtra(AppConstant.KEY.IMG_PATH);
-
-            int picWidth = data.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
-            int picHeight = data.getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
-            String millis = data.getStringExtra(AppConstant.KEY.PIC_TIME);
-/*
-            img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
-            img.setImageURI(Uri.parse(img_path));
-            */
-            Intent intent = new Intent(mContext, ShowPicActivity.class);
-            intent.putExtra(AppConstant.KEY.PIC_WIDTH, picWidth);
-            intent.putExtra(AppConstant.KEY.PIC_HEIGHT, picHeight);
-            intent.putExtra(AppConstant.KEY.IMG_PATH, img_path);
-            intent.putExtra(AppConstant.KEY.PIC_TIME,millis);
-            startActivityForResult(intent,AppConstant.REQUEST_CODE.SHOW_PIC);
         }
     }
 

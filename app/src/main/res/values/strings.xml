@@ -4,4 +4,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!-- QR code text-->
+    <string name="zxing_des">将二维码放入框内，即可自动扫描</string>
+
 </resources>

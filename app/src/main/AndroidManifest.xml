@@ -47,7 +47,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".WebsiteShowActivity"/>
+        <activity android:name=".WebsiteShowActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
         <activity android:name=".ImageActivity"/>
         <activity android:name=".diyCamera.CameraActivity"
             android:screenOrientation="portrait"/>
@@ -64,6 +65,9 @@
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             />
+
+        <activity android:name="com.google.zxing.activity.CaptureActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
     </application>
 
 </manifest>

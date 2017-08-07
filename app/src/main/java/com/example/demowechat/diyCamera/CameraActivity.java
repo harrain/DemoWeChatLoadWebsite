@@ -25,7 +25,6 @@ import com.example.demowechat.utils.BitmapUtils;
 import com.example.demowechat.utils.CameraUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
-import com.example.demowechat.utils.SystemUtils;
 import com.example.demowechat.utils.ToastFactory;
 
 import java.io.File;
@@ -48,10 +47,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private ImageView flash_light;
     private TextView camera_delay_time_text;
     private int index;
-    //底部高度 主要是计算切换正方形时的动画高度
-    private int menuPopviewHeight;
-    //动画高度
-    private int animHeight;
+
+
     //闪光灯模式 0:关闭 1: 开启 2: 自动
     private int light_num = 0;
     //延迟时间
@@ -97,6 +94,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         mHolder = surfaceView.getHolder();
         mHolder.addCallback(this);
+        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);//?? SURFACE_TYPE_PUSH_BUFFERS
         img_camera = (ImageView) findViewById(R.id.img_camera);
         img_camera.setOnClickListener(this);
 
@@ -126,9 +124,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         screenWidth = dm.widthPixels;
         screenHeight = dm.heightPixels;
-
-        menuPopviewHeight = screenHeight - screenWidth * 4 / 3;
-        animHeight = (screenHeight - screenWidth - menuPopviewHeight - SystemUtils.dp2px(context, 44)) / 2;
+        LogUtils.i("screenWidth-screenHeight",screenWidth+"-"+screenHeight);
 
         //这里相机取景框我这是为宽高比3:4 所以限制底部控件的高度是剩余部分
 //        RelativeLayout.LayoutParams bottomParam = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, menuPopviewHeight);
@@ -343,13 +339,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
                 saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
 
-//                if (index == 1) {
-//                    //正方形 animHeight(动画高度)
-//                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, animHeight + SystemUtils.dp2px(context, 44), screenWidth, screenWidth);
-//                } else {
-//                    //正方形 animHeight(动画高度)
-//                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4/3);
-//                }
+
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
                 Date date = new Date();
@@ -430,12 +420,12 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         }
 
         //这里第三个参数为最小尺寸 getPropPreviewSize方法会对从最小尺寸开始升序排列 取出所有支持尺寸的最小尺寸
-        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 800);
-        parameters.setPreviewSize(previewSize.width, previewSize.height);
-
-        Camera.Size pictrueSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 800);
-        parameters.setPictureSize(pictrueSize.width, pictrueSize.height);
-
+//        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 800);
+//        parameters.setPreviewSize(previewSize.width, previewSize.height);
+        parameters.setPreviewSize(screenHeight, screenWidth);
+//        Camera.Size pictrueSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 800);
+//        parameters.setPictureSize(pictrueSize.width, pictrueSize.height);
+        parameters.setPictureSize(screenHeight, screenWidth);
         camera.setParameters(parameters);
 
         /**
@@ -446,7 +436,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
          *
          */
 
-        picHeight = (screenWidth * pictrueSize.width) / pictrueSize.height;
+        picHeight = screenWidth * 4 / 3;
+//        LogUtils.i("previewSize.width-previewSize.height",previewSize.width+"-"+previewSize.height);
+//        LogUtils.i("pictrueSize.width-pictrueSize.height",pictrueSize.width+"-"+pictrueSize.height);
+//        LogUtils.i("picHeight",picHeight+"");
 
 //        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(screenWidth, (screenWidth * pictrueSize.width) / pictrueSize.height);
         //这里当然可以设置拍照位置 比如居中 我这里就置顶了

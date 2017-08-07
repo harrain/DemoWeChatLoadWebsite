@@ -3,6 +3,8 @@ package com.example.demowechat.utils;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.example.demowechat.MyApplication;
+
 /**
  * Created by yue on 15/10/29.
  * 防止重复创建的Toast工厂
@@ -68,6 +70,14 @@ public class ToastFactory {
 
 	public static void showToast(Context context, int text) {
 		getToast(context, text).show();
+	}
+
+	public static void showShortToast(String text){
+		Toast.makeText(MyApplication.getInstance(),text,Toast.LENGTH_SHORT).show();
+	}
+
+	public static void showLongToast(String text){
+		Toast.makeText(MyApplication.getInstance(),text,Toast.LENGTH_LONG).show();
 	}
 
 	public static void showToast(Context context, String text) {

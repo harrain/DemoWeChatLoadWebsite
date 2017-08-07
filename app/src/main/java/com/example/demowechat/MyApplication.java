@@ -9,6 +9,7 @@ import com.example.demowechat.utils.AppConfig;
 import com.example.demowechat.utils.DeviceInfoUtils;
 import com.example.demowechat.utils.DirectoryUtils;
 import com.example.demowechat.utils.LogUtils;
+import com.tbs.webview.APIWebviewTBS;
 
 import java.io.File;
 
@@ -62,6 +63,9 @@ public class MyApplication extends Application {
     private int textWidth;
     private boolean is_first = false;
 
+    //tbs 腾讯浏览服务
+    APIWebviewTBS mAPIWebviewTBS;
+
     public static MyApplication getInstance() {
         return instance;
     }
@@ -83,6 +87,11 @@ public class MyApplication extends Application {
         //自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
         //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
         SDKInitializer.setCoordType(CoordType.BD09LL);
+
+        //个人封装，针对升级----开始
+        mAPIWebviewTBS=APIWebviewTBS.getAPIWebview();
+        mAPIWebviewTBS.initTbs(getApplicationContext());
+        //个人封装，针对升级----结束
     }
 
 

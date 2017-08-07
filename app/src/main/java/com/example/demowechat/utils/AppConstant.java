@@ -26,6 +26,7 @@ public class AppConstant {
     public interface REQUEST_CODE {
         int CAMERA = 0;
         int SHOW_PIC = 1;
+        int ZXING_CODE = 2;
     }
 
     public interface RESULT_CODE {
