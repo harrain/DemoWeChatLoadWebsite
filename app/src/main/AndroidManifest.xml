@@ -11,8 +11,10 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
+
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -22,9 +24,9 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS"/>
-    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
-    <uses-permission android:name="android.permission.MOUNT_FORMAT_FILESYSTEMS"/>
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
+    <uses-permission android:name="android.permission.MOUNT_FORMAT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
@@ -35,7 +37,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="MxId0RKRDWrHFGZkyfcw1wZnP5C5a2ba" />
@@ -47,27 +48,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".WebsiteShowActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"/>
-        <activity android:name=".ImageActivity"/>
-        <activity android:name=".diyCamera.CameraActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".diyCamera.ShowPicActivity"/>
-
+        <activity
+            android:name=".WebsiteShowActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".ImageActivity" />
+        <activity
+            android:name=".diyCamera.CameraActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".diyCamera.ShowPicActivity" />
         <activity
             android:name=".map.LocationDemo"
             android:configChanges="orientation|keyboardHidden"
             android:label="地图定位"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".map.TrackShowDemo"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"
-            />
-
-        <activity android:name="com.google.zxing.activity.CaptureActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.google.zxing.activity.CaptureActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+        <activity android:name=".QRCodeCreateActivity"></activity>
     </application>
 
 </manifest>

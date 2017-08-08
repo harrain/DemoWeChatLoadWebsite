@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout captureNow = (LinearLayout) popupView.findViewById(R.id.capture_now);
         LinearLayout trackDraw = (LinearLayout) popupView.findViewById(R.id.track_draw);
         LinearLayout zxing = (LinearLayout) popupView.findViewById(R.id.qrcode_zxing);
+        LinearLayout zxing_create = (LinearLayout) popupView.findViewById(R.id.qrcode_create);
         pw = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             pw.showAsDropDown(v,  0, 0,Gravity.BOTTOM);
@@ -191,6 +192,13 @@ public class MainActivity extends AppCompatActivity {
                 pw.dismiss();
             }
         });
+        zxing_create.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mContext,QRCodeCreateActivity.class));
+                pw.dismiss();
+            }
+        });
     }
 
     private void captureByDIYCamera() {
@@ -224,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
             }
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString("qr_scan_result");
+
             if (scanResult != null){
                 if (scanResult.contains("http")){
                     Intent intent = new Intent(mContext,WebsiteShowActivity.class);
@@ -231,6 +240,12 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     return;
                 }
+
+//                try {
+//                    ToastFactory.showShortToast(new String(scanResult.getBytes("ISO-8859-1"),"UTF-8"));
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
                 ToastFactory.showShortToast(scanResult);
                 return;
             }

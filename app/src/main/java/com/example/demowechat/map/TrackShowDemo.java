@@ -3,10 +3,13 @@
  */
 package com.example.demowechat.map;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -24,11 +27,23 @@ import com.example.demowechat.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 
 /**
  * 轨迹运行demo展示
  */
-public class TrackShowDemo extends Activity {
+public class TrackShowDemo extends AppCompatActivity {
+    @BindView(R.id.scanner_toolbar_back)
+    ImageView mTBack;
+    @BindView(R.id.scanner_toolbar_title)
+    TextView mTTitle;
+    @BindView(R.id.scanner_toolbar_more)
+    ImageView mTMore;
+    @BindView(R.id.titlebar)
+    Toolbar toolbar;
     private MapView mMapView;
     private BaiduMap mBaiduMap;
     private Polyline mPolyline;
@@ -50,8 +65,12 @@ public class TrackShowDemo extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_map);
+        ButterKnife.bind(this);
         mMapView = (MapView) findViewById(R.id.bmapView);
-        if (savedInstanceState != null){
+        setSupportActionBar(toolbar);
+        mTTitle.setText("轨迹绘制");
+
+        if (savedInstanceState != null) {
 
             mMapView.onCreate(this, savedInstanceState);
         }
@@ -130,6 +149,12 @@ public class TrackShowDemo extends Activity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         clearOverlay();
@@ -157,12 +182,16 @@ public class TrackShowDemo extends Activity {
             new LatLng(40.055826, 116.307697),
     };
 
-    private void clearOverlay(){
+    private void clearOverlay() {
         mMarkerS = null;
         mMarkerE = null;
         qw.recycle();
         qx.recycle();
     }
 
+    @OnClick(R.id.scanner_toolbar_back)
+    public void onBack() {
+        finish();
+    }
 }
 

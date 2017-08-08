@@ -6,5 +6,7 @@
 
     <!-- QR code text-->
     <string name="zxing_des">将二维码放入框内，即可自动扫描</string>
+    <string name="code_text">请输入生成二维码的文本信息</string>
+    <string name="encode_qrcode">点击生成二维码</string>
 
 </resources>

@@ -189,7 +189,7 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
             return null;
         }
         Hashtable<DecodeHintType, String> hints = new Hashtable<>();
-        hints.put(DecodeHintType.CHARACTER_SET, "UTF8"); //设置二维码内容的编码
+        hints.put(DecodeHintType.CHARACTER_SET, "UTF-8"); //设置二维码内容的编码
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true; // 先获取原大小

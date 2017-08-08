@@ -24,4 +24,10 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="list_decoration_theme">
+        <item name="android:background">@color/light_grey</item>
+        <item name="android:layout_width">170dp</item>
+        <item name="android:layout_height">1px</item>
+    </style>
+
 </resources>
