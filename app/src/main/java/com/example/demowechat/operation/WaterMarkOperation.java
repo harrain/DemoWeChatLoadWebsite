@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 
+import com.example.demowechat.MyApplication;
+import com.example.demowechat.map.LocationRequest;
 import com.example.demowechat.utils.BitmapUtils;
 import com.example.demowechat.utils.LogUtils;
 
@@ -42,26 +44,48 @@ public class WaterMarkOperation {
     private Bitmap bitmap;
     private Context mContext;
     private OnFinishListener onFinshListener;
+    private final LocationRequest lr;
 
 
     public WaterMarkOperation(Context context) {
         mContext = context;
+        lr = new LocationRequest(MyApplication.getInstance());
     }
 
     public void initWaterMark(String picTime, String img_path) {
 
         this.picTime = picTime;
         this.img_path = img_path;
-        requestLocation();
-
+//        requestLocation();
+        bdLocate();
     }
+
 
     public void initWaterMark(String picTime, String img_path,Bitmap bitmap) {
 
         this.picTime = picTime;
         this.img_path = img_path;
         this.bitmap = bitmap;
-        requestLocation();
+//        requestLocation();
+        bdLocate();
+    }
+
+    private void bdLocate() {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            LogUtils.i("locationPermission", "禁止");
+            return;
+        }
+
+        lr.startLocate(new LocationRequest.BDLocateFinishListener() {
+            @Override
+            public void onLocateCompleted(String longitude, String latitude) {
+                LogUtils.i("baiduLocate", "经度：" + longitude + "--" + "纬度：" + latitude);
+                WaterMarkOperation.this.longitude = longitude;
+                WaterMarkOperation.this.latitude = latitude;
+                dataAfterOperation();
+            }
+        });
 
     }
 
@@ -233,9 +257,14 @@ public class WaterMarkOperation {
     }
 
     public void release() {
-        releaseLocationService();
-        watermarkBitmap.recycle();
-        bitmap.recycle();
+//        releaseLocationService();
+        lr.releaseLocate();
+        if(watermarkBitmap!=null) {
+            watermarkBitmap.recycle();
+        }
+        if (bitmap!=null) {
+            bitmap.recycle();
+        }
     }
 
     public void setOnFinishListener(OnFinishListener listener) {

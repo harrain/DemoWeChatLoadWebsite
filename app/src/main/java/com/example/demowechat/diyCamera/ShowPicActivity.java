@@ -44,11 +44,6 @@ public class ShowPicActivity extends Activity {
         img.setImageURI(Uri.parse(img_path));
         img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
 
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         mWaterMarkOperation = new WaterMarkOperation(mContext);
         mWaterMarkOperation.setOnFinishListener(new WaterMarkOperation.OnFinishListener() {
             @Override
@@ -61,6 +56,12 @@ public class ShowPicActivity extends Activity {
             }
         });
         mWaterMarkOperation.initWaterMark(picTime,img_path);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
 
     }
 

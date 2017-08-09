@@ -68,7 +68,8 @@
         <activity
             android:name="com.google.zxing.activity.CaptureActivity"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
-        <activity android:name=".QRCodeCreateActivity"></activity>
+        <activity android:name=".QRCodeCreateActivity" />
+        <activity android:name=".map.LocateActivity"></activity>
     </application>
 
 </manifest>

@@ -59,7 +59,7 @@ dependencies {
     compile files('libs/tbs_sdk_thirdapp_v3.0.jar')
     //ZXing
     //butterknife注解框架
-    
+
 
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'

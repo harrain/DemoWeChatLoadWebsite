@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import com.example.demowechat.diyCamera.ShowPicActivity;
+import com.example.demowechat.map.LocateActivity;
 import com.example.demowechat.map.TrackShowDemo;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.CameraUtil;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private String time;
     private File outputImage;
 
-    private boolean isLoad ;
+    private boolean isLoad;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         for (File file : files) {
             if (file.isFile()) {
                 Uri uri = Uri.fromFile(file);
-                converf.loadData(uri, parseTime(file.getName()), caculateFileSize(file.length()),parseLocation(file.getName()));
+                converf.loadData(uri, parseTime(file.getName()), caculateFileSize(file.length()), parseLocation(file.getName()));
 //                Log.e(TAG, "pic:" + uri.getPath());
 
             }
@@ -136,13 +137,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String parseLocation(String name) {
-        if (name.indexOf(".jpeg") == 19){
+        if (name.indexOf(".jpeg") == 19) {
             return "";
-        }else {
-//            LogUtils.i("parseLocation",name.indexOf(".jpeg")+"");
-//            LogUtils.i("parseLocation",name.substring(20,name.indexOf(".jpeg")));
-            return name.substring(20,name.indexOf(".jpeg"));
         }
+        LogUtils.i("parseLocation", name.indexOf(".jpeg") + "");
+//            LogUtils.i("parseLocation",name.substring(20,name.indexOf(".jpeg")));
+        if (name.indexOf(".jpeg") > 20) {
+            return name.substring(20, name.indexOf(".jpeg"));
+        }
+        return "";
     }
 
     public void add(View v) {
@@ -152,11 +155,12 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout trackDraw = (LinearLayout) popupView.findViewById(R.id.track_draw);
         LinearLayout zxing = (LinearLayout) popupView.findViewById(R.id.qrcode_zxing);
         LinearLayout zxing_create = (LinearLayout) popupView.findViewById(R.id.qrcode_create);
+        LinearLayout locate = (LinearLayout) popupView.findViewById(R.id.locate);
         pw = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            pw.showAsDropDown(v,  0, 0,Gravity.BOTTOM);
+            pw.showAsDropDown(v, 0, 0, Gravity.BOTTOM);
 
-        }else {
+        } else {
             pw.showAsDropDown(popupView);
         }
 
@@ -173,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         captureNow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CameraUtil.getInstance().camera(MainActivity.this,800);
+                CameraUtil.getInstance().camera(MainActivity.this, 800);
                 pw.dismiss();
             }
         });
@@ -195,7 +199,14 @@ public class MainActivity extends AppCompatActivity {
         zxing_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(mContext,QRCodeCreateActivity.class));
+                startActivity(new Intent(mContext, QRCodeCreateActivity.class));
+                pw.dismiss();
+            }
+        });
+        locate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mContext, LocateActivity.class));
                 pw.dismiss();
             }
         });
@@ -212,31 +223,31 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (resultCode != RESULT_OK){
+        if (resultCode != RESULT_OK) {
             return;
         }
 
         goToShowPic(requestCode, data);
 
-        updateAdapterData(requestCode,data);
+        updateAdapterData(requestCode, data);
 
-        obtainZXingData(requestCode,data);
+        obtainZXingData(requestCode, data);
     }
 
     private void obtainZXingData(int requestCode, Intent data) {
-        if (requestCode == AppConstant.REQUEST_CODE.ZXING_CODE){
+        if (requestCode == AppConstant.REQUEST_CODE.ZXING_CODE) {
 
-            if (data == null){
+            if (data == null) {
                 ToastFactory.showLongToast("扫描结果为null");
                 return;
             }
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString("qr_scan_result");
 
-            if (scanResult != null){
-                if (scanResult.contains("http")){
-                    Intent intent = new Intent(mContext,WebsiteShowActivity.class);
-                    intent.putExtra("text",scanResult);
+            if (scanResult != null) {
+                if (scanResult.contains("http")) {
+                    Intent intent = new Intent(mContext, WebsiteShowActivity.class);
+                    intent.putExtra("text", scanResult);
                     startActivity(intent);
                     return;
                 }
@@ -253,20 +264,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateAdapterData(int requestCode, Intent data) {
-        if (requestCode == AppConstant.REQUEST_CODE.SHOW_PIC){
+        if (requestCode == AppConstant.REQUEST_CODE.SHOW_PIC) {
 
-            if (data == null){
+            if (data == null) {
                 ToastFactory.showLongToast("拍照数据为null");
                 return;
             }
             Uri uri = Uri.parse(data.getStringExtra(AppConstant.KEY.IMG_PATH));
-            LogUtils.i("AppConstant.KEY.IMG_PATH",data.getStringExtra(AppConstant.KEY.IMG_PATH));
+            LogUtils.i("AppConstant.KEY.IMG_PATH", data.getStringExtra(AppConstant.KEY.IMG_PATH));
             String picTime = data.getStringExtra(AppConstant.KEY.PIC_TIME);
             String longitude = data.getStringExtra(AppConstant.KEY.LONGITUDE);
             String latitude = data.getStringExtra(AppConstant.KEY.LATITUDE);
-            LogUtils.i("updateAdapterData",longitude+"-"+latitude);
+            LogUtils.i("updateAdapterData", longitude + "-" + latitude);
             try {
-                converf.addUri(uri, picTime,longitude,latitude);//保存URI到fragment里，并更新adapter的数据源
+                converf.addUri(uri, picTime, longitude, latitude);//保存URI到fragment里，并更新adapter的数据源
                 getSupportActionBar().setTitle("记录(" + converf.getImageCount() + ")");
 
             } catch (Exception e) {
@@ -276,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goToShowPic(int requestCode, Intent data) {
-        if(requestCode == AppConstant.REQUEST_CODE.CAMERA){
+        if (requestCode == AppConstant.REQUEST_CODE.CAMERA) {
             String img_path = data.getStringExtra(AppConstant.KEY.IMG_PATH);
 
             int picWidth = data.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
@@ -290,8 +301,8 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(AppConstant.KEY.PIC_WIDTH, picWidth);
             intent.putExtra(AppConstant.KEY.PIC_HEIGHT, picHeight);
             intent.putExtra(AppConstant.KEY.IMG_PATH, img_path);
-            intent.putExtra(AppConstant.KEY.PIC_TIME,millis);
-            startActivityForResult(intent,AppConstant.REQUEST_CODE.SHOW_PIC);
+            intent.putExtra(AppConstant.KEY.PIC_TIME, millis);
+            startActivityForResult(intent, AppConstant.REQUEST_CODE.SHOW_PIC);
         }
     }
 
