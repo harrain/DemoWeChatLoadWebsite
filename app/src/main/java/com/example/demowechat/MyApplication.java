@@ -2,6 +2,7 @@ package com.example.demowechat;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
@@ -10,6 +11,8 @@ import com.example.demowechat.utils.DeviceInfoUtils;
 import com.example.demowechat.utils.DirectoryUtils;
 import com.example.demowechat.utils.LogUtils;
 import com.tbs.webview.APIWebviewTBS;
+import com.xdandroid.hellodaemon.DaemonEnv;
+import com.xdandroid.sample.TraceServiceImpl;
 
 import java.io.File;
 
@@ -92,6 +95,10 @@ public class MyApplication extends Application {
         mAPIWebviewTBS=APIWebviewTBS.getAPIWebview();
         mAPIWebviewTBS.initTbs(getApplicationContext());
         //个人封装，针对升级----结束
+
+        //需要在 Application 的 onCreate() 中调用一次 DaemonEnv.initialize()
+        DaemonEnv.initialize(this, TraceServiceImpl.class, DaemonEnv.DEFAULT_WAKE_UP_INTERVAL);
+        DaemonEnv.startServiceSafely(new Intent(this, TraceServiceImpl.class));
     }
 
 

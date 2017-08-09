@@ -70,6 +70,8 @@
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <activity android:name=".QRCodeCreateActivity" />
         <activity android:name=".map.LocateActivity"></activity>
+
+        <service android:name="com.xdandroid.sample.TraceServiceImpl"/>
     </application>
 
 </manifest>

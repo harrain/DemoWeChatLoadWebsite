@@ -17,6 +17,7 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -46,6 +47,7 @@ android {
     lintOptions {
         abortOnError false
     }
+
 }
 
 dependencies {
@@ -72,4 +74,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC1'
     apt 'com.jakewharton:butterknife-compiler:8.2.1'
+    compile 'com.xdandroid:hellodaemon:+'//后台保活
+    
 }
