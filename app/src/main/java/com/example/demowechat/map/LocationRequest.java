@@ -6,15 +6,17 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.example.demowechat.MyApplication;
 import com.example.demowechat.utils.LogUtils;
 
 /**
- * Created by data on 2017/8/3.
+ * baiduMap定位类
  */
 
 public class LocationRequest {
 
     private Context mContext;
+    private static LocationRequest instance;
 
     // 定位相关
     LocationClient mLocClient;
@@ -32,6 +34,17 @@ public class LocationRequest {
         mLocClient.registerLocationListener(myListener);
     }
 
+    public static LocationRequest getInstance(){
+        if (instance == null){
+            synchronized (LocationRequest.class){
+                if (instance == null){
+                    instance = new LocationRequest(MyApplication.getInstance());
+                }
+            }
+        }
+        return instance;
+    }
+
     public void startLocate(BDLocateFinishListener finishListener){
         listener = finishListener;
 
@@ -43,6 +56,7 @@ public class LocationRequest {
 //        option.setScanSpan(1000);
 //        mLocClient.setLocOption(option);
         mLocClient.start();
+
 //        mLocClient.requestLocation();
         LogUtils.i("startLocate", "---------------");
     }
@@ -55,8 +69,8 @@ public class LocationRequest {
         option.setCoorType("bd09ll");
         //可选，默认gcj02，设置返回的定位结果坐标系
 
-        int span=1000;
-        option.setScanSpan(span);
+//        int span=5000;
+        option.setScanSpan(10000);
         //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
 
         option.setIsNeedAddress(true);
@@ -111,9 +125,19 @@ public class LocationRequest {
         public void onConnectHotSpotMessage(String var1, int var2){}
     }
 
+    public boolean isStartLocate(){
+        return mLocClient != null && mLocClient.isStarted();
+    }
+
+    public LocationClient getmLocClient() {
+        return mLocClient;
+    }
+
     public void releaseLocate(){
-        // 退出时销毁定位
-        mLocClient.stop();
+        if (isStartLocate()) {
+            // 退出时销毁定位
+            mLocClient.stop();
+        }
     }
 
     public interface BDLocateFinishListener{

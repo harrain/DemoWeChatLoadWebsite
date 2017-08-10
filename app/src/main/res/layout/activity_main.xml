@@ -33,8 +33,7 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/baidu"
-            android:onClick="search"
+            android:onClick="list"
             android:background="@android:color/white"
             android:gravity="center"
             android:layout_weight="1"
@@ -52,6 +51,8 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/baidu"
+            android:onClick="search"
             android:background="@android:color/white"
             android:gravity="center"
             android:layout_weight="1"

@@ -29,6 +29,7 @@ import com.example.demowechat.utils.CameraUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.google.zxing.activity.CaptureActivity;
+import com.xdandroid.hellodaemon.IntentWrapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
         isLoad = false;
+
+
     }
 
     @Override
@@ -140,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         if (name.indexOf(".jpeg") == 19) {
             return "";
         }
-        LogUtils.i("parseLocation", name.indexOf(".jpeg") + "");
+//        LogUtils.i("parseLocation", name.indexOf(".jpeg") + "");
 //            LogUtils.i("parseLocation",name.substring(20,name.indexOf(".jpeg")));
         if (name.indexOf(".jpeg") > 20) {
             return name.substring(20, name.indexOf(".jpeg"));
@@ -316,6 +319,11 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.fl, converf);
         fragmentTransaction.show(converf);
         fragmentTransaction.commit();
+        loadFromLocal();
+    }
+
+    public void list(View view){
+
     }
 
     /**
@@ -329,6 +337,9 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.show(webFragment);
         fragmentTransaction.commit();
     }
+
+    //防止华为机型未加入白名单时按返回键回到桌面再锁屏后几秒钟进程被杀
+    @Override public void onBackPressed() { IntentWrapper.onBackPressed(this); }
 
     /**
      * 启动系统相机拍照，存储照片路径设定，得到Uri

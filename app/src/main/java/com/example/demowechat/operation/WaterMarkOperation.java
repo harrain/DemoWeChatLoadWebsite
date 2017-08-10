@@ -19,6 +19,7 @@ import com.example.demowechat.MyApplication;
 import com.example.demowechat.map.LocationRequest;
 import com.example.demowechat.utils.BitmapUtils;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.ToastFactory;
 
 import java.io.File;
 
@@ -73,6 +74,7 @@ public class WaterMarkOperation {
     private void bdLocate() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ToastFactory.showLongToast("应用没有定位权限！");
             LogUtils.i("locationPermission", "禁止");
             return;
         }
