@@ -148,6 +148,10 @@ public class TrackShowDemo extends AppCompatActivity {
                 String lineTxt = null;
 
                 while ((lineTxt = bufferedReader.readLine()) != null) {
+                    if(lineTxt.contains(":")){
+                        String time = lineTxt.substring(0,19);
+                        lineTxt = lineTxt.substring(23,lineTxt.length()-1);
+                    }
                     String[] split = lineTxt.split("-");
                     LatLng latLng = new LatLng(Double.parseDouble(split[1]), Double.parseDouble(split[0]));
                     polylines.add(latLng);

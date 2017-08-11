@@ -28,7 +28,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView
-                android:text="记录"
+                android:text="照片"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -46,7 +46,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView
-                android:text="通讯录"
+                android:text="定位"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

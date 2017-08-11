@@ -15,6 +15,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import io.reactivex.disposables.Disposable;
 
@@ -134,6 +136,10 @@ public class TraceServiceImpl extends AbsWorkService {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void saveLocationToLocal(String longitude, String latitude) {
         try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
+            Date date = new Date();
+            bw.write(sdf.format(date)+"   ");
+
             bw.write(longitude + "-" + latitude);
             bw.newLine();
             bw.flush();

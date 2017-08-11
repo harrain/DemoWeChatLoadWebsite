@@ -15,6 +15,7 @@ public class SharePrefrenceUtils {
     private static final String CAMERA_TURN = "cameraId";
     private static final String NEED_LOCATE = "need_locate";
     private static final String LOCATE_INTERRUPT = "locate_interrupt";
+    private static final String APP_WHITELIST = "app_whiteList";
 
     private static SharePrefrenceUtils instance;
     private static SharedPreferences sharedPreferences;
@@ -48,6 +49,9 @@ public class SharePrefrenceUtils {
 
     public void setLocateInterrupt(boolean isInterrupt){ editor.putBoolean(LOCATE_INTERRUPT,isInterrupt).commit();}
     public boolean getLocateInterrupt(){ return sharedPreferences.getBoolean(LOCATE_INTERRUPT,false);}
+
+    public void setAddWhiteList(boolean isAdded){ editor.putBoolean(APP_WHITELIST,isAdded).commit();}
+    public boolean getAddWhiteList() { return sharedPreferences.getBoolean(APP_WHITELIST,false);}
 
     public void removeCameraTurn(){
         editor.remove(CAMERA_TURN).commit();
