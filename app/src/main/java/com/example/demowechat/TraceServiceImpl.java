@@ -3,12 +3,12 @@ package com.example.demowechat;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Environment;
 import android.os.IBinder;
 
 import com.example.demowechat.map.LocationRequest;
+import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.LogUtils;
-import com.example.demowechat.utils.ToastFactory;
+import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.xdandroid.hellodaemon.AbsWorkService;
 
 import java.io.BufferedWriter;
@@ -39,6 +39,10 @@ public class TraceServiceImpl extends AbsWorkService {
 
         //取消 Job / Alarm / Subscription
         cancelJobAlarmSub();
+
+        if (SharePrefrenceUtils.getInstance().getNeedLocate()){
+            SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
+        }
     }
 
     /**
@@ -56,11 +60,19 @@ public class TraceServiceImpl extends AbsWorkService {
         super.onCreate();
         System.out.println("onCreate");
 
+//        LogUtils.e(tag,"SharePrefrenceUtils"+SharePrefrenceUtils.getInstance().getNeedLocate());
+        if (!SharePrefrenceUtils.getInstance().getNeedLocate()) return;
+
         try {
-            String path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "trace.txt";
+            String path = AppConstant.TRACE_TXT_PATH;
             LogUtils.i(tag, "trace path---" + path);
             File file = new File(path);
-            fileWriter = new FileWriter(file);
+
+            if (SharePrefrenceUtils.getInstance().getLocateInterrupt()) {
+                fileWriter = new FileWriter(file,true);
+            }else {
+                fileWriter = new FileWriter(file);
+            }
 
             bw = new BufferedWriter(fileWriter);
         } catch (Exception e) {
@@ -80,17 +92,20 @@ public class TraceServiceImpl extends AbsWorkService {
     public void startWork(Intent intent, int flags, int startId) {
         System.out.println("startWork");
 
-        if (LocationRequest.getInstance().getmLocClient() == null) {
-            ToastFactory.showLongToast("定位客户端为空");
-            LogUtils.e(tag, "定位客户端为空");
-            return;
-        }
+//        LogUtils.e(tag,"SharePrefrenceUtils"+SharePrefrenceUtils.getInstance().getNeedLocate());
+        if (!SharePrefrenceUtils.getInstance().getNeedLocate()) return;
 
-        if (!LocationRequest.getInstance().isStartLocate()) {
-            ToastFactory.showLongToast("定位客户端没有开启");
-            LogUtils.e(tag, "定位客户端没有开启");
-            LocationRequest.getInstance().getmLocClient().start();
-        }
+//        if (LocationRequest.getInstance().getmLocClient() == null) {
+//            ToastFactory.showLongToast("定位客户端为空");
+//            LogUtils.e(tag, "定位客户端为空");
+//            return;
+//        }
+//
+//        if (!LocationRequest.getInstance().isStartLocate()) {
+//            ToastFactory.showLongToast("定位客户端没有开启");
+//            LogUtils.e(tag, "定位客户端没有开启");
+//            LocationRequest.getInstance().getmLocClient().start();
+//        }
 
 //        sDisposable = Flowable
 //                .interval(3, TimeUnit.SECONDS)

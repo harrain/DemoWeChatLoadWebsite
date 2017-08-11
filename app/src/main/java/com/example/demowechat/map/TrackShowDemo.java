@@ -23,7 +23,12 @@ import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.R;
+import com.example.demowechat.utils.AppConstant;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,36 +80,22 @@ public class TrackShowDemo extends AppCompatActivity {
             mMapView.onCreate(this, savedInstanceState);
         }
         mBaiduMap = mMapView.getMap();
-        MapStatus.Builder builder = new MapStatus.Builder();
-        builder.target(new LatLng(40.056865, 116.307766));
-        builder.zoom(19.0f);
-        mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
 
         polylines = new ArrayList<>();
         polylineOptions = new PolylineOptions();
 
-        drawStartAndEnd();
-//        mHandler = new Handler(){
-//            @Override
-//            public void handleMessage(Message msg) {
-//                super.handleMessage(msg);
-//                drawPolyLine();
-//            }
-//        };
-
-        mMapView.showZoomControls(false);
     }
 
     private void drawStartAndEnd() {
         qw = BitmapDescriptorFactory
                 .fromResource(R.drawable.qw);
-        MarkerOptions ooA = new MarkerOptions().position(latlngs[0]).icon(qw)
+        MarkerOptions ooA = new MarkerOptions().position(polylines.get(0)).icon(qw)
                 .zIndex(9);
         mMarkerS = (Marker) (mBaiduMap.addOverlay(ooA));
 
         qx = BitmapDescriptorFactory
                 .fromResource(R.drawable.qx);
-        MarkerOptions ooB = new MarkerOptions().position(latlngs[latlngs.length - 1]).icon(qx)
+        MarkerOptions ooB = new MarkerOptions().position(polylines.get(polylines.size()-1)).icon(qx)
                 .zIndex(9);
         mMarkerE = (Marker) (mBaiduMap.addOverlay(ooB));
     }
@@ -120,9 +111,9 @@ public class TrackShowDemo extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        for (int index = 0; index < latlngs.length; index++) {
-            polylines.add(latlngs[index]);
-        }
+//        for (int index = 0; index < latlngs.length; index++) {
+//            polylines.add(latlngs[index]);
+//        }
     }
 
     @Override
@@ -130,8 +121,45 @@ public class TrackShowDemo extends AppCompatActivity {
         super.onResume();
         mMapView.onResume();
         if (!isDrawed) {
+
+            obtainLocationDataFromFile(AppConstant.TRACE_TXT_PATH);
+
+            MapStatus.Builder builder = new MapStatus.Builder();
+            builder.target(polylines.get(polylines.size()-1));
+            builder.zoom(16.0f);
+            mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+
+            drawStartAndEnd();
+
+            mMapView.showZoomControls(false);
+
             drawPolyLine();
             isDrawed = true;
+        }
+    }
+
+    private void obtainLocationDataFromFile(String traceTxtPath) {
+        try {
+            File file = new File(traceTxtPath);
+            if (file.isFile() && file.exists()) { // 判断文件是否存在
+                InputStreamReader read = new InputStreamReader(
+                        new FileInputStream(file));// 考虑到编码格式
+                BufferedReader bufferedReader = new BufferedReader(read);
+                String lineTxt = null;
+
+                while ((lineTxt = bufferedReader.readLine()) != null) {
+                    String[] split = lineTxt.split("-");
+                    LatLng latLng = new LatLng(Double.parseDouble(split[1]), Double.parseDouble(split[0]));
+                    polylines.add(latLng);
+                }
+                bufferedReader.close();
+                read.close();
+            } else {
+                System.out.println("找不到指定的文件");
+            }
+        } catch (Exception e) {
+            System.out.println("读取文件内容出错");
+            e.printStackTrace();
         }
     }
 

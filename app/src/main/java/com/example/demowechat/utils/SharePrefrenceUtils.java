@@ -13,6 +13,9 @@ import com.example.demowechat.MyApplication;
 public class SharePrefrenceUtils {
     private static final String PREFRENCE_NAME = "APP";
     private static final String CAMERA_TURN = "cameraId";
+    private static final String NEED_LOCATE = "need_locate";
+    private static final String LOCATE_INTERRUPT = "locate_interrupt";
+
     private static SharePrefrenceUtils instance;
     private static SharedPreferences sharedPreferences;
     private static SharedPreferences.Editor editor;
@@ -36,10 +39,15 @@ public class SharePrefrenceUtils {
     public void setCameraTurn(int cameraId){
         editor.putInt(CAMERA_TURN,cameraId).commit();
     }
-
     public int getCameraTurn(){
         return sharedPreferences.getInt(CAMERA_TURN,1);
     }
+
+    public void setNeedLocate(boolean needLocate){ editor.putBoolean(NEED_LOCATE,needLocate).commit();}
+    public boolean getNeedLocate(){ return sharedPreferences.getBoolean(NEED_LOCATE,false);}
+
+    public void setLocateInterrupt(boolean isInterrupt){ editor.putBoolean(LOCATE_INTERRUPT,isInterrupt).commit();}
+    public boolean getLocateInterrupt(){ return sharedPreferences.getBoolean(LOCATE_INTERRUPT,false);}
 
     public void removeCameraTurn(){
         editor.remove(CAMERA_TURN).commit();

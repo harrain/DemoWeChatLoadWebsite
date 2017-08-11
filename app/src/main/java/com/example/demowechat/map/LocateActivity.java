@@ -12,6 +12,8 @@ import android.widget.Button;
 
 import com.example.demowechat.R;
 import com.example.demowechat.TraceServiceImpl;
+import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.xdandroid.hellodaemon.DaemonEnv;
 import com.xdandroid.hellodaemon.IntentWrapper;
 
@@ -28,7 +30,7 @@ public class LocateActivity extends AppCompatActivity {
     @BindView(R.id.btn_stop)
     Button mBtnStopService;
     private final String tag = "LocateActivity";
-
+    private Intent intent;
 
 
     @Override
@@ -37,10 +39,13 @@ public class LocateActivity extends AppCompatActivity {
         setContentView(R.layout.activity_locate);
         ButterKnife.bind(this);
 
+        intent = new Intent(this, TraceServiceImpl.class);
+
         ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> infos = am.getRunningServices(50);
+        List<ActivityManager.RunningServiceInfo> infos = am.getRunningServices(100);
         for(ActivityManager.RunningServiceInfo info:infos){
             String className = info.service.getClassName();
+//            LogUtils.i("service","-----"+className);
             if(className.equals("com.example.demowechat.TraceServiceImpl")){
                 mBtnStarService.setVisibility(View.INVISIBLE);
                 return;
@@ -54,7 +59,10 @@ public class LocateActivity extends AppCompatActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start:
-                Intent intent = new Intent(this, TraceServiceImpl.class);
+
+                SharePrefrenceUtils.getInstance().setNeedLocate(true);
+                LogUtils.e(tag,"SharePrefrenceUtils"+SharePrefrenceUtils.getInstance().getNeedLocate());
+
                 DaemonEnv.startServiceSafely(intent);
                 mBtnStarService.setEnabled(false);
                 mBtnStarService.setClickable(false);
@@ -62,6 +70,7 @@ public class LocateActivity extends AppCompatActivity {
                 mBtnStarService.setVisibility(View.INVISIBLE);
                 mBtnStopService.setVisibility(View.VISIBLE);
 //                bindService(intent,sc,BIND_AUTO_CREATE);
+
                 break;
             case R.id.btn_white:
                 IntentWrapper.whiteListMatters(this, "轨迹跟踪服务的持续运行");
@@ -75,7 +84,12 @@ public class LocateActivity extends AppCompatActivity {
 //                mBtnStopService.setBackgroundColor(getResources().getColor(R.color.light_grey));
                 mBtnStarService.setVisibility(View.VISIBLE);
                 mBtnStopService.setVisibility(View.INVISIBLE);
+
+                SharePrefrenceUtils.getInstance().setNeedLocate(false);
+                LogUtils.e(tag,"SharePrefrenceUtils"+SharePrefrenceUtils.getInstance().getNeedLocate());
                 TraceServiceImpl.stopService();
+
+                stopService(intent);
 
                 break;
         }
