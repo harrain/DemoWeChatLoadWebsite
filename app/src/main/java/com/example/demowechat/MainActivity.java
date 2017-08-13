@@ -219,7 +219,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 cameraType = 1;
-                requestCameraPermission();
+                requestPermission(new PermissionResultListener() {
+                    @Override
+                    public void onHandlePermissionResult(boolean granted) {
+                        if (granted){
+                            captureByDIYCameraNow();
+                        }else {
+                            ToastFactory.showShortToast("应用没有获得拍照、定位权限！");
+                        }
+
+                    }
+                },Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION);
             }
         });
         trackDraw.setOnClickListener(new View.OnClickListener() {
@@ -410,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
                 if (granted) {
                     switch (cameraType){
                         case 0: captureByDIYCamera(); break;
-                        case 1: captureByDIYCameraNow(); break;
+
                         case 2: goToSao1Sao(); break;
                     }
                 }else {

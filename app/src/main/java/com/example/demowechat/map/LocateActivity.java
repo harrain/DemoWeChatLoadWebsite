@@ -56,6 +56,8 @@ public class LocateActivity extends AppCompatActivity {
             mTTitle.setText("行驶轨迹追踪服务\r\n"+ "后台持续获取位置坐标中···");
         }
 
+
+
 //        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
 //        List<ActivityManager.RunningServiceInfo> infos = am.getRunningServices(100);
 //        for (ActivityManager.RunningServiceInfo info : infos) {

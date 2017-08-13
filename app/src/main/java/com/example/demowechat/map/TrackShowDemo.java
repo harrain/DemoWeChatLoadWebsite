@@ -3,12 +3,23 @@
  */
 package com.example.demowechat.map;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.baidu.mapapi.map.BaiduMap;
@@ -23,7 +34,14 @@ import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.R;
+import com.example.demowechat.SwipeMenuRecyclerView;
+import com.example.demowechat.rlPart.BaseUDAdapter;
+import com.example.demowechat.rlPart.FileItemHolder;
 import com.example.demowechat.utils.AppConstant;
+import com.example.demowechat.utils.Link;
+import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.SharePrefrenceUtils;
+import com.example.demowechat.utils.ToastFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -65,14 +83,23 @@ public class TrackShowDemo extends AppCompatActivity {
     private BitmapDescriptor qw;
     private Marker mMarkerE;
     private BitmapDescriptor qx;
+    private final String tag = "TrackShowDemo";
+
+    private Link<String> tracesFileName;
+    @BindView(R.id.popup_rl)
+    private RelativeLayout popupRl;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_map);
         ButterKnife.bind(this);
-        mMapView = (MapView) findViewById(R.id.bmapView);
         setSupportActionBar(toolbar);
+
+        mContext = this;
+
+        mMapView = (MapView) findViewById(R.id.bmapView);
         mTTitle.setText("轨迹绘制");
 
         if (savedInstanceState != null) {
@@ -83,6 +110,7 @@ public class TrackShowDemo extends AppCompatActivity {
 
         polylines = new ArrayList<>();
         polylineOptions = new PolylineOptions();
+        tracesFileName = new Link<>();
 
     }
 
@@ -111,6 +139,20 @@ public class TrackShowDemo extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        File cacheDir = new File(AppConstant.TRACES_DIR);
+        Log.e(tag, "file:" + cacheDir.getAbsolutePath());
+        if (!cacheDir.exists()) {
+            LogUtils.e(tag,"TRACES_DIR is not existed");
+            return;
+        }
+        File[] files = cacheDir.listFiles();
+        for (File file : files) {
+            if (file.isFile()) {
+                tracesFileName.add(file.getName());
+
+            }
+
+        }
 //        for (int index = 0; index < latlngs.length; index++) {
 //            polylines.add(latlngs[index]);
 //        }
@@ -122,20 +164,35 @@ public class TrackShowDemo extends AppCompatActivity {
         mMapView.onResume();
         if (!isDrawed) {
 
-            obtainLocationDataFromFile(AppConstant.TRACE_TXT_PATH);
+            String path = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
+            if (TextUtils.isEmpty(path)){
+                LogUtils.e(tag,"RecentTraceFilePath = null");
+                isDrawed = true;
+                return;
+            }
+            obtainLocationDataFromFile(path);
 
-            MapStatus.Builder builder = new MapStatus.Builder();
-            builder.target(polylines.get(polylines.size()-1));
-            builder.zoom(16.0f);
-            mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
-
-            drawStartAndEnd();
-
-            mMapView.showZoomControls(false);
-
-            drawPolyLine();
+            invalidateMapAndTrace();
             isDrawed = true;
         }
+    }
+
+    private void invalidateMapAndTrace() {
+        if (polylines.size() == 0){
+            ToastFactory.showShortToast("本地文件无坐标点");
+            return;
+        }
+
+        MapStatus.Builder builder = new MapStatus.Builder();
+        builder.target(polylines.get(polylines.size()-1));
+        builder.zoom(16.0f);
+        mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+
+        drawStartAndEnd();
+
+        mMapView.showZoomControls(false);
+
+        drawPolyLine();
     }
 
     private void obtainLocationDataFromFile(String traceTxtPath) {
@@ -151,8 +208,10 @@ public class TrackShowDemo extends AppCompatActivity {
                     if(lineTxt.contains(":")){
                         String time = lineTxt.substring(0,19);
                         lineTxt = lineTxt.substring(23,lineTxt.length()-1);
+                        LogUtils.i(tag,time+"____"+lineTxt);
                     }
                     String[] split = lineTxt.split("-");
+                    LogUtils.i(tag,split[0]+"____"+split[1]);
                     LatLng latLng = new LatLng(Double.parseDouble(split[1]), Double.parseDouble(split[0]));
                     polylines.add(latLng);
                 }
@@ -164,6 +223,31 @@ public class TrackShowDemo extends AppCompatActivity {
         } catch (Exception e) {
             System.out.println("读取文件内容出错");
             e.printStackTrace();
+        }
+    }
+
+    @OnClick(R.id.popup_rl)
+    public void popWindow(){
+        View popupView = View.inflate(mContext, R.layout.popup_file_rv, null);
+        SwipeMenuRecyclerView rl = (SwipeMenuRecyclerView) popupView.findViewById(R.id.traces_rl);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+        rl.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration =
+                new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL);
+        rl.addItemDecoration(dividerItemDecoration);
+
+        View swipeView = View.inflate(mContext,R.layout.fileitem_left_and_right_menu,null);
+        FileItemHolder fileHolder = new FileItemHolder(swipeView,mContext);
+        BaseUDAdapter<String> adapter = new BaseUDAdapter<>(mContext,tracesFileName);
+        adapter.setContentHolder(fileHolder);
+        rl.setAdapter(adapter);
+        PopupWindow pw = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            pw.showAsDropDown(popupRl, 0, 0, Gravity.TOP);
+
+        } else {
+            pw.showAtLocation(popupView,Gravity.TOP,0,0);
         }
     }
 

@@ -7,7 +7,10 @@ import com.example.demowechat.MyApplication;
 public class AppConstant {
 
     public static final int CAPTURE_NOW = 10;
-    public static final String  TRACE_TXT_PATH = MyApplication.getInstance().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "trace.txt";
+    public static final String  TRACE_TXT_PATH = MyApplication.getInstance()
+            .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "trace.txt";
+    public static final String  TRACES_DIR = MyApplication.getInstance()
+            .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "traces";
 
     //WHAT 0-10 预留值
     public interface WHAT {

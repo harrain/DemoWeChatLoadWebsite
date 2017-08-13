@@ -66,7 +66,12 @@ public class TraceServiceImpl extends AbsWorkService {
         if (!SharePrefrenceUtils.getInstance().getNeedLocate()) return;
 
         try {
-            String path = AppConstant.TRACE_TXT_PATH;
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
+            Date date = new Date();
+
+            String path = AppConstant.TRACES_DIR+File.separator+sdf.format(date)+".txt";
+            SharePrefrenceUtils.getInstance().setRecentTracePath(path);
             LogUtils.i(tag, "trace path---" + path);
             File file = new File(path);
 

@@ -16,6 +16,7 @@ public class SharePrefrenceUtils {
     private static final String NEED_LOCATE = "need_locate";
     private static final String LOCATE_INTERRUPT = "locate_interrupt";
     private static final String APP_WHITELIST = "app_whiteList";
+    private static final String RECENT_TRACE_PATH = "recent_trace_path";
 
     private static SharePrefrenceUtils instance;
     private static SharedPreferences sharedPreferences;
@@ -57,4 +58,9 @@ public class SharePrefrenceUtils {
         editor.remove(CAMERA_TURN).commit();
     }
 
+    public void setRecentTracePath(String path){ editor.putString(RECENT_TRACE_PATH,path).commit();}
+
+    public String getRecentTraceFilePath() {
+        return sharedPreferences.getString(RECENT_TRACE_PATH,null);
+    }
 }

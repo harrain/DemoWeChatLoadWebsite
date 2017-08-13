@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:visibility="gone"
+    android:layout_width="@dimen/swipe_item_menu_width"
+    android:layout_height="match_parent"
+    android:layout_gravity="right"
+    android:background="@color/red500"
+    android:gravity="center"
+    android:text="删除"
+    android:textColor="@color/white"
+    >
+
+</TextView>
