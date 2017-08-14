@@ -17,7 +17,7 @@ import java.io.File;
  * Created by stephen on 2017/8/13.
  */
 
-public class FileItemHolder extends BaseMyHolder<String> {
+public class FileItemHolder extends BaseMyHolder<Link<String>> {
 
     TextView mFileTv;
     TextView mLeftMenu;
@@ -44,7 +44,7 @@ public class FileItemHolder extends BaseMyHolder<String> {
     }
 
     @Override
-    public void bind(final int position, final AdapterLinkOperation<String> ado) {
+    public void bind(final int position, final AdapterDataOperation<Link<String>> ado) {
 
 //        LogUtils.i("fileholder","ado data size: "+ado.getDatas().size() + "---"+ado.getDatas().get(position));
         final int index = ado.getDatas().size() -1 - position;
@@ -60,13 +60,13 @@ public class FileItemHolder extends BaseMyHolder<String> {
             @Override
             public void onClick(View v) {
                 mSwipeItemLayout.close();
-                deleteFile(index,ado);
+                deleteFile(index, (AdapterLinkOperation<String>) ado);
             }
         });
 
     }
 
-    private void deleteFile(int position,AdapterLinkOperation ado) {
+    private void deleteFile(int position,AdapterLinkOperation<String> ado) {
         Link<String> datas = ado.getDatas();
         Log.e(tag,"imageSize----"+datas.size());
         int index = position;

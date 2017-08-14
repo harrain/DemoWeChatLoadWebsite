@@ -5,30 +5,31 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.demowechat.utils.Link;
-
 
 /**
  * 列表内容适配器，维系数据源和布局的显示
  */
 
-public class BaseAdapter<DT> extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
+public class BaseAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
 
 
     public Context mContext;
 
-    private AdapterLinkOperation<DT> mADO;
+//    private AdapterLinkOperation<DT> mADO;
+    private AdapterDataOperation mADO;
     private BaseMyHolder myHolder;
 
     private OnClickListener listener;
     private  final String TAG = "BaseAdapter";
 
-    public BaseAdapter(Context context, Link data) {
+    public BaseAdapter(Context context) {
         mContext = context;
-        mADO = new AdapterLinkOperation<DT>(data,this);
+//        mADO = new AdapterLinkOperation<DT>(data,this);
     }
 
-    public void setAdapterDataOperation()
+    public void setAdapterDataOperation(AdapterDataOperation dataOperation){
+        mADO = dataOperation;
+    }
 
     public interface OnClickListener{
         void onShortClick(View v, int position);

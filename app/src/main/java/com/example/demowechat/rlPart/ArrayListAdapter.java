@@ -7,22 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.demowechat.R;
-import com.example.demowechat.utils.Link;
+
+import java.util.List;
 
 /**
- * Created by stephen on 2017/8/13.
+ * Created by stephen on 2017/8/14.
  */
 
-public class FileListAdapter extends BaseAdapter {
+public class ArrayListAdapter extends BaseAdapter {
 
-    public FileListAdapter(Context context, Link<String> data) {
+    public ArrayListAdapter(Context context, List<String> data) {
         super(context);
-        setAdapterDataOperation(new AdapterLinkOperation<String>(data,this));
+        setAdapterDataOperation(new AdapterArrayListOperation<String>(data,this));
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View swipeView = LayoutInflater.from(mContext).inflate(R.layout.fileitem_left_and_right_menu, parent, false);
+        View swipeView = LayoutInflater.from(mContext).inflate(R.layout.simple_list_tv, parent, false);
         return new FileItemHolder(swipeView,mContext);
     }
 }

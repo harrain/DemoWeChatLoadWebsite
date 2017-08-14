@@ -6,7 +6,21 @@ import android.support.v7.widget.RecyclerView;
  * Created by data on 2017/8/14.
  */
 
-public class AdapterDataOperation {
+public abstract class AdapterDataOperation<DT> {
 
-    private RecyclerView.Adapter mAdapter;
+    public DT datas;
+
+    public RecyclerView.Adapter mAdapter;
+
+    public AdapterDataOperation(DT data, RecyclerView.Adapter adapter){
+        datas = data;
+        mAdapter = adapter;
+    }
+
+    public DT getDatas(){
+        return datas;
+    }
+
+    public abstract int getSafeCount();
+
 }

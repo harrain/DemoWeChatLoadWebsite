@@ -8,14 +8,13 @@ import com.example.demowechat.utils.Link;
  * Created by stephen on 2017/8/13.
  */
 
-public class AdapterLinkOperation<DT> {
+public class AdapterLinkOperation<DT> extends AdapterDataOperation<Link<DT>>{
 
-    private Link<DT> datas;
-    private RecyclerView.Adapter mAdapter;
+
 
     public AdapterLinkOperation(Link data, RecyclerView.Adapter adapter){
-        datas = data;
-        mAdapter = adapter;
+        super(data,adapter);
+
     }
 
     public void deleteItem(int position){
@@ -24,10 +23,12 @@ public class AdapterLinkOperation<DT> {
 
 
 
+    @Override
     public Link<DT> getDatas(){
         return datas;
     }
 
+    @Override
     public int getSafeCount(){
         return datas == null ? 0 : datas.size();
     }

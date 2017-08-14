@@ -22,7 +22,7 @@ public abstract class BaseMyHolder<DT> extends RecyclerView.ViewHolder {
         mContext = context;
     }
 
-    public abstract void bind(int position, AdapterLinkOperation<DT> ado);
+    public abstract void bind(int position, AdapterDataOperation<DT> ado);
 
     public abstract BaseMyHolder newInstance();
 
