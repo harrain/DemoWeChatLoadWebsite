@@ -1,8 +1,7 @@
-package com.example.demowechat;
+package com.google.zxing.activity;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -12,6 +11,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.demowechat.BitmapUtils;
+import com.example.demowechat.R;
+import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.LogUtils;
 import com.google.zxing.encoding.EncodingHandler;
 
@@ -79,7 +81,7 @@ public class QRCodeCreateActivity extends AppCompatActivity {
             LogUtils.i("mbitmap","null");
             return;
         }
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/Camera/"+ SystemClock.elapsedRealtime()+".png";
+        String path = AppConstant.CAMERA_DIR+ mText.getText().toString()+"-"+ SystemClock.elapsedRealtime()+".png";
         try {
             BitmapUtils.saveBitmapToSDCard(mBitmap, path);
         } catch (Exception e) {

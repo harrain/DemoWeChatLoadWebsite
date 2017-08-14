@@ -12,25 +12,23 @@ import com.example.demowechat.utils.Link;
  * 列表内容适配器，维系数据源和布局的显示
  */
 
-public class BaseUDAdapter<DataType> extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
+public class BaseAdapter<DT> extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
 
 
-    private Context mContext;
+    public Context mContext;
 
-    private AdapterDataOperation<DataType> mADO;
+    private AdapterLinkOperation<DT> mADO;
     private BaseMyHolder myHolder;
 
     private OnClickListener listener;
-    private  final String TAG = "BaseUDAdapter";
+    private  final String TAG = "BaseAdapter";
 
-    public BaseUDAdapter(Context context,Link data) {
+    public BaseAdapter(Context context, Link data) {
         mContext = context;
-        mADO = new AdapterDataOperation<>(data,this);
+        mADO = new AdapterLinkOperation<DT>(data,this);
     }
 
-    public void setContentHolder(BaseMyHolder holder){
-        myHolder = holder;
-    }
+    public void setAdapterDataOperation()
 
     public interface OnClickListener{
         void onShortClick(View v, int position);
@@ -51,6 +49,7 @@ public class BaseUDAdapter<DataType> extends RecyclerView.Adapter <RecyclerView.
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         ((BaseMyHolder)holder).bind(position,mADO);
+//        LogUtils.i("baseUDAdapter","mADO.getDatas().size:  "+mADO.getDatas().size());
         ((BaseMyHolder)holder).setOnClickListener(listener);
     }
 

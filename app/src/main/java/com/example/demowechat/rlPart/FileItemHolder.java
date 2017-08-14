@@ -7,27 +7,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.demowechat.R;
-import com.example.demowechat.SwipeItemLayout;
+import com.example.demowechat.widget.SwipeItemLayout;
+import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.Link;
 
 import java.io.File;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by stephen on 2017/8/13.
  */
 
-public class FileItemHolder extends BaseMyHolder {
+public class FileItemHolder extends BaseMyHolder<String> {
 
-    @BindView(R.id.file_tv)
-    TextView fileTv;
-    @BindView(R.id.left_menu)
+    TextView mFileTv;
     TextView mLeftMenu;
-    @BindView(R.id.right_menu)
     TextView mRightMenu;
-    @BindView(R.id.file_swipe_layout)
     SwipeItemLayout mSwipeItemLayout;
     private View contentView;
 
@@ -37,7 +31,10 @@ public class FileItemHolder extends BaseMyHolder {
     public FileItemHolder(View itemView, Context context) {
         super(itemView);
         contentView = itemView;
-        ButterKnife.bind(itemView);
+        mFileTv = (TextView) itemView.findViewById(R.id.file_tv);
+        mLeftMenu = (TextView) itemView.findViewById(R.id.left_menu);
+        mRightMenu = (TextView) itemView.findViewById(R.id.right_menu);
+        mSwipeItemLayout = (SwipeItemLayout) itemView.findViewById(R.id.file_swipe_layout);
         mContext = context;
     }
 
@@ -47,28 +44,33 @@ public class FileItemHolder extends BaseMyHolder {
     }
 
     @Override
-    public void bind(final int position, final AdapterDataOperation ado) {
-        fileTv.setOnClickListener(new View.OnClickListener() {
+    public void bind(final int position, final AdapterLinkOperation<String> ado) {
+
+//        LogUtils.i("fileholder","ado data size: "+ado.getDatas().size() + "---"+ado.getDatas().get(position));
+        final int index = ado.getDatas().size() -1 - position;
+        mFileTv.setText(ado.getDatas().get(index));
+
+        mFileTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FileItemHolder.this.getOnClickListener().onShortClick(v,position);
+                FileItemHolder.this.getOnClickListener().onShortClick(v,index);
             }
         });
         mRightMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mSwipeItemLayout.close();
-                deleteFile(position,ado);
+                deleteFile(index,ado);
             }
         });
 
     }
 
-    private void deleteFile(int position,AdapterDataOperation ado) {
+    private void deleteFile(int position,AdapterLinkOperation ado) {
         Link<String> datas = ado.getDatas();
         Log.e(tag,"imageSize----"+datas.size());
         int index = position;
-        File file = new File(datas.remove(index));
+        File file = new File(AppConstant.TRACES_DIR + "/" +datas.remove(index));
         Log.e(tag,"delete item----"+String.valueOf(index));
         Log.e(tag,"delete File item----"+String.valueOf(index));
         Log.e(tag,"deFile: "+file.getAbsolutePath()+" - "+file.length());

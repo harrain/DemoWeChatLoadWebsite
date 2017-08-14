@@ -61,6 +61,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private ImageView img_camera;
     private int picHeight;
     private int captureMills;
+    private WaterMarkOperation waterMarkOperation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -354,7 +355,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
                 //即拍去掉拍照预览，直接获取经纬度，加水印
                 if (captureMills > 0){
-                    final WaterMarkOperation waterMarkOperation = new WaterMarkOperation(CameraActivity.this);
+                    waterMarkOperation = new WaterMarkOperation(CameraActivity.this);
                     waterMarkOperation.setOnFinishListener(new WaterMarkOperation.OnFinishListener() {
                         @Override
                         public void onfinish(String imgPath, String longitude, String latitude) {
@@ -478,6 +479,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        waterMarkOperation.release();
 
     }
 }

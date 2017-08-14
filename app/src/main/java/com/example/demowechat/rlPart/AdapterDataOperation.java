@@ -1,32 +1,12 @@
 package com.example.demowechat.rlPart;
 
-import com.example.demowechat.utils.Link;
+import android.support.v7.widget.RecyclerView;
 
 /**
- * Created by stephen on 2017/8/13.
+ * Created by data on 2017/8/14.
  */
 
-public class AdapterDataOperation<DataType> {
+public class AdapterDataOperation {
 
-    private Link<DataType> datas;
-    private BaseUDAdapter mAdapter;
-
-    public AdapterDataOperation(Link data,BaseUDAdapter adapter){
-        datas = data;
-        mAdapter = adapter;
-    }
-
-    public void deleteItem(int position){
-        mAdapter.notifyItemRemoved(position);
-    }
-
-
-
-    public Link<DataType> getDatas(){
-        return datas;
-    }
-
-    public int getSafeCount(){
-        return datas == null ? 0 : datas.size();
-    }
+    private RecyclerView.Adapter mAdapter;
 }

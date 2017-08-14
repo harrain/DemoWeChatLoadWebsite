@@ -1,12 +1,12 @@
-package com.example.demowechat;
+package com.example.demowechat.map;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 
-import com.example.demowechat.map.LocationRequest;
 import com.example.demowechat.utils.AppConstant;
+import com.example.demowechat.utils.FileUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.xdandroid.hellodaemon.AbsWorkService;
@@ -44,6 +44,8 @@ public class TraceServiceImpl extends AbsWorkService {
 
         if (SharePrefrenceUtils.getInstance().getNeedLocate()){
             SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
+        }else {
+            SharePrefrenceUtils.getInstance().setLocateInterrupt(false);
         }
     }
 
@@ -66,22 +68,26 @@ public class TraceServiceImpl extends AbsWorkService {
         if (!SharePrefrenceUtils.getInstance().getNeedLocate()) return;
 
         try {
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
-            Date date = new Date();
-
-            String path = AppConstant.TRACES_DIR+File.separator+sdf.format(date)+".txt";
-            SharePrefrenceUtils.getInstance().setRecentTracePath(path);
-            LogUtils.i(tag, "trace path---" + path);
-            File file = new File(path);
-
-            if (SharePrefrenceUtils.getInstance().getLocateInterrupt()) {
+            String path;
+            if (SharePrefrenceUtils.getInstance().getLocateInterrupt()){
+                path = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
+                File file = FileUtil.createFile(path);
                 fileWriter = new FileWriter(file,true);
             }else {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
+                Date date = new Date();
+
+                path = AppConstant.TRACES_DIR + File.separator + sdf.format(date) + ".txt";
+                SharePrefrenceUtils.getInstance().setRecentTracePath(path);
+                LogUtils.i(tag, "trace path---" + path);
+                File file = FileUtil.createFile(path);
                 fileWriter = new FileWriter(file);
             }
+            LogUtils.i(tag, "LocateInterrupt---" + SharePrefrenceUtils.getInstance().getLocateInterrupt());
 
             bw = new BufferedWriter(fileWriter);
+
+            LogUtils.i(tag, "bw-filewriter--" + bw == null?"null":"bw" +"----"+fileWriter==null?"null":"filewriter");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,7 +98,7 @@ public class TraceServiceImpl extends AbsWorkService {
                 LogUtils.i(tag, "经度：" + longitude + "--" + "纬度：" + latitude);
                 saveLocationToLocal(longitude, latitude);
             }
-        });
+        },60*1000);
     }
 
     @Override
@@ -101,6 +107,7 @@ public class TraceServiceImpl extends AbsWorkService {
 
 //        LogUtils.e(tag,"SharePrefrenceUtils"+SharePrefrenceUtils.getInstance().getNeedLocate());
         if (!SharePrefrenceUtils.getInstance().getNeedLocate()) return;
+        SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
 
 //        if (LocationRequest.getInstance().getmLocClient() == null) {
 //            ToastFactory.showLongToast("定位客户端为空");

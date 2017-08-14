@@ -32,6 +32,7 @@ import com.example.demowechat.utils.CameraUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.google.zxing.activity.CaptureActivity;
+import com.google.zxing.activity.QRCodeCreateActivity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.xdandroid.hellodaemon.IntentWrapper;
 
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private int locateForType = 0;
     private RxPermissions rxPermissions;
     private PermissionResultListener mPermissionResultListener;
+    private LatlngFragment mLatlngFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         converf = new ConverFragment();
         webFragment = new WebFragment();
+        mLatlngFragment = new LatlngFragment();
         fm = getSupportFragmentManager();
         fragmentTransaction = fm.beginTransaction();
 
@@ -280,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
     private void goToDrawTrace(){
         Intent intent = new Intent(mContext, TrackShowDemo.class);
         startActivity(intent);
+        pw.dismiss();
     }
 
     private void goToLocateActivity(){
@@ -289,6 +293,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void setToolbarTitle() {
         getSupportActionBar().setTitle("照片(" + converf.getImageCount() + ")");
+    }
+
+    public void setToolbarTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 
     @Override
@@ -383,15 +391,20 @@ public class MainActivity extends AppCompatActivity {
      * @param v
      */
     public void front(View v) {
+
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl, converf);
         fragmentTransaction.show(converf);
-        fragmentTransaction.commit();
         loadFromLocal();
+        fragmentTransaction.commit();
+
     }
 
     public void list(View view) {
-
+        fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.fl, mLatlngFragment);
+        fragmentTransaction.show(mLatlngFragment);
+        fragmentTransaction.commit();
     }
 
     /**

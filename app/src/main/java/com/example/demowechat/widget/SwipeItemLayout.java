@@ -1,4 +1,4 @@
-package com.example.demowechat;
+package com.example.demowechat.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

@@ -11,6 +11,8 @@ public class AppConstant {
             .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "trace.txt";
     public static final String  TRACES_DIR = MyApplication.getInstance()
             .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "traces";
+    public static final String CAMERA_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/Camera/";
+    public static final String GALARY_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/";
 
     //WHAT 0-10 预留值
     public interface WHAT {
@@ -28,7 +30,8 @@ public class AppConstant {
 
         String LONGITUDE = "LONGITUDE";
         String LATITUDE = "LATITUDE";
-        String IMG_DIR = "/storage/emulated/0/Android/data/com.example.demowechat/files/DCIM";
+//        String IMG_DIR = "/storage/emulated/0/Android/data/com.example.demowechat/files/DCIM";
+        String IMG_DIR = GALARY_DIR+"DemoWeChat";
     }
 
     public interface REQUEST_CODE {

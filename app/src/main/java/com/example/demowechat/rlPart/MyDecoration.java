@@ -1,4 +1,4 @@
-package com.example.demowechat;
+package com.example.demowechat.rlPart;
 
 import android.content.Context;
 import android.content.res.TypedArray;

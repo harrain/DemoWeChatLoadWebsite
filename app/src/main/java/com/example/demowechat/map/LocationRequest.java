@@ -48,7 +48,7 @@ public class LocationRequest {
     public void startLocate(BDLocateFinishListener finishListener){
         listener = finishListener;
 
-        initLocation();
+        initLocation(-1);
 //        LocationClientOption option = new LocationClientOption();
 //        option.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
 //        option.setOpenGps(true); // 打开gps
@@ -61,7 +61,15 @@ public class LocationRequest {
         LogUtils.i("startLocate", "---------------");
     }
 
-    private void initLocation(){
+    public void startLocate(BDLocateFinishListener finishListener,int timeMillis){
+        listener = finishListener;
+
+        initLocation(timeMillis);
+        mLocClient.start();
+        LogUtils.i("startLocate", "---------------");
+    }
+
+    private void initLocation(int timeMillis){
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         //可选，默认高精度，设置定位模式，高精度，低功耗，仅设备
@@ -69,9 +77,12 @@ public class LocationRequest {
         option.setCoorType("bd09ll");
         //可选，默认gcj02，设置返回的定位结果坐标系
 
-//        int span=5000;
-        option.setScanSpan(10000);
-        //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
+        if (timeMillis < 0) {
+            option.setScanSpan(10000);
+            //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
+        }else {
+            option.setScanSpan(timeMillis);
+        }
 
         option.setIsNeedAddress(true);
         //可选，设置是否需要地址信息，默认不需要

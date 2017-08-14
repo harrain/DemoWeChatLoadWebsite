@@ -8,9 +8,9 @@ import android.view.View;
  * Created by stephen on 2017/8/13.
  */
 
-public abstract class BaseMyHolder extends RecyclerView.ViewHolder {
+public abstract class BaseMyHolder<DT> extends RecyclerView.ViewHolder {
     private Context mContext;
-    private BaseUDAdapter.OnClickListener onClickListener;
+    private BaseAdapter.OnClickListener onClickListener;
 
 
     public BaseMyHolder(View itemView) {
@@ -22,15 +22,15 @@ public abstract class BaseMyHolder extends RecyclerView.ViewHolder {
         mContext = context;
     }
 
-    public abstract void bind(int position, AdapterDataOperation ado);
+    public abstract void bind(int position, AdapterLinkOperation<DT> ado);
 
     public abstract BaseMyHolder newInstance();
 
-    public void setOnClickListener(BaseUDAdapter.OnClickListener onClickListener) {
+    public void setOnClickListener(BaseAdapter.OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
     }
 
-    public BaseUDAdapter.OnClickListener getOnClickListener() {
+    public BaseAdapter.OnClickListener getOnClickListener() {
         return onClickListener;
     }
 }

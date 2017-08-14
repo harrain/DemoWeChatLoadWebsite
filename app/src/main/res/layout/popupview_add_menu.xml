@@ -72,38 +72,6 @@
     />
 
     <LinearLayout
-        android:id="@+id/track_draw"
-        android:paddingTop="15dp"
-        android:paddingBottom="13dp"
-        android:paddingRight="16dp"
-        android:paddingLeft="16dp"
-        android:orientation="horizontal"
-
-        android:background="@drawable/titlebar_button_selector"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:src="@drawable/em_camera_pressed"
-            android:scaleType="centerCrop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:text="绘制轨迹"
-            android:layout_marginLeft="13dp"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <View
-        style="@style/list_decoration_theme"
-        />
-
-    <LinearLayout
         android:id="@+id/qrcode_zxing"
         android:paddingTop="15dp"
         android:paddingBottom="13dp"
@@ -161,6 +129,10 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <View
+        style="@style/list_decoration_theme"
+        />
+
     <LinearLayout
         android:id="@+id/locate"
         android:paddingTop="15dp"
@@ -180,7 +152,7 @@
             android:layout_height="wrap_content" />
 
         <TextView
-            android:text="locata"
+            android:text="轨迹追踪"
             android:layout_marginLeft="13dp"
             android:textColor="@android:color/white"
             android:textSize="18sp"
@@ -188,5 +160,38 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
+
+    <View
+        style="@style/list_decoration_theme"
+        />
+
+    <LinearLayout
+        android:id="@+id/track_draw"
+        android:paddingTop="15dp"
+        android:paddingBottom="13dp"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"
+        android:orientation="horizontal"
+
+        android:background="@drawable/titlebar_button_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:src="@drawable/em_camera_pressed"
+            android:scaleType="centerCrop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:text="显示历史轨迹"
+            android:layout_marginLeft="13dp"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
 
 </LinearLayout>

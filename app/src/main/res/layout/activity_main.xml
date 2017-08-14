@@ -92,6 +92,7 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/tb"
+        app:title="照片"
         app:titleTextColor="@android:color/white"
         android:background="@color/Black5"
         android:layout_width="match_parent"

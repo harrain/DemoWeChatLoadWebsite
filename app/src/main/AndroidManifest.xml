@@ -68,7 +68,7 @@
         <activity
             android:name="com.google.zxing.activity.CaptureActivity"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
-        <activity android:name=".QRCodeCreateActivity" />
+        <activity android:name="com.google.zxing.activity.QRCodeCreateActivity" />
         <activity android:name=".map.LocateActivity"/>
 
         <service
@@ -77,7 +77,7 @@
             android:process=":remote" />
 
 
-        <service android:name=".TraceServiceImpl"/>
+        <service android:name=".map.TraceServiceImpl"/>
     </application>
 
 </manifest>

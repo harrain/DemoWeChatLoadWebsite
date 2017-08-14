@@ -1,5 +1,6 @@
 package com.example.demowechat.map;
 
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -13,10 +14,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.demowechat.R;
-import com.example.demowechat.TraceServiceImpl;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.xdandroid.hellodaemon.DaemonEnv;
 import com.xdandroid.hellodaemon.IntentWrapper;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,27 +51,23 @@ public class LocateActivity extends AppCompatActivity {
 
         intent = new Intent(this, TraceServiceImpl.class);
 
-        if (!SharePrefrenceUtils.getInstance().getNeedLocate()){
-            mBtnStopService.setVisibility(View.INVISIBLE);
-        }else {
-            mBtnStarService.setVisibility(View.INVISIBLE);
-            mTTitle.setText("行驶轨迹追踪服务\r\n"+ "后台持续获取位置坐标中···");
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> infos = am.getRunningServices(100);
+        for (ActivityManager.RunningServiceInfo info : infos) {
+            String className = info.service.getClassName();
+//            LogUtils.i("service","-----"+className);
+            if (className.equals("com.example.demowechat.map.TraceServiceImpl")) {
+                if (!SharePrefrenceUtils.getInstance().getNeedLocate()){
+                    mBtnStopService.setVisibility(View.INVISIBLE);
+                }else {
+                    mBtnStarService.setVisibility(View.INVISIBLE);
+                    mTTitle.setText("行驶轨迹追踪服务\r\n"+ "后台持续获取位置坐标中···");
+                }
+                return;
+            }
+
         }
-
-
-
-//        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-//        List<ActivityManager.RunningServiceInfo> infos = am.getRunningServices(100);
-//        for (ActivityManager.RunningServiceInfo info : infos) {
-//            String className = info.service.getClassName();
-////            LogUtils.i("service","-----"+className);
-//            if (className.equals("com.example.demowechat.TraceServiceImpl")) {
-//                mBtnStarService.setVisibility(View.INVISIBLE);
-//                return;
-//            }
-//
-//        }
-//        mBtnStopService.setVisibility(View.INVISIBLE);
+        mBtnStopService.setVisibility(View.INVISIBLE);
 
     }
 

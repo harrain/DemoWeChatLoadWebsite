@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
+import com.example.demowechat.map.TraceServiceImpl;
 import com.example.demowechat.utils.AppConfig;
 import com.example.demowechat.utils.DeviceInfoUtils;
 import com.example.demowechat.utils.LogUtils;
@@ -82,7 +83,11 @@ public class MyApplication extends Application {
 //        DaemonEnv.startServiceSafely(new Intent(this, TraceServiceImpl.class));
     }
 
+    public int getScreenWidth() {
+        return screenWidth;
+    }
 
-
-
+    public int getScreenHeight() {
+        return screenHeight;
+    }
 }

@@ -5,7 +5,6 @@ package com.example.demowechat.map;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -33,10 +32,11 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.example.demowechat.MyApplication;
 import com.example.demowechat.R;
-import com.example.demowechat.SwipeMenuRecyclerView;
-import com.example.demowechat.rlPart.BaseUDAdapter;
-import com.example.demowechat.rlPart.FileItemHolder;
+import com.example.demowechat.rlPart.BaseAdapter;
+import com.example.demowechat.widget.SwipeMenuRecyclerView;
+import com.example.demowechat.rlPart.FileListAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.Link;
 import com.example.demowechat.utils.LogUtils;
@@ -85,10 +85,14 @@ public class TrackShowDemo extends AppCompatActivity {
     private BitmapDescriptor qx;
     private final String tag = "TrackShowDemo";
 
-    private Link<String> tracesFileName;
+    private Link<String> tracesFileNames;
     @BindView(R.id.popup_rl)
-    private RelativeLayout popupRl;
+    RelativeLayout popupRl;
+    @BindView(R.id.pop_iv)
+    ImageView popupIv;
+
     private Context mContext;
+    private PopupWindow pw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +114,7 @@ public class TrackShowDemo extends AppCompatActivity {
 
         polylines = new ArrayList<>();
         polylineOptions = new PolylineOptions();
-        tracesFileName = new Link<>();
+        tracesFileNames = new Link<>();
 
     }
 
@@ -139,6 +143,8 @@ public class TrackShowDemo extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        tracesFileNames.clean();
         File cacheDir = new File(AppConstant.TRACES_DIR);
         Log.e(tag, "file:" + cacheDir.getAbsolutePath());
         if (!cacheDir.exists()) {
@@ -148,11 +154,12 @@ public class TrackShowDemo extends AppCompatActivity {
         File[] files = cacheDir.listFiles();
         for (File file : files) {
             if (file.isFile()) {
-                tracesFileName.add(file.getName());
+                tracesFileNames.add(file.getName());
 
             }
 
         }
+        LogUtils.i(tag,"tracesFileNames size:   "+tracesFileNames.size());
 //        for (int index = 0; index < latlngs.length; index++) {
 //            polylines.add(latlngs[index]);
 //        }
@@ -163,13 +170,9 @@ public class TrackShowDemo extends AppCompatActivity {
         super.onResume();
         mMapView.onResume();
         if (!isDrawed) {
-
+            isDrawed = true;
             String path = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
-            if (TextUtils.isEmpty(path)){
-                LogUtils.e(tag,"RecentTraceFilePath = null");
-                isDrawed = true;
-                return;
-            }
+
             obtainLocationDataFromFile(path);
 
             invalidateMapAndTrace();
@@ -182,7 +185,7 @@ public class TrackShowDemo extends AppCompatActivity {
             ToastFactory.showShortToast("本地文件无坐标点");
             return;
         }
-
+        mBaiduMap.clear();
         MapStatus.Builder builder = new MapStatus.Builder();
         builder.target(polylines.get(polylines.size()-1));
         builder.zoom(16.0f);
@@ -196,6 +199,12 @@ public class TrackShowDemo extends AppCompatActivity {
     }
 
     private void obtainLocationDataFromFile(String traceTxtPath) {
+        if (TextUtils.isEmpty(traceTxtPath)){
+            LogUtils.e(tag,"TraceFilePath = null");
+            ToastFactory.showShortToast("TraceFilePath = null");
+            return;
+        }
+        polylines.clear();
         try {
             File file = new File(traceTxtPath);
             if (file.isFile() && file.exists()) { // 判断文件是否存在
@@ -207,11 +216,11 @@ public class TrackShowDemo extends AppCompatActivity {
                 while ((lineTxt = bufferedReader.readLine()) != null) {
                     if(lineTxt.contains(":")){
                         String time = lineTxt.substring(0,19);
-                        lineTxt = lineTxt.substring(23,lineTxt.length()-1);
-                        LogUtils.i(tag,time+"____"+lineTxt);
+                        lineTxt = lineTxt.substring(22,lineTxt.length()-1);
+//                        LogUtils.i(tag,time+"____"+lineTxt);
                     }
                     String[] split = lineTxt.split("-");
-                    LogUtils.i(tag,split[0]+"____"+split[1]);
+//                    LogUtils.i(tag,split[0]+"____"+split[1]);
                     LatLng latLng = new LatLng(Double.parseDouble(split[1]), Double.parseDouble(split[0]));
                     polylines.add(latLng);
                 }
@@ -226,29 +235,54 @@ public class TrackShowDemo extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.popup_rl)
-    public void popWindow(){
+
+    public void popWindowShowFile(View v){
+        popupIv.setImageResource(R.drawable.upblack_downred);
+
         View popupView = View.inflate(mContext, R.layout.popup_file_rv, null);
-        SwipeMenuRecyclerView rl = (SwipeMenuRecyclerView) popupView.findViewById(R.id.traces_rl);
+        SwipeMenuRecyclerView rv = (SwipeMenuRecyclerView) popupView.findViewById(R.id.traces_rl);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
-        rl.setLayoutManager(layoutManager);
+        rv.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration =
                 new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL);
-        rl.addItemDecoration(dividerItemDecoration);
+        rv.addItemDecoration(dividerItemDecoration);
 
-        View swipeView = View.inflate(mContext,R.layout.fileitem_left_and_right_menu,null);
-        FileItemHolder fileHolder = new FileItemHolder(swipeView,mContext);
-        BaseUDAdapter<String> adapter = new BaseUDAdapter<>(mContext,tracesFileName);
-        adapter.setContentHolder(fileHolder);
-        rl.setAdapter(adapter);
-        PopupWindow pw = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            pw.showAsDropDown(popupRl, 0, 0, Gravity.TOP);
+        FileListAdapter adapter = new FileListAdapter(mContext,tracesFileNames);
+        adapter.setOnClickListener(new BaseAdapter.OnClickListener() {
+            @Override
+            public void onShortClick(View v, int position) {
+                pw.dismiss();
 
-        } else {
-            pw.showAtLocation(popupView,Gravity.TOP,0,0);
-        }
+                String path = AppConstant.TRACES_DIR + "/" +tracesFileNames.get(position);
+                LogUtils.i(tag,"filelistitem: "+path);
+                obtainLocationDataFromFile(path);
+                invalidateMapAndTrace();
+
+            }
+
+            @Override
+            public void onLongClick(View v, int position) {
+
+            }
+        });
+        rv.setAdapter(adapter);
+
+        int[] location = new int[2];
+        popupRl.getLocationOnScreen(location);
+        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(MyApplication.getInstance().getScreenHeight()/2, View.MeasureSpec.AT_MOST);
+        popupView.measure(View.MeasureSpec.UNSPECIFIED, heightMeasureSpec);
+
+        pw = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+//        pw.setFocusable(true);
+//        pw.setOutsideTouchable(true);//没多大用
+        pw.showAtLocation(popupRl,Gravity.NO_GRAVITY,location[0],location[1] - popupView.getMeasuredHeight() - popupRl.getMeasuredHeight()/2 + 5);
+        pw.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                popupIv.setImageResource(R.drawable.upred_downblack);
+            }
+        });
     }
 
     @Override
