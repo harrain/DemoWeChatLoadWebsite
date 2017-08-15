@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,13 +36,14 @@ import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.MyApplication;
 import com.example.demowechat.R;
 import com.example.demowechat.rlPart.BaseAdapter;
-import com.example.demowechat.widget.SwipeMenuRecyclerView;
 import com.example.demowechat.rlPart.FileListAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.Link;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.example.demowechat.utils.ToastFactory;
+import com.example.demowechat.widget.SwipeMenuRecyclerView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -49,6 +51,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,6 +70,8 @@ public class TrackShowDemo extends AppCompatActivity {
     ImageView mTMore;
     @BindView(R.id.titlebar)
     Toolbar toolbar;
+    @BindView(R.id.trace_fname_tv)
+    TextView mTraceFnameTv;
     private MapView mMapView;
     private BaiduMap mBaiduMap;
     private Polyline mPolyline;
@@ -127,7 +132,7 @@ public class TrackShowDemo extends AppCompatActivity {
 
         qx = BitmapDescriptorFactory
                 .fromResource(R.drawable.qx);
-        MarkerOptions ooB = new MarkerOptions().position(polylines.get(polylines.size()-1)).icon(qx)
+        MarkerOptions ooB = new MarkerOptions().position(polylines.get(polylines.size() - 1)).icon(qx)
                 .zIndex(9);
         mMarkerE = (Marker) (mBaiduMap.addOverlay(ooB));
     }
@@ -148,7 +153,7 @@ public class TrackShowDemo extends AppCompatActivity {
         File cacheDir = new File(AppConstant.TRACES_DIR);
         Log.e(tag, "file:" + cacheDir.getAbsolutePath());
         if (!cacheDir.exists()) {
-            LogUtils.e(tag,"TRACES_DIR is not existed");
+            LogUtils.e(tag, "TRACES_DIR is not existed");
             return;
         }
         File[] files = cacheDir.listFiles();
@@ -159,7 +164,7 @@ public class TrackShowDemo extends AppCompatActivity {
             }
 
         }
-        LogUtils.i(tag,"tracesFileNames size:   "+tracesFileNames.size());
+        LogUtils.i(tag, "tracesFileNames size:   " + tracesFileNames.size());
 //        for (int index = 0; index < latlngs.length; index++) {
 //            polylines.add(latlngs[index]);
 //        }
@@ -176,18 +181,19 @@ public class TrackShowDemo extends AppCompatActivity {
             obtainLocationDataFromFile(path);
 
             invalidateMapAndTrace();
+
             isDrawed = true;
         }
     }
 
     private void invalidateMapAndTrace() {
-        if (polylines.size() == 0){
+        if (polylines.size() == 0) {
             ToastFactory.showShortToast("本地文件无坐标点");
             return;
         }
         mBaiduMap.clear();
         MapStatus.Builder builder = new MapStatus.Builder();
-        builder.target(polylines.get(polylines.size()-1));
+        builder.target(polylines.get(polylines.size() - 1));
         builder.zoom(16.0f);
         mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
 
@@ -199,8 +205,8 @@ public class TrackShowDemo extends AppCompatActivity {
     }
 
     private void obtainLocationDataFromFile(String traceTxtPath) {
-        if (TextUtils.isEmpty(traceTxtPath)){
-            LogUtils.e(tag,"TraceFilePath = null");
+        if (TextUtils.isEmpty(traceTxtPath)) {
+            LogUtils.e(tag, "TraceFilePath = null");
             ToastFactory.showShortToast("TraceFilePath = null");
             return;
         }
@@ -208,21 +214,26 @@ public class TrackShowDemo extends AppCompatActivity {
         try {
             File file = new File(traceTxtPath);
             if (file.isFile() && file.exists()) { // 判断文件是否存在
+
+                mTraceFnameTv.setText(file.getName());
+
                 InputStreamReader read = new InputStreamReader(
                         new FileInputStream(file));// 考虑到编码格式
                 BufferedReader bufferedReader = new BufferedReader(read);
                 String lineTxt = null;
 
                 while ((lineTxt = bufferedReader.readLine()) != null) {
-                    if(lineTxt.contains(":")){
-                        String time = lineTxt.substring(0,19);
-                        lineTxt = lineTxt.substring(22,lineTxt.length()-1);
+                    if (lineTxt.contains(":")) {
+                        String time = lineTxt.substring(0, 19);
+                        lineTxt = lineTxt.substring(22, lineTxt.length() - 1);
 //                        LogUtils.i(tag,time+"____"+lineTxt);
                     }
                     String[] split = lineTxt.split("-");
+                    if (NumberValidationUtil.isPositiveDecimal(split[0]) && NumberValidationUtil.isPositiveDecimal(split[1])) {
 //                    LogUtils.i(tag,split[0]+"____"+split[1]);
-                    LatLng latLng = new LatLng(Double.parseDouble(split[1]), Double.parseDouble(split[0]));
-                    polylines.add(latLng);
+                        LatLng latLng = new LatLng(Double.parseDouble(split[1]), Double.parseDouble(split[0]));
+                        polylines.add(latLng);
+                    }
                 }
                 bufferedReader.close();
                 read.close();
@@ -235,11 +246,19 @@ public class TrackShowDemo extends AppCompatActivity {
         }
     }
 
+    public static boolean isInteger(String str) {
+        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+        return pattern.matcher(str).matches();
+    }
 
-    public void popWindowShowFile(View v){
+
+    public void popWindowShowFile(View v) {
         popupIv.setImageResource(R.drawable.upblack_downred);
 
         View popupView = View.inflate(mContext, R.layout.popup_file_rv, null);
+        LinearLayout popLl = (LinearLayout) popupView.findViewById(R.id.pop_ll);
+
+
         SwipeMenuRecyclerView rv = (SwipeMenuRecyclerView) popupView.findViewById(R.id.traces_rl);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
@@ -248,14 +267,14 @@ public class TrackShowDemo extends AppCompatActivity {
                 new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL);
         rv.addItemDecoration(dividerItemDecoration);
 
-        FileListAdapter adapter = new FileListAdapter(mContext,tracesFileNames);
+        FileListAdapter adapter = new FileListAdapter(mContext, tracesFileNames);
         adapter.setOnClickListener(new BaseAdapter.OnClickListener() {
             @Override
             public void onShortClick(View v, int position) {
                 pw.dismiss();
 
-                String path = AppConstant.TRACES_DIR + "/" +tracesFileNames.get(position);
-                LogUtils.i(tag,"filelistitem: "+path);
+                String path = AppConstant.TRACES_DIR + "/" + tracesFileNames.get(position);
+                LogUtils.i(tag, "filelistitem: " + path);
                 obtainLocationDataFromFile(path);
                 invalidateMapAndTrace();
 
@@ -268,15 +287,24 @@ public class TrackShowDemo extends AppCompatActivity {
         });
         rv.setAdapter(adapter);
 
+
         int[] location = new int[2];
         popupRl.getLocationOnScreen(location);
-        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(MyApplication.getInstance().getScreenHeight()/2, View.MeasureSpec.AT_MOST);
-        popupView.measure(View.MeasureSpec.UNSPECIFIED, heightMeasureSpec);
 
-        pw = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+//        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(200, View.MeasureSpec.AT_MOST);
+//        popupView.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.UNSPECIFIED);
+        LogUtils.i(tag, "popll: " + popupView.getMeasuredHeight() + "---" + "screenheight/3: " + MyApplication.getInstance().getScreenHeight() / 3);
+//        if (popLl.getMeasuredHeight() > MyApplication.getInstance().getScreenHeight() / 3) {
+//            LogUtils.i(tag, "popll: " + popLl.getMeasuredHeight() + "---" + "screenheight/3: " + MyApplication.getInstance().getScreenHeight() / 3);
+//            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+//            layoutParams.height = 450;
+//            popLl.setLayoutParams(layoutParams);
+//        }
+
+        pw = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, MyApplication.getInstance().getScreenHeight() / 3, true);
 //        pw.setFocusable(true);
 //        pw.setOutsideTouchable(true);//没多大用
-        pw.showAtLocation(popupRl,Gravity.NO_GRAVITY,location[0],location[1] - popupView.getMeasuredHeight() - popupRl.getMeasuredHeight()/2 + 5);
+        pw.showAtLocation(popupRl, Gravity.NO_GRAVITY, location[0], location[1] - MyApplication.getInstance().getScreenHeight() / 3);
         pw.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {

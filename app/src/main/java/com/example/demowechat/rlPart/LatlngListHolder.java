@@ -27,7 +27,8 @@ public class LatlngListHolder extends BaseMyHolder<List<String>> {
 
     @Override
     public void bind(int position, AdapterDataOperation<List<String>> ado) {
-        latlngTv.setText(ado.getDatas().get(position));
+        final int index = ado.getDatas().size() -1 - position;
+        latlngTv.setText(ado.getDatas().get(index));
     }
 
     @Override

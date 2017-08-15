@@ -175,7 +175,8 @@ public class MainActivity extends AppCompatActivity {
         trackDraw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            requestLocationPermissions();
+                locateForType = 0;
+                requestLocationPermissions();
             }
         });
         zxing.setOnClickListener(new View.OnClickListener() {

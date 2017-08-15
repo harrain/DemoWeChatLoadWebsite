@@ -13,6 +13,7 @@ public class AppConstant {
             .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "traces";
     public static final String CAMERA_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/Camera/";
     public static final String GALARY_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/";
+    public static final String LOCATION_BROADCAST = "com.example.demowechat.map.latlng";
 
     //WHAT 0-10 预留值
     public interface WHAT {

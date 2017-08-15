@@ -151,8 +151,9 @@ public class ConverFragment extends Fragment {
         pics.add(pic);
 //        LogUtils.i("addUri",longitude+"-"+latitude);
 //        Log.e(TAG,"weizhi----"+pics.indexOf(pic));
-        adapter.notifyItemInserted(0);
 
+        adapter.notifyItemInserted(0);
+        notifyDataSetChanged();
     }
 
     /**

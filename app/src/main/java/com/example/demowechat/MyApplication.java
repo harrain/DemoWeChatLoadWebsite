@@ -2,6 +2,7 @@ package com.example.demowechat;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.baidu.mapapi.CoordType;
@@ -58,7 +59,9 @@ public class MyApplication extends Application {
 //            }
 //        }
         Log.e("pro ",getApplicationInfo().processName);
+        //需要在 Application 的 onCreate() 中调用一次 DaemonEnv.initialize()
         DaemonEnv.initialize(this, TraceServiceImpl.class, DaemonEnv.DEFAULT_WAKE_UP_INTERVAL);
+        startService(new Intent(this, TraceServiceImpl.class));
         //12076
         if (getApplicationInfo().processName.equals("com.example.demowechat:watch")){
             Log.e("process",getApplicationInfo().processName);
@@ -78,9 +81,7 @@ public class MyApplication extends Application {
         //个人封装，针对升级----结束
 
 
-        //需要在 Application 的 onCreate() 中调用一次 DaemonEnv.initialize()
-//        DaemonEnv.initialize(this, TraceServiceImpl.class, DaemonEnv.DEFAULT_WAKE_UP_INTERVAL);
-//        DaemonEnv.startServiceSafely(new Intent(this, TraceServiceImpl.class));
+
     }
 
     public int getScreenWidth() {

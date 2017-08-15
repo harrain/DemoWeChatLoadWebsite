@@ -30,6 +30,7 @@ public class TraceServiceImpl extends AbsWorkService {
     private final String tag = "TraceServiceImpl";
     private static BufferedWriter bw;
     private static FileWriter fileWriter;
+    private String path;
 
     public static void stopService() {
         //我们现在不再需要服务运行了, 将标志位置为 true
@@ -57,31 +58,28 @@ public class TraceServiceImpl extends AbsWorkService {
      */
     @Override
     public Boolean shouldStopService(Intent intent, int flags, int startId) {
-        return sShouldStopService;
+        if (!SharePrefrenceUtils.getInstance().getNeedLocate()) {
+            ToastFactory.showShortToast("trace service alive,but locateClent not started");
+            LogUtils.i(tag,"trace service alive,but locateClent not started");
+        }
+        return !SharePrefrenceUtils.getInstance().getNeedLocate();
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        System.out.println("onCreate");
+    public void startWork(Intent intent, int flags, int startId) {
 
-//        LogUtils.e(tag,"SharePrefrenceUtils"+SharePrefrenceUtils.getInstance().getNeedLocate());
-        if (!SharePrefrenceUtils.getInstance().getNeedLocate()) {
-            ToastFactory.showShortToast("trace service start,but locateClent not started");
-            LogUtils.i(tag,"trace service started,but locateClent not started");
-            return;
-        }
+        if (bw != null) return;
+        System.out.println("startWork");
 
         try {
-            String path;
             if (SharePrefrenceUtils.getInstance().getLocateInterrupt()){
                 path = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
                 File file = FileUtil.createFile(path);
                 fileWriter = new FileWriter(file,true);
 
                 if (fileWriter!=null && file != null){
-                    ToastFactory.showShortToast("locateInterrupt continue\t\npath is "+path);
-                    LogUtils.i(tag,"locateInterrupt continue\t\npath is "+path);
+                    ToastFactory.showShortToast("locateInterrupt continue\t\npath is "+ path);
+                    LogUtils.i(tag,"locateInterrupt continue\t\npath is "+ path);
                 }
 
             }else {
@@ -95,8 +93,8 @@ public class TraceServiceImpl extends AbsWorkService {
                 fileWriter = new FileWriter(file);
 
                 if (fileWriter!=null && file != null){
-                    ToastFactory.showShortToast("create new file\t\npath is "+path);
-                    LogUtils.i(tag,"create new file\t\npath is "+path);
+                    ToastFactory.showShortToast("create new file\t\npath is "+ path);
+                    LogUtils.i(tag,"create new file\t\npath is "+ path);
                 }
 
             }
@@ -110,36 +108,13 @@ public class TraceServiceImpl extends AbsWorkService {
         LocationRequest.getInstance().startLocate(new LocationRequest.BDLocateFinishListener() {
             @Override
             public void onLocateCompleted(String longitude, String latitude) {
-
+                Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
+                intent1.putExtra("longitude",longitude);
+                intent1.putExtra("latitude",latitude);
+                sendBroadcast(intent1);
                 saveLocationToLocal(longitude, latitude);
             }
         },60*1000);
-
-        if (!LocationRequest.getInstance().isStartLocate()){
-            ToastFactory.showShortToast("exception : locateClent is not started");
-            LogUtils.i(tag,"exception : locateClent is not started");
-        }
-    }
-
-    @Override
-    public void startWork(Intent intent, int flags, int startId) {
-        System.out.println("startWork");
-
-//        LogUtils.e(tag,"SharePrefrenceUtils"+SharePrefrenceUtils.getInstance().getNeedLocate());
-        if (!SharePrefrenceUtils.getInstance().getNeedLocate()) return;
-        SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
-
-//        if (LocationRequest.getInstance().getmLocClient() == null) {
-//            ToastFactory.showLongToast("定位客户端为空");
-//            LogUtils.e(tag, "定位客户端为空");
-//            return;
-//        }
-//
-//        if (!LocationRequest.getInstance().isStartLocate()) {
-//            ToastFactory.showLongToast("定位客户端没有开启");
-//            LogUtils.e(tag, "定位客户端没有开启");
-//            LocationRequest.getInstance().getmLocClient().start();
-//        }
 
 //        sDisposable = Flowable
 //                .interval(3, TimeUnit.SECONDS)
@@ -161,7 +136,6 @@ public class TraceServiceImpl extends AbsWorkService {
 
 
 //        lr = new LocationRequest(MyApplication.getInstance());
-
 
     }
 
@@ -221,6 +195,9 @@ public class TraceServiceImpl extends AbsWorkService {
      */
     @Override
     public Boolean isWorkRunning(Intent intent, int flags, int startId) {
+        if (!LocationRequest.getInstance().isStartLocate()){
+            LogUtils.i(tag,"locateClent is not started");
+        }
         //若还没有取消订阅, 就说明任务仍在运行.
         return LocationRequest.getInstance().isStartLocate();
 //        return sDisposable != null && !sDisposable.isDisposed();
