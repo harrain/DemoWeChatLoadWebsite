@@ -52,7 +52,7 @@ public class LatlngFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_latlng, container, false);
         unbinder = ButterKnife.bind(this, view);
-        mContext = getContext();
+        mContext = getActivity();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         rv.setLayoutManager(layoutManager);
@@ -63,6 +63,8 @@ public class LatlngFragment extends Fragment {
         obtainLocationDataFromFile(SharePrefrenceUtils.getInstance().getRecentTraceFilePath());
         ArrayListAdapter adapter = new ArrayListAdapter(mContext,latlngList);
         rv.setAdapter(adapter);
+
+        ((MainActivity)mContext).setToolbarTitle("定位坐标("+latlngList.size()+")");
         return view;
     }
 

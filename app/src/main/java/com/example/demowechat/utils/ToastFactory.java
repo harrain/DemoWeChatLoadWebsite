@@ -15,6 +15,7 @@ public class ToastFactory {
 
 	private static Context context = null;
 	private static Toast toast = null;
+	private static boolean isToast = true;
 
 	public static Toast getToast(Context context, String text) {
 		if (ToastFactory.context == context) {
@@ -73,10 +74,12 @@ public class ToastFactory {
 	}
 
 	public static void showShortToast(String text){
+		if (!isToast) return;
 		Toast.makeText(MyApplication.getInstance(),text,Toast.LENGTH_SHORT).show();
 	}
 
 	public static void showLongToast(String text){
+		if (!isToast) return;
 		Toast.makeText(MyApplication.getInstance(),text,Toast.LENGTH_LONG).show();
 	}
 
@@ -90,4 +93,7 @@ public class ToastFactory {
 		}
 	}
 
+	public static void setIsToast(boolean isToast) {
+		ToastFactory.isToast = isToast;
+	}
 }

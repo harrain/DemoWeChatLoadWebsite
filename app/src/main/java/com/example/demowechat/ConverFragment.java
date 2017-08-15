@@ -16,7 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.Link;
+import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.widget.SwipeMenuRecyclerView;
 
 import java.io.File;
@@ -52,8 +54,7 @@ public class ConverFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_conver,null,false);
-        mContext = getContext();
-
+        mContext = getActivity();
 
         rl = (SwipeMenuRecyclerView) view.findViewById(R.id.rl);
 //        GridLayoutManager layoutManager = new GridLayoutManager(mContext,3);
@@ -66,7 +67,7 @@ public class ConverFragment extends Fragment {
         adapter = new GalaryInfoAdapter(mContext,pics);
         rl.setAdapter(adapter);
 
-
+        loadFromLocal();
 //        lv = (ListView) view.findViewById(R.id.lv);
 //        list= new ArrayList<>();
 //
@@ -151,7 +152,65 @@ public class ConverFragment extends Fragment {
 //        LogUtils.i("addUri",longitude+"-"+latitude);
 //        Log.e(TAG,"weizhi----"+pics.indexOf(pic));
         adapter.notifyItemInserted(0);
+
+    }
+
+    /**
+     * 应用启动后从本地读取保存的照片，显示到列表上
+     */
+    private void loadFromLocal() {
+        clearPics();
+        try {
+            File cacheDir = new File(AppConstant.KEY.IMG_DIR);
+            Log.e(TAG, "file:" + cacheDir.getAbsolutePath());
+            if (!cacheDir.exists()) {
+                ((MainActivity)mContext).setToolbarTitle();
+                return;
+            }
+            File[] files = cacheDir.listFiles();
+            for (File file : files) {
+                if (file.isFile()) {
+                    Uri uri = Uri.fromFile(file);
+                    loadData(uri, parseTime(file.getName()), caculateFileSize(file.length()), parseLocation(file.getName()));
+//                Log.e(TAG, "pic:" + uri.getPath());
+                }
+            }
+        }catch(Exception e){
+            LogUtils.e(TAG,e.getMessage());
+        }
+        ((MainActivity)mContext).setToolbarTitle();//更新mainactivity的标题
         notifyDataSetChanged();
+    }
+
+    /**
+     * 计算文件大小
+     *
+     * @param length
+     * @return
+     */
+    private String caculateFileSize(long length) throws Exception{
+        return Formatter.formatFileSize(mContext, length);
+    }
+
+    /**
+     * 从文件名中解析出时间点
+     */
+    private String parseTime(String fileName) throws Exception{
+//        Log.e(TAG, "parseTime:" + fileName.substring(0, 19));
+        return fileName.substring(0, 19);
+
+    }
+
+    private String parseLocation(String name) throws Exception{
+        if (name.indexOf(".jpeg") == 19) {
+            return "";
+        }
+//        LogUtils.i("parseLocation", name.indexOf(".jpeg") + "");
+//            LogUtils.i("parseLocation",name.substring(20,name.indexOf(".jpeg")));
+        if (name.indexOf(".jpeg") > 20) {
+            return name.substring(20, name.indexOf(".jpeg"));
+        }
+        return "";
     }
 
     class Pic{

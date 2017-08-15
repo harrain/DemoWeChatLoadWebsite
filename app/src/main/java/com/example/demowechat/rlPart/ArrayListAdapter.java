@@ -14,7 +14,7 @@ import java.util.List;
  * Created by stephen on 2017/8/14.
  */
 
-public class ArrayListAdapter extends BaseAdapter {
+public class ArrayListAdapter extends BaseAdapter<List<String>> {
 
     public ArrayListAdapter(Context context, List<String> data) {
         super(context);
@@ -24,6 +24,6 @@ public class ArrayListAdapter extends BaseAdapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View swipeView = LayoutInflater.from(mContext).inflate(R.layout.simple_list_tv, parent, false);
-        return new FileItemHolder(swipeView,mContext);
+        return new LatlngListHolder(swipeView,mContext);
     }
 }

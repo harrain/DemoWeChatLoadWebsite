@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -116,10 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-        if (!isLoad) {
-            loadFromLocal();
-        }
-        converf.notifyDataSetChanged();
     }
 
     public void requestPermission(final PermissionResultListener listener, final String... permissions) {
@@ -132,64 +127,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-    }
-
-    /**
-     * 应用启动后从本地读取保存的照片，显示到列表上
-     */
-    private void loadFromLocal() {
-        converf.clearPics();
-
-        File cacheDir = new File(AppConstant.KEY.IMG_DIR);
-        Log.e(TAG, "file:" + cacheDir.getAbsolutePath());
-        if (!cacheDir.exists()) {
-            setToolbarTitle();
-            return;
-        }
-        File[] files = cacheDir.listFiles();
-        for (File file : files) {
-            if (file.isFile()) {
-                Uri uri = Uri.fromFile(file);
-                converf.loadData(uri, parseTime(file.getName()), caculateFileSize(file.length()), parseLocation(file.getName()));
-//                Log.e(TAG, "pic:" + uri.getPath());
-
-            }
-
-        }
-        setToolbarTitle();//更新mainactivity的标题
-        converf.notifyDataSetChanged();
-        isLoad = true;
-    }
-
-    /**
-     * 计算文件大小
-     *
-     * @param length
-     * @return
-     */
-    private String caculateFileSize(long length) {
-        return Formatter.formatFileSize(mContext, length);
-    }
-
-    /**
-     * 从文件名中解析出时间点
-     */
-    private String parseTime(String fileName) {
-//        Log.e(TAG, "parseTime:" + fileName.substring(0, 19));
-        return fileName.substring(0, 19);
-
-    }
-
-    private String parseLocation(String name) {
-        if (name.indexOf(".jpeg") == 19) {
-            return "";
-        }
-//        LogUtils.i("parseLocation", name.indexOf(".jpeg") + "");
-//            LogUtils.i("parseLocation",name.substring(20,name.indexOf(".jpeg")));
-        if (name.indexOf(".jpeg") > 20) {
-            return name.substring(20, name.indexOf(".jpeg"));
-        }
-        return "";
     }
 
     public void add(View v) {
@@ -395,7 +332,6 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl, converf);
         fragmentTransaction.show(converf);
-        loadFromLocal();
         fragmentTransaction.commit();
 
     }

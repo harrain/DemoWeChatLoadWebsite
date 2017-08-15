@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.example.demowechat.R;
 import com.example.demowechat.utils.SharePrefrenceUtils;
-import com.xdandroid.hellodaemon.DaemonEnv;
 import com.xdandroid.hellodaemon.IntentWrapper;
 
 import java.util.List;
@@ -87,9 +86,9 @@ public class LocateActivity extends AppCompatActivity {
                 SharePrefrenceUtils.getInstance().setNeedLocate(true);
 //                LogUtils.e(tag, "SharePrefrenceUtils" + SharePrefrenceUtils.getInstance().getNeedLocate());
 
-                DaemonEnv.startServiceSafely(intent);
-                mBtnStarService.setEnabled(false);
-                mBtnStarService.setClickable(false);
+                startService(intent);
+//                mBtnStarService.setEnabled(false);
+//                mBtnStarService.setClickable(false);
 //                mBtnStarService.setBackgroundColor(getResources().getColor(R.color.light_grey));
                 mBtnStarService.setVisibility(View.INVISIBLE);
                 mBtnStopService.setVisibility(View.VISIBLE);
@@ -100,13 +99,13 @@ public class LocateActivity extends AppCompatActivity {
                 break;
             case R.id.btn_white:
                 IntentWrapper.whiteListMatters(this, "行驶轨迹追踪服务的持续运行");
-                mBtnStartManger.setEnabled(false);
-                mBtnStartManger.setClickable(false);
+//                mBtnStartManger.setEnabled(false);
+//                mBtnStartManger.setClickable(false);
                 mBtnStartManger.setBackgroundColor(getResources().getColor(R.color.light_grey));
                 break;
             case R.id.btn_stop:
-                mBtnStopService.setEnabled(false);
-                mBtnStopService.setClickable(false);
+//                mBtnStopService.setEnabled(false);
+//                mBtnStopService.setClickable(false);
 //                mBtnStopService.setBackgroundColor(getResources().getColor(R.color.light_grey));
                 mBtnStarService.setVisibility(View.VISIBLE);
                 mBtnStopService.setVisibility(View.INVISIBLE);

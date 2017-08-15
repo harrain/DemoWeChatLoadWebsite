@@ -9,6 +9,7 @@ import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.FileUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
+import com.example.demowechat.utils.ToastFactory;
 import com.xdandroid.hellodaemon.AbsWorkService;
 
 import java.io.BufferedWriter;
@@ -65,7 +66,11 @@ public class TraceServiceImpl extends AbsWorkService {
         System.out.println("onCreate");
 
 //        LogUtils.e(tag,"SharePrefrenceUtils"+SharePrefrenceUtils.getInstance().getNeedLocate());
-        if (!SharePrefrenceUtils.getInstance().getNeedLocate()) return;
+        if (!SharePrefrenceUtils.getInstance().getNeedLocate()) {
+            ToastFactory.showShortToast("trace service start,but locateClent not started");
+            LogUtils.i(tag,"trace service started,but locateClent not started");
+            return;
+        }
 
         try {
             String path;
@@ -73,6 +78,12 @@ public class TraceServiceImpl extends AbsWorkService {
                 path = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
                 File file = FileUtil.createFile(path);
                 fileWriter = new FileWriter(file,true);
+
+                if (fileWriter!=null && file != null){
+                    ToastFactory.showShortToast("locateInterrupt continue\t\npath is "+path);
+                    LogUtils.i(tag,"locateInterrupt continue\t\npath is "+path);
+                }
+
             }else {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
                 Date date = new Date();
@@ -82,23 +93,32 @@ public class TraceServiceImpl extends AbsWorkService {
                 LogUtils.i(tag, "trace path---" + path);
                 File file = FileUtil.createFile(path);
                 fileWriter = new FileWriter(file);
+
+                if (fileWriter!=null && file != null){
+                    ToastFactory.showShortToast("create new file\t\npath is "+path);
+                    LogUtils.i(tag,"create new file\t\npath is "+path);
+                }
+
             }
-            LogUtils.i(tag, "LocateInterrupt---" + SharePrefrenceUtils.getInstance().getLocateInterrupt());
 
             bw = new BufferedWriter(fileWriter);
 
-            LogUtils.i(tag, "bw-filewriter--" + bw == null?"null":"bw" +"----"+fileWriter==null?"null":"filewriter");
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e(tag,e.getMessage());
         }
 
         LocationRequest.getInstance().startLocate(new LocationRequest.BDLocateFinishListener() {
             @Override
             public void onLocateCompleted(String longitude, String latitude) {
-                LogUtils.i(tag, "经度：" + longitude + "--" + "纬度：" + latitude);
+
                 saveLocationToLocal(longitude, latitude);
             }
         },60*1000);
+
+        if (!LocationRequest.getInstance().isStartLocate()){
+            ToastFactory.showShortToast("exception : locateClent is not started");
+            LogUtils.i(tag,"exception : locateClent is not started");
+        }
     }
 
     @Override
@@ -147,6 +167,15 @@ public class TraceServiceImpl extends AbsWorkService {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void saveLocationToLocal(String longitude, String latitude) {
+        if (bw !=null){
+            ToastFactory.showShortToast("write to local : "+longitude+"-"+latitude);
+            LogUtils.i(tag, "经度：" + longitude + "--" + "纬度：" + latitude);
+        }else {
+            ToastFactory.showShortToast("buffered writer is null");
+            LogUtils.e(tag,"buffered writer is null");
+            return;
+        }
+
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
             Date date = new Date();
@@ -180,7 +209,8 @@ public class TraceServiceImpl extends AbsWorkService {
 
     @Override
     public void stopWork(Intent intent, int flags, int startId) {
-
+        ToastFactory.showShortToast("work is stoped");
+        LogUtils.w(tag,"work is stoped");
         stopService();
     }
 
@@ -203,6 +233,7 @@ public class TraceServiceImpl extends AbsWorkService {
 
     @Override
     public void onServiceKilled(Intent rootIntent) {
+        ToastFactory.showShortToast("trace service is killed");
         System.out.println("onServiceKilled。");
     }
 }

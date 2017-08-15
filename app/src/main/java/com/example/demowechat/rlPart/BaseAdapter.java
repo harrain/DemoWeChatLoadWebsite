@@ -10,7 +10,7 @@ import android.view.ViewGroup;
  * 列表内容适配器，维系数据源和布局的显示
  */
 
-public class BaseAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
+public class BaseAdapter<DT> extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
 
 
     public Context mContext;
@@ -27,7 +27,7 @@ public class BaseAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
 //        mADO = new AdapterLinkOperation<DT>(data,this);
     }
 
-    public void setAdapterDataOperation(AdapterDataOperation dataOperation){
+    public void setAdapterDataOperation(AdapterDataOperation<DT> dataOperation){
         mADO = dataOperation;
     }
 
