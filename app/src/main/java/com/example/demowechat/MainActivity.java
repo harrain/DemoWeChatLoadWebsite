@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
                               @Override
                               public void onHandlePermissionResult(boolean granted) {
                                   if (!granted) {
+
                                       ToastFactory.showShortToast("您没有授权应用权限，将无法正常使用本应用");
                                       finish();
                                   }
@@ -115,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
+        converf.notifyDataSetChanged();
     }
 
     public void requestPermission(final PermissionResultListener listener, final String... permissions) {

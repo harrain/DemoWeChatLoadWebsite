@@ -9,6 +9,7 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -28,9 +29,10 @@ import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.example.demowechat.utils.ToastFactory;
 
 import java.io.File;
-import java.io.IOException;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class CameraActivity extends Activity implements SurfaceHolder.Callback, View.OnClickListener {
     private Camera mCamera;
@@ -62,6 +64,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private int picHeight;
     private int captureMills;
     private WaterMarkOperation waterMarkOperation;
+    private final String tag = "CameraActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -315,15 +318,16 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
      */
     private void startPreview(Camera camera, SurfaceHolder holder) {
         try {
-            setupCamera(camera);
-            camera.setPreviewDisplay(holder);
             //亲测的一个方法 基本覆盖所有手机 将预览矫正
             CameraUtil.getInstance().setCameraDisplayOrientation(this, mCameraId, camera);
-//            camera.setDisplayOrientation(90);
+            //            camera.setDisplayOrientation(90);
+            setupCamera(camera);
+            camera.setPreviewDisplay(holder);
+
             camera.startPreview();
             isview = true;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LogUtils.e(tag,e.getMessage());
         }
     }
 
@@ -339,8 +343,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                 Bitmap saveBitmap = CameraUtil.getInstance().setTakePicktrueOrientation(mCameraId, bitmap);
 
                 saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
-
-
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
                 Date date = new Date();
@@ -369,7 +371,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                             LogUtils.i("CameraActivity",longitude+"-"+latitude);
                             setResult(RESULT_OK,intent);
                             finish();
-                            waterMarkOperation.release();
+                            try {
+                                waterMarkOperation.release();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
                     waterMarkOperation.initWaterMark(time,img_path,saveBitmap);
@@ -412,7 +418,22 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     /**
      * 设置
      */
-    private void setupCamera(Camera camera) {
+    private void setupCamera(Camera camera) throws Exception{
+
+        if(camera == null){
+            LogUtils.e(tag,"camera is null");
+            return;
+        }
+        if (camera.getParameters() == null){
+            LogUtils.e(tag,"camera Parameters is null");
+            return;
+        }
+
+        if (isHasPermission(camera)){
+            LogUtils.w(tag,"camera permission: "+isHasPermission(camera));
+        }
+
+
         Camera.Parameters parameters = camera.getParameters();
 
         if (parameters.getSupportedFocusModes().contains(
@@ -420,13 +441,18 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
 
+        LogUtils.i("screenWidth-screenHeight",screenWidth+"-"+screenHeight);
+
+
+
         //这里第三个参数为最小尺寸 getPropPreviewSize方法会对从最小尺寸开始升序排列 取出所有支持尺寸的最小尺寸
-//        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 800);
-//        parameters.setPreviewSize(previewSize.width, previewSize.height);
-        parameters.setPreviewSize(screenHeight, screenWidth);
-//        Camera.Size pictrueSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 800);
-//        parameters.setPictureSize(pictrueSize.width, pictrueSize.height);
-        parameters.setPictureSize(screenHeight, screenWidth);
+        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), screenHeight);
+        parameters.setPreviewSize(previewSize.width, previewSize.height);
+//        parameters.setPreviewSize(screenHeight, screenWidth);
+        Camera.Size pictrueSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), screenHeight);
+        parameters.setPictureSize(pictrueSize.width, pictrueSize.height);
+//        parameters.setPictureSize(screenHeight, screenWidth);
+        LogUtils.i(tag,"parameters.setPictureSize-------------");
         camera.setParameters(parameters);
 
         /**
@@ -446,6 +472,33 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         //这里当然可以设置拍照位置 比如居中 我这里就置顶了
         //params.gravity = Gravity.CENTER;
 //        surfaceView.setLayoutParams(params);
+    }
+
+    public void parameters(Camera camera) {
+        List<Camera.Size> pictureSizes = camera.getParameters().getSupportedPictureSizes();
+        List<Camera.Size> previewSizes = camera.getParameters().getSupportedPreviewSizes();
+        Camera.Size psize;
+        for (int i = 0; i < pictureSizes.size(); i++) {
+            psize = pictureSizes.get(i);
+            Log.i("pictureSize",psize.width+" x "+psize.height);
+        }
+        for (int i = 0; i < previewSizes.size(); i++) {
+            psize = previewSizes.get(i);
+            Log.i("previewSize",psize.width+" x "+psize.height);
+        }
+    }
+
+    public boolean isHasPermission(Camera camera){
+
+        try {
+            Field mHasPermission = camera.getClass().getDeclaredField("mHasPermission");
+            mHasPermission.setAccessible(true);
+            return (boolean) mHasPermission.get(camera);
+        } catch (Exception e) {
+            LogUtils.e(tag,e.getMessage());
+        }
+        return true;
+
     }
 
     /**
@@ -479,7 +532,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        waterMarkOperation.release();
+        try {
+            waterMarkOperation.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }

@@ -67,7 +67,7 @@
                 android:src="@drawable/find_pressed" />
 
             <TextView
-                android:text="发现"
+                android:text="轨迹"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

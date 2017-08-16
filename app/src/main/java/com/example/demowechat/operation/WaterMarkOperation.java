@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -15,10 +16,10 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 
-import com.example.demowechat.MyApplication;
 import com.example.demowechat.map.LocationRequest;
 import com.example.demowechat.utils.BitmapUtils;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.ProgressDialogUtil;
 import com.example.demowechat.utils.ToastFactory;
 
 import java.io.File;
@@ -45,20 +46,21 @@ public class WaterMarkOperation {
     private Bitmap bitmap;
     private Context mContext;
     private OnFinishListener onFinshListener;
-    private final LocationRequest lr;
+   private LocationRequest lr;
+    private ProgressDialogUtil mPdu;
 
 
     public WaterMarkOperation(Context context) {
         mContext = context;
-        lr = new LocationRequest(MyApplication.getInstance());
+//        lr = new LocationRequest(MyApplication.getInstance());
     }
 
     public void initWaterMark(String picTime, String img_path) {
 
         this.picTime = picTime;
         this.img_path = img_path;
-//        requestLocation();
-        bdLocate();
+        requestLocation();
+
     }
 
 
@@ -67,8 +69,8 @@ public class WaterMarkOperation {
         this.picTime = picTime;
         this.img_path = img_path;
         this.bitmap = bitmap;
-//        requestLocation();
-        bdLocate();
+        requestLocation();
+
     }
 
     private void bdLocate() {
@@ -92,15 +94,23 @@ public class WaterMarkOperation {
     }
 
     private void requestLocation() {
-        lm = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-        mLocationListener = new MyLocationListener();
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             LogUtils.i("locationPermission", "禁止");
             return;
         }
-        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, mLocationListener);
+        lm = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
+        mLocationListener = new MyLocationListener();
+
+        Criteria crite = new Criteria();
+        crite.setAccuracy(Criteria.ACCURACY_LOW); //精度
+        crite.setPowerRequirement(Criteria.POWER_HIGH); //功耗类型选择
+        String provider = lm.getBestProvider(crite, true);
+
+        lm.requestLocationUpdates(provider, 0, 0, mLocationListener);
         LogUtils.i("requestLocation", "---------------");
+        mPdu = new ProgressDialogUtil(mContext);
+        mPdu.createCircleProgressDialog("Tips","正在获取位置信息...");
     }
 
     class MyLocationListener implements LocationListener {
@@ -115,7 +125,7 @@ public class WaterMarkOperation {
             latitude = String.valueOf(location.getLatitude());
             String accuracy = "精度：" + location.getAccuracy() + "\n";
             LogUtils.i("MyLocation Listener", "经度：" + longitude + "--" + "纬度：" + latitude + "--" + "精度：" + accuracy);
-
+            mPdu.dismissDialog();
             dataAfterOperation();
         }
 
@@ -258,9 +268,9 @@ public class WaterMarkOperation {
         mLocationListener = null;
     }
 
-    public void release() {
-//        releaseLocationService();
-        lr.releaseLocate();
+    public void release() throws Exception{
+        releaseLocationService();
+//        lr.releaseLocate();
         if(watermarkBitmap!=null) {
             watermarkBitmap.recycle();
         }

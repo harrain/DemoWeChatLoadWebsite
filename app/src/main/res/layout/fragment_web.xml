@@ -1,14 +1,42 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.demowechat.WebFragment">
+    >
 
-    <!-- TODO: Update blank fragment layout -->
-    <WebView
-        android:id="@+id/webview"
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapView_f"
+        android:layout_below="@id/titlebar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-         />
+        android:layout_above="@+id/popup_rl"
+        android:clickable="true" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/trace_fname_tv_f"
+        android:layout_below="@id/titlebar"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"
+        android:textSize="14dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:id="@+id/popup_rl_f"
+        android:layout_alignParentBottom="true"
+        android:clickable="true"
+        android:onClick="popWindowShowFile"
+        android:background="@color/Black5"
+        android:layout_width="match_parent"
+        android:layout_height="70dp">
+
+        <ImageView
+            android:id="@+id/pop_iv_f"
+            android:layout_centerInParent="true"
+            android:src="@drawable/upred_downblack"
+            android:scaleType="fitCenter"
+            android:layout_width="45dp"
+            android:layout_height="45dp" />
+    </RelativeLayout>
+
+</RelativeLayout>

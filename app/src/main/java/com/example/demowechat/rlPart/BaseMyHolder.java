@@ -10,7 +10,7 @@ import android.view.View;
 
 public abstract class BaseMyHolder<DT> extends RecyclerView.ViewHolder {
     private Context mContext;
-    private BaseAdapter.OnClickListener onClickListener;
+    public BaseAdapter.OnClickListener mOnClickListener;
 
 
     public BaseMyHolder(View itemView) {
@@ -27,10 +27,10 @@ public abstract class BaseMyHolder<DT> extends RecyclerView.ViewHolder {
     public abstract BaseMyHolder newInstance();
 
     public void setOnClickListener(BaseAdapter.OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
+        this.mOnClickListener = onClickListener;
     }
 
     public BaseAdapter.OnClickListener getOnClickListener() {
-        return onClickListener;
+        return mOnClickListener;
     }
 }

@@ -69,15 +69,15 @@
             android:name="com.google.zxing.activity.CaptureActivity"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <activity android:name="com.google.zxing.activity.QRCodeCreateActivity" />
-        <activity android:name=".map.LocateActivity"/>
+        <activity android:name=".map.LocateActivity" />
 
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" />
+        <service android:name=".map.TraceServiceImpl" />
 
-
-        <service android:name=".map.TraceServiceImpl"/>
+        <activity android:name=".LatlngActivity"></activity>
     </application>
 
 </manifest>

@@ -6,7 +6,6 @@ package com.example.demowechat.map;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -75,12 +74,7 @@ public class TrackShowDemo extends AppCompatActivity {
     private MapView mMapView;
     private BaiduMap mBaiduMap;
     private Polyline mPolyline;
-    private Handler mHandler;
 
-
-    // 通过设置间隔时间和距离可以控制速度和图标移动的距离
-    private static final int TIME_INTERVAL = 800;
-    private static final double DISTANCE = 0.00002;
     private List<LatLng> polylines;
     private PolylineOptions polylineOptions;
     private boolean isDrawed = false;

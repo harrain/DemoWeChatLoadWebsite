@@ -48,9 +48,10 @@ public class ShowPicActivity extends Activity {
         mWaterMarkOperation.setOnFinishListener(new WaterMarkOperation.OnFinishListener() {
             @Override
             public void onfinish(String imgPath, String longitude, String latitude) {
-                ShowPicActivity.this.img_path = imgPath;
+                img_path = imgPath;
                 ShowPicActivity.this.longitude = longitude;
                 ShowPicActivity.this.latitude = latitude;
+                img.setImageURI(Uri.parse(imgPath));
 
                 setResultToMainActivity();
             }
@@ -106,6 +107,10 @@ public class ShowPicActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mWaterMarkOperation.release();
+        try {
+            mWaterMarkOperation.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
