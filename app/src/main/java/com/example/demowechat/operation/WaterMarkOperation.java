@@ -35,8 +35,8 @@ public class WaterMarkOperation {
 
     private LocationManager lm;
     private MyLocationListener mLocationListener;
-    private String longitude;
-    private String latitude;
+    private String mLongitude;
+    private String mLatitude;
     private String picTime;
     private String img_path;
 
@@ -48,6 +48,7 @@ public class WaterMarkOperation {
     private OnFinishListener onFinshListener;
    private LocationRequest lr;
     private ProgressDialogUtil mPdu;
+    private final  String tag = "WaterMarkOperation";
 
 
     public WaterMarkOperation(Context context) {
@@ -59,8 +60,8 @@ public class WaterMarkOperation {
 
         this.picTime = picTime;
         this.img_path = img_path;
-        requestLocation();
-
+//        requestLocation();
+        bdLocate();
     }
 
 
@@ -69,8 +70,8 @@ public class WaterMarkOperation {
         this.picTime = picTime;
         this.img_path = img_path;
         this.bitmap = bitmap;
-        requestLocation();
-
+//        requestLocation();
+        bdLocate();
     }
 
     private void bdLocate() {
@@ -81,15 +82,26 @@ public class WaterMarkOperation {
             return;
         }
 
-        lr.startLocate(new LocationRequest.BDLocateFinishListener() {
-            @Override
-            public void onLocateCompleted(String longitude, String latitude) {
-                LogUtils.i("baiduLocate", "经度：" + longitude + "--" + "纬度：" + latitude);
-                WaterMarkOperation.this.longitude = longitude;
-                WaterMarkOperation.this.latitude = latitude;
-                dataAfterOperation();
-            }
-        });
+        if (LocationRequest.getInstance().isStartLocate()) {
+            LogUtils.i(tag,"isStartLocate "+LocationRequest.getInstance().isStartLocate());
+            LocationRequest.getInstance().requestLocation(new LocationRequest.BDLocateOneListener() {
+                @Override
+                public void onLocateCompleted(String longitude, String latitude) {
+                    LogUtils.i("requestLocation", "经度：" + longitude + "--" + "纬度：" + latitude);
+                    dataAfterOperation(longitude, latitude);
+                }
+            });
+        }else {
+            LogUtils.i(tag,"isStartLocate "+LocationRequest.getInstance().isStartLocate());
+            LocationRequest.getInstance().requestLocation(new LocationRequest.BDLocateOneListener() {
+                @Override
+                public void onLocateCompleted(String longitude, String latitude) {
+                    LogUtils.i(tag, "requestLocation "+"经度：" + longitude + "--" + "纬度：" + latitude);
+                    dataAfterOperation(longitude, latitude);
+                    LocationRequest.getInstance().stop();
+                }
+            });
+        }
 
     }
 
@@ -103,7 +115,7 @@ public class WaterMarkOperation {
         mLocationListener = new MyLocationListener();
 
         Criteria crite = new Criteria();
-        crite.setAccuracy(Criteria.ACCURACY_LOW); //精度
+        crite.setAccuracy(Criteria.ACCURACY_FINE); //精度
         crite.setPowerRequirement(Criteria.POWER_HIGH); //功耗类型选择
         String provider = lm.getBestProvider(crite, true);
 
@@ -118,15 +130,15 @@ public class WaterMarkOperation {
         @Override
         public void onLocationChanged(Location location) {
 //            String l = String.valueOf(location.getLongitude());
-//            longitude = l.substring(0,l.indexOf(".")+3);
+//            mLongitude = l.substring(0,l.indexOf(".")+3);
 //            String la = String.valueOf(location.getLatitude());
-//            latitude = la.substring(0,la.indexOf(".")+3);
-            longitude = String.valueOf(location.getLongitude());
-            latitude = String.valueOf(location.getLatitude());
+//            mLatitude = la.substring(0,la.indexOf(".")+3);
+            String longitude = String.valueOf(location.getLongitude());
+            String latitude = String.valueOf(location.getLatitude());
             String accuracy = "精度：" + location.getAccuracy() + "\n";
-            LogUtils.i("MyLocation Listener", "经度：" + longitude + "--" + "纬度：" + latitude + "--" + "精度：" + accuracy);
+            LogUtils.i("MyLocation Listener", "经度：" + mLongitude + "--" + "纬度：" + mLatitude + "--" + "精度：" + accuracy);
             mPdu.dismissDialog();
-            dataAfterOperation();
+            dataAfterOperation(longitude,latitude);
         }
 
         // 当某一个位置提供者状态发生变化的时候 关闭--》开启 或者开启--》关闭
@@ -143,12 +155,14 @@ public class WaterMarkOperation {
         }
     }
 
-    private void dataAfterOperation() {
-        if (!TextUtils.isEmpty(longitude) && !TextUtils.isEmpty(latitude)) {
+    private void dataAfterOperation(String longitude,String latitude) {
+        mLongitude = longitude;
+        mLatitude = latitude;
+        if (!TextUtils.isEmpty(mLongitude) && !TextUtils.isEmpty(mLatitude)) {
             if (!fileModified) {
                 modifyPicName();
 
-                String markText = picTime + "\n" + "经:" + longitude + "-" + "纬:" + latitude;
+                String markText = picTime + "\n" + "经:" + mLongitude + "-" + "纬:" + mLatitude;
                 LogUtils.i("markText", markText);
                 if (bitmap == null) {
                     bitmap = BitmapUtils.getBitemapFromFile(new File(img_path));
@@ -157,8 +171,11 @@ public class WaterMarkOperation {
 
                 BitmapUtils.saveJPGE_After(mContext, watermarkBitmap, img_path, 100);
 
+                watermarkBitmap.recycle();
+                bitmap.recycle();
+
                 if (onFinshListener != null) {
-                    onFinshListener.onfinish(img_path, longitude, latitude);
+                    onFinshListener.onfinish(img_path, mLongitude, mLatitude);
                 }
 
             }
@@ -171,7 +188,7 @@ public class WaterMarkOperation {
         File file = new File(img_path);
         StringBuilder sb = new StringBuilder();
         sb.append(file.getName());
-        sb.insert(19, "-" + longitude + "-" + latitude);
+        sb.insert(19, "-" + mLongitude + "-" + mLatitude);
         sb.insert(0, file.getParent() + File.separator);
 //        LogUtils.i("modifyPicName",sb.toString());
         file.renameTo(new File(sb.toString()));
@@ -269,7 +286,7 @@ public class WaterMarkOperation {
     }
 
     public void release() throws Exception{
-        releaseLocationService();
+//        releaseLocationService();
 //        lr.releaseLocate();
         if(watermarkBitmap!=null) {
             watermarkBitmap.recycle();

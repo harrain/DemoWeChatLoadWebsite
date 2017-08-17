@@ -9,7 +9,10 @@ import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.example.demowechat.map.TraceServiceImpl;
 import com.example.demowechat.utils.AppConfig;
+import com.example.demowechat.utils.AppConstant;
+import com.example.demowechat.utils.CrashUtils;
 import com.example.demowechat.utils.DeviceInfoUtils;
+import com.example.demowechat.utils.FileUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.tbs.webview.APIWebviewTBS;
 import com.xdandroid.hellodaemon.DaemonEnv;
@@ -80,7 +83,7 @@ public class MyApplication extends Application {
         mAPIWebviewTBS.initTbs(getApplicationContext());
         //个人封装，针对升级----结束
 
-
+        CrashUtils.init(FileUtil.createFile(AppConstant.CRASH_DIR));
 
     }
 

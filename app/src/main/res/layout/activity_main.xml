@@ -72,6 +72,7 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
         <LinearLayout
+            android:onClick="device"
             android:background="@android:color/white"
             android:gravity="center"
             android:layout_weight="1"

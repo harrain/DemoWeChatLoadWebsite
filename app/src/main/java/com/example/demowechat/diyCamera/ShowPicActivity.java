@@ -23,9 +23,9 @@ public class ShowPicActivity extends Activity {
     private int picHeight;
     private String picTime;
 
-    private String img_path;
-    private String longitude;
-    private String latitude;
+    private String mImg_path;
+    private String mLongitude;
+    private String mLatitude;
     private Context mContext;
 
     private WaterMarkOperation mWaterMarkOperation;
@@ -35,28 +35,31 @@ public class ShowPicActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_pic);
         mContext = this;
-        img_path = getIntent().getStringExtra(AppConstant.KEY.IMG_PATH);
+        mImg_path = getIntent().getStringExtra(AppConstant.KEY.IMG_PATH);
 
         picWidth = getIntent().getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
         picHeight = getIntent().getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
         picTime = getIntent().getStringExtra(AppConstant.KEY.PIC_TIME);
         img = (ImageView) findViewById(R.id.img);
-        img.setImageURI(Uri.parse(img_path));
+        img.setImageURI(Uri.parse(mImg_path));
         img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
 
         mWaterMarkOperation = new WaterMarkOperation(mContext);
         mWaterMarkOperation.setOnFinishListener(new WaterMarkOperation.OnFinishListener() {
             @Override
             public void onfinish(String imgPath, String longitude, String latitude) {
-                img_path = imgPath;
-                ShowPicActivity.this.longitude = longitude;
-                ShowPicActivity.this.latitude = latitude;
-                img.setImageURI(Uri.parse(imgPath));
-
+                Message msg = Message.obtain();
+                msg.what = 1;
+                Bundle bundle = new Bundle();
+                bundle.putString("mImg_path",imgPath);
+                bundle.putString("mLongitude",longitude);
+                bundle.putString("mLatitude",latitude);
+                msg.setData(bundle);
+                mHandler.sendMessage(msg);
                 setResultToMainActivity();
             }
         });
-        mWaterMarkOperation.initWaterMark(picTime,img_path);
+        mWaterMarkOperation.initWaterMark(picTime, mImg_path);
     }
 
     @Override
@@ -76,7 +79,10 @@ public class ShowPicActivity extends Activity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                mHandler.sendEmptyMessage(0);
+               Message msg = Message.obtain();
+                msg.what = 0;
+
+                mHandler.sendMessage(msg);
             }
         }).start();
     }
@@ -88,17 +94,29 @@ public class ShowPicActivity extends Activity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Intent intent = new Intent();
-            intent.putExtra(AppConstant.KEY.IMG_PATH, img_path);
-            intent.putExtra(AppConstant.KEY.PIC_TIME, picTime);
-            intent.putExtra(AppConstant.KEY.LONGITUDE,longitude);
-            intent.putExtra(AppConstant.KEY.LATITUDE,latitude);
+            switch (msg.what){
+                case 0:
+                    Intent intent = new Intent();
+                    intent.putExtra(AppConstant.KEY.IMG_PATH, mImg_path);
+                    intent.putExtra(AppConstant.KEY.PIC_TIME, picTime);
+                    intent.putExtra(AppConstant.KEY.LONGITUDE, mLongitude);
+                    intent.putExtra(AppConstant.KEY.LATITUDE, mLatitude);
 
-//            String longitude = intent.getStringExtra(AppConstant.KEY.LONGITUDE);
-//            String latitude = intent.getStringExtra(AppConstant.KEY.LATITUDE);
-            LogUtils.i("showpic",longitude+"-"+latitude);
-            setResult(RESULT_OK,intent);
-            finish();
+//            String mLongitude = intent.getStringExtra(AppConstant.KEY.LONGITUDE);
+//            String mLatitude = intent.getStringExtra(AppConstant.KEY.LATITUDE);
+                    LogUtils.i("showpic", mLongitude +"-"+ mLatitude);
+                    setResult(AppConstant.RESULT_CODE.RESULT_OK,intent);
+                    finish();
+                    break;
+                case 1:
+                    Bundle data = msg.getData();
+                    mImg_path = data.getString("mImg_path");
+                    mLongitude = data.getString("mLongitude","");
+                    mLatitude = data.getString("mLatitude","");
+                    img.setImageURI(Uri.parse(mImg_path));
+                    break;
+            }
+
         }
     };
 
@@ -108,7 +126,7 @@ public class ShowPicActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            mWaterMarkOperation.release();
+//            mWaterMarkOperation.release();
         } catch (Exception e) {
             e.printStackTrace();
         }

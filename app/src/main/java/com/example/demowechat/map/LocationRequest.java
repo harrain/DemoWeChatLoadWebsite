@@ -21,10 +21,12 @@ public class LocationRequest {
     // 定位相关
     LocationClient mLocClient;
     public MyLocationListenner myListener;
-    private BDLocateFinishListener listener;
+    private BDLocateFinishListener mListener;
+    private BDLocateOneListener oneListener;
     private String mCurrentLat;
     private String mCurrentLon;
     private String mCurrentAccracy;
+    private boolean oneLocate = false;
     private final String TAG = "BaiduLocationRequest";
 
     public LocationRequest(Context context){
@@ -32,6 +34,7 @@ public class LocationRequest {
         mLocClient = new LocationClient(mContext);
         myListener = new MyLocationListenner();
         mLocClient.registerLocationListener(myListener);
+        initLocation();
     }
 
     public static LocationRequest getInstance(){
@@ -39,37 +42,44 @@ public class LocationRequest {
             synchronized (LocationRequest.class){
                 if (instance == null){
                     instance = new LocationRequest(MyApplication.getInstance());
+
                 }
             }
         }
         return instance;
     }
 
-    public void startLocate(BDLocateFinishListener finishListener){
-        listener = finishListener;
-
-        initLocation(-1);
-//        LocationClientOption option = new LocationClientOption();
-//        option.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
-//        option.setOpenGps(true); // 打开gps
-//        option.setCoorType("bd09ll"); // 设置坐标类型
-//        option.setScanSpan(1000);
-//        mLocClient.setLocOption(option);
+    public void start(BDLocateFinishListener listener){
+        mListener = listener;
         mLocClient.start();
-
-//        mLocClient.requestLocation();
-        LogUtils.i("startLocate", "---------------");
     }
 
-    public void startLocate(BDLocateFinishListener finishListener,int timeMillis){
-        listener = finishListener;
-
-        initLocation(timeMillis);
-        mLocClient.start();
-        LogUtils.i("startLocate", "---------------");
+    public void requestLocation(BDLocateOneListener listener){
+        oneLocate = true;
+        if (!isStartLocate()) mLocClient.start();
+        oneListener = listener;
+        mLocClient.requestLocation();
     }
 
-    private void initLocation(int timeMillis){
+//    public void startLocate(BDLocateFinishListener finishListener){
+//        mListener = finishListener;
+//
+//        initLocation(-1);
+//        mLocClient.start();
+//
+////        mLocClient.requestLocation();
+//        LogUtils.i("startLocate", "---------------");
+//    }
+//
+//    public void startLocate(BDLocateFinishListener finishListener,int timeMillis){
+//        mListener = finishListener;
+//
+//        initLocation(timeMillis);
+//        mLocClient.start();
+//        LogUtils.i("startLocate", "---------------");
+//    }
+
+    private void initLocation(){
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         //可选，默认高精度，设置定位模式，高精度，低功耗，仅设备
@@ -77,12 +87,11 @@ public class LocationRequest {
         option.setCoorType("bd09ll");
         //可选，默认gcj02，设置返回的定位结果坐标系
 
-        if (timeMillis < 0) {
-            option.setScanSpan(10000);
+
             //可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
-        }else {
-            option.setScanSpan(timeMillis);
-        }
+        int span = 60 * 1000;
+        option.setScanSpan(span);
+
 
         option.setIsNeedAddress(true);
         //可选，设置是否需要地址信息，默认不需要
@@ -111,6 +120,10 @@ public class LocationRequest {
         mLocClient.setLocOption(option);
     }
 
+    public void stop() {
+        mLocClient.stop();
+    }
+
     /**
      * 定位SDK监听函数, 需实现BDLocationListener里的方法
      */
@@ -129,7 +142,13 @@ public class LocationRequest {
             mCurrentLon = String.valueOf(location.getLongitude());
             mCurrentAccracy = String.valueOf(location.getRadius());
             LogUtils.i("BDLocationListener", "经度：" + mCurrentLon + "--" + "纬度：" + mCurrentLat);
-            listener.onLocateCompleted(mCurrentLon,mCurrentLat);
+            if (!oneLocate && mListener != null) {
+                mListener.onLocateCompleted(mCurrentLon, mCurrentLat);
+            }
+            if (oneLocate && oneListener!=null){
+                oneListener.onLocateCompleted(mCurrentLon, mCurrentLat);
+            }
+            oneLocate = false;
         }
 
         @Override
@@ -137,7 +156,7 @@ public class LocationRequest {
     }
 
     public boolean isStartLocate(){
-        return mLocClient != null && mLocClient.isStarted();
+        return mLocClient.isStarted();
     }
 
     public LocationClient getmLocClient() {
@@ -152,6 +171,10 @@ public class LocationRequest {
     }
 
     public interface BDLocateFinishListener{
+        void onLocateCompleted(String longitude,String latitude);
+    }
+
+    public interface BDLocateOneListener{
         void onLocateCompleted(String longitude,String latitude);
     }
 }

@@ -105,7 +105,7 @@ public class TraceServiceImpl extends AbsWorkService {
             LogUtils.e(tag,e.getMessage());
         }
 
-        LocationRequest.getInstance().startLocate(new LocationRequest.BDLocateFinishListener() {
+        LocationRequest.getInstance().start(new LocationRequest.BDLocateFinishListener() {
             @Override
             public void onLocateCompleted(String longitude, String latitude) {
                 Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
@@ -114,7 +114,18 @@ public class TraceServiceImpl extends AbsWorkService {
                 sendBroadcast(intent1);
                 saveLocationToLocal(longitude, latitude);
             }
-        },60*1000);
+        });
+
+//        LocationRequest.getInstance().startLocate(new LocationRequest.BDLocateFinishListener() {
+//            @Override
+//            public void onLocateCompleted(String longitude, String latitude) {
+//                Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
+//                intent1.putExtra("longitude",longitude);
+//                intent1.putExtra("latitude",latitude);
+//                sendBroadcast(intent1);
+//                saveLocationToLocal(longitude, latitude);
+//            }
+//        },60*1000);
 
 //        sDisposable = Flowable
 //                .interval(3, TimeUnit.SECONDS)
@@ -143,7 +154,7 @@ public class TraceServiceImpl extends AbsWorkService {
     private void saveLocationToLocal(String longitude, String latitude) {
         if (bw !=null){
             ToastFactory.showShortToast("write to local : "+longitude+"-"+latitude);
-            LogUtils.i(tag, "经度：" + longitude + "--" + "纬度：" + latitude);
+            LogUtils.i(tag, "write to local : "+"经度：" + longitude + "--" + "纬度：" + latitude);
         }else {
             ToastFactory.showShortToast("buffered writer is null");
             LogUtils.e(tag,"buffered writer is null");

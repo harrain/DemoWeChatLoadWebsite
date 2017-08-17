@@ -225,6 +225,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
 //                mBtnStarService.setEnabled(false);
 //                mBtnStarService.setClickable(false);
 //                mBtnStarService.setBackgroundColor(getResources().getColor(R.color.light_grey));
+                startService(new Intent(this, TraceServiceImpl.class));
                 mBtnStarService.setVisibility(View.INVISIBLE);
                 mBtnStopService.setVisibility(View.VISIBLE);
 
@@ -267,7 +268,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
         isSelected = false;
 
         for (int i = 0; i < 3; i++) {
-            ObjectAnimator translationY = ObjectAnimator.ofFloat(list.get(i), "translationY", -200 * (i + 1), 0F);
+            ObjectAnimator translationY = ObjectAnimator.ofFloat(list.get(i), "translationY", -100 * (i + 1), 0F);
             translationY.setInterpolator(new AccelerateInterpolator());
             ObjectAnimator alpha = ObjectAnimator.ofFloat(list.get(i), "alpha", 1f, 0);
             AnimatorSet set = new AnimatorSet();
@@ -305,7 +306,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
 
 
         for (int i = 0; i < 3; i++) {
-            ObjectAnimator animator = ObjectAnimator.ofFloat(list.get(i), "translationY", 0F, -200 * (i + 1));
+            ObjectAnimator animator = ObjectAnimator.ofFloat(list.get(i), "translationY", 0F, -100 * (i + 1));
             animator.setInterpolator(new AccelerateDecelerateInterpolator());//设置插值器
 
             ObjectAnimator alpha = ObjectAnimator.ofFloat(list.get(i), "alpha", 0, 1f);

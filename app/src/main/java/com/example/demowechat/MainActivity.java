@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private RxPermissions rxPermissions;
     private PermissionResultListener mPermissionResultListener;
     private LatlngFragment mLatlngFragment;
+    private DisplayFragment mDeviceFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         converf = new ConverFragment();
         webFragment = new WebFragment();
         mLatlngFragment = new LatlngFragment();
+        mDeviceFragment = new DisplayFragment();
         fm = getSupportFragmentManager();
         fragmentTransaction = fm.beginTransaction();
 
@@ -242,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (resultCode != RESULT_OK) {
+        if (resultCode != AppConstant.RESULT_CODE.RESULT_OK) {
             return;
         }
 
@@ -290,11 +292,11 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             Uri uri = Uri.parse(data.getStringExtra(AppConstant.KEY.IMG_PATH));
-            LogUtils.i("AppConstant.KEY.IMG_PATH", data.getStringExtra(AppConstant.KEY.IMG_PATH));
+            LogUtils.i(TAG,"AppConstant.KEY.IMG_PATH "+ data.getStringExtra(AppConstant.KEY.IMG_PATH));
             String picTime = data.getStringExtra(AppConstant.KEY.PIC_TIME);
             String longitude = data.getStringExtra(AppConstant.KEY.LONGITUDE);
             String latitude = data.getStringExtra(AppConstant.KEY.LATITUDE);
-            LogUtils.i("updateAdapterData", longitude + "-" + latitude);
+            LogUtils.i(TAG,"updateAdapterData "+ longitude + "-" + latitude);
             try {
                 converf.addUri(uri, picTime, longitude, latitude);//保存URI到fragment里，并更新adapter的数据源
                 getSupportActionBar().setTitle("照片(" + converf.getImageCount() + ")");
@@ -308,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
     private void goToShowPic(int requestCode, Intent data) {
         if (requestCode == AppConstant.REQUEST_CODE.CAMERA) {
             String img_path = data.getStringExtra(AppConstant.KEY.IMG_PATH);
-
+            LogUtils.i(TAG,"goToShowPic");
             int picWidth = data.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
             int picHeight = data.getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
             String millis = data.getStringExtra(AppConstant.KEY.PIC_TIME);
@@ -355,6 +357,13 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl, webFragment);
         fragmentTransaction.show(webFragment);
+        fragmentTransaction.commit();
+    }
+
+    public void device(View v){
+        fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.fl, mDeviceFragment);
+        fragmentTransaction.show(mDeviceFragment);
         fragmentTransaction.commit();
     }
 

@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -62,7 +63,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private ImageView camera_close;
     private ImageView img_camera;
     private int picHeight;
-    private int captureMills;
+    private int captureMills = 0;
     private WaterMarkOperation waterMarkOperation;
     private final String tag = "CameraActivity";
 
@@ -163,6 +164,18 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                 case AppConstant.CAPTURE_NOW:
                     img_camera.performClick();
                     img_camera.setVisibility(View.INVISIBLE);
+                    break;
+                case 3:
+                    Bundle data = msg.getData();
+                    Intent intent = new Intent();
+                    intent.putExtra(AppConstant.KEY.IMG_PATH, data.getString("imgPath",""));
+                    intent.putExtra(AppConstant.KEY.PIC_TIME, data.getString("time",""));
+                    intent.putExtra(AppConstant.KEY.LONGITUDE,data.getString("longitude",""));
+                    intent.putExtra(AppConstant.KEY.LATITUDE,data.getString("latitude",""));
+
+                    LogUtils.i("CameraActivity",data.getString("longitude","")+"-"+data.getString("latitude",""));
+                    setResult(AppConstant.RESULT_CODE.RESULT_OK,intent);
+                    finish();
                     break;
 
             }
@@ -353,7 +366,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 //                String img_path = "/storage/emulated/0/DCIM/Camera/"+ time + ".jpg";
 //                String img_path = "/storage/0D99-9B24/DCIM/Camera/"+ time + ".jpg";
 
-                LogUtils.i("img_path",img_path);
+                LogUtils.i(tag,"img_path"+"-"+img_path);
 
                 //即拍去掉拍照预览，直接获取经纬度，加水印
                 if (captureMills > 0){
@@ -362,17 +375,17 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                         @Override
                         public void onfinish(String imgPath, String longitude, String latitude) {
 
-                            Intent intent = new Intent();
-                            intent.putExtra(AppConstant.KEY.IMG_PATH, imgPath);
-                            intent.putExtra(AppConstant.KEY.PIC_TIME, time);
-                            intent.putExtra(AppConstant.KEY.LONGITUDE,longitude);
-                            intent.putExtra(AppConstant.KEY.LATITUDE,latitude);
-
-                            LogUtils.i("CameraActivity",longitude+"-"+latitude);
-                            setResult(RESULT_OK,intent);
-                            finish();
+                            Message msg = Message.obtain();
+                            msg.what = 3;
+                            Bundle bundle = new Bundle();
+                            bundle.putString("imgPath",imgPath);
+                            bundle.putString("time",time);
+                            bundle.putString("longitude",longitude);
+                            bundle.putString("latitude",latitude);
+                            msg.setData(bundle);
+                            mHandler.sendMessage(msg);
                             try {
-                                waterMarkOperation.release();
+//                                waterMarkOperation.release();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -387,13 +400,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
                 BitmapUtils.saveJPGE_After(context, saveBitmap, img_path, 100);
 
-                if(!bitmap.isRecycled()){
-                    bitmap.recycle();
-                }
 
-                if(!saveBitmap.isRecycled()){
-                    saveBitmap.recycle();
-                }
 
                 setResultToMainActivity(time, img_path);
 
@@ -413,7 +420,18 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         intent.putExtra(AppConstant.KEY.PIC_TIME,time);
         setResult(AppConstant.RESULT_CODE.RESULT_OK, intent);
         finish();
+
+
+//        if(!bitmap.isRecycled()){
+//            bitmap.recycle();
+//        }
+//
+//        if(!saveBitmap.isRecycled()){
+//            saveBitmap.recycle();
+//        }
     }
+
+
 
     /**
      * 设置
@@ -532,11 +550,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            waterMarkOperation.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
     }
 }
