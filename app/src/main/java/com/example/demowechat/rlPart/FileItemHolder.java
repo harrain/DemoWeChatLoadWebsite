@@ -61,6 +61,7 @@ public class FileItemHolder extends BaseMyHolder<Link<String>> {
             public void onClick(View v) {
                 mSwipeItemLayout.close();
                 deleteFile(index, (AdapterLinkOperation<String>) ado);
+                mOnClickListener.onShortClick(v,index);
             }
         });
 

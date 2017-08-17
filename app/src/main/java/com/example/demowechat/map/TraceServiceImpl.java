@@ -115,7 +115,7 @@ public class TraceServiceImpl extends AbsWorkService {
                 saveLocationToLocal(longitude, latitude);
             }
         });
-
+        SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
 //        LocationRequest.getInstance().startLocate(new LocationRequest.BDLocateFinishListener() {
 //            @Override
 //            public void onLocateCompleted(String longitude, String latitude) {

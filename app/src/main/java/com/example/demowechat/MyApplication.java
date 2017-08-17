@@ -14,6 +14,7 @@ import com.example.demowechat.utils.CrashUtils;
 import com.example.demowechat.utils.DeviceInfoUtils;
 import com.example.demowechat.utils.FileUtil;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.ToastFactory;
 import com.tbs.webview.APIWebviewTBS;
 import com.xdandroid.hellodaemon.DaemonEnv;
 
@@ -45,6 +46,7 @@ public class MyApplication extends Application {
         context = this.getApplicationContext();
 //        CrashReport.initCrashReport(this, "900011702", AppConfig.DEBUG);//bugly
         LogUtils.init(this, AppConfig.TAG, AppConfig.DEBUG);//初始化LOG
+        ToastFactory.setIsToast(false);
         screenWidth = DeviceInfoUtils.getScreenWidth(this);//获取屏幕宽度
         screenHeight = DeviceInfoUtils.getScreenHeight(this);//获取屏幕高度
 

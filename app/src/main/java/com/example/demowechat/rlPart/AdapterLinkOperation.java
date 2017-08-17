@@ -18,7 +18,9 @@ public class AdapterLinkOperation<DT> extends AdapterDataOperation<Link<DT>>{
     }
 
     public void deleteItem(int position){
+        datas.remove(position);
         mAdapter.notifyItemRemoved(position);
+        mAdapter.notifyDataSetChanged();
     }
 
 

@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.demowechat.map.TrackShowDemo;
 import com.example.demowechat.rlPart.ArrayListAdapter;
 import com.example.demowechat.rlPart.BaseAdapter;
 import com.example.demowechat.utils.AppConstant;
@@ -66,9 +67,19 @@ public class LatlngFragment extends Fragment {
         adapter.setOnClickListener(new BaseAdapter.OnClickListener() {
             @Override
             public void onShortClick(View v, int position) {
-                Intent intent = new Intent(mContext,LatlngActivity.class);
-                intent.putExtra("tracePath",AppConstant.TRACES_DIR + "/" + tracesFileNames.get(position));
-                startActivity(intent);
+                switch (v.getId()){
+                    case R.id.filenamelist_left_iv:
+                        Intent intent = new Intent(mContext,LatlngActivity.class);
+                        intent.putExtra("tracePath",AppConstant.TRACES_DIR + "/" + tracesFileNames.get(position));
+                        startActivity(intent);
+                        break;
+                    case R.id.filenamelist_right_iv:
+                        Intent intent1 = new Intent(mContext,TrackShowDemo.class);
+                        intent1.putExtra("tracePath",AppConstant.TRACES_DIR + "/" + tracesFileNames.get(position));
+                        startActivity(intent1);
+                        break;
+                }
+
             }
 
             @Override

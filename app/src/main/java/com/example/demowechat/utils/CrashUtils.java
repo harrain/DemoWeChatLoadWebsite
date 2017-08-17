@@ -68,10 +68,23 @@ public final class CrashUtils {
             @Override
             public void uncaughtException(final Thread t, final Throwable e) {
                 if (e == null) {
+                    if (SharePrefrenceUtils.getInstance().getNeedLocate()){
+                        SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
+                    }else {
+                        SharePrefrenceUtils.getInstance().setLocateInterrupt(false);
+                    }
+
                     android.os.Process.killProcess(android.os.Process.myPid());
                     System.exit(0);
                     return;
                 }
+
+                if (SharePrefrenceUtils.getInstance().getNeedLocate()){
+                    SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
+                }else {
+                    SharePrefrenceUtils.getInstance().setLocateInterrupt(false);
+                }
+
                 Date now = new Date(System.currentTimeMillis());
                 String fileName = FORMAT.format(now) + ".txt";
                 final String fullPath = (dir == null ? defaultDir : dir) + fileName;
