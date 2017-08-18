@@ -9,7 +9,7 @@
         android:layout_below="@id/titlebar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/popup_rl"
+        android:layout_above="@+id/popup_rl_f"
         android:clickable="true" />
 
     <TextView

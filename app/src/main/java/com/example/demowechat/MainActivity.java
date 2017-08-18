@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.example.demowechat.diyCamera.ShowPicActivity;
 import com.example.demowechat.listener.PermissionResultListener;
@@ -29,6 +30,7 @@ import com.example.demowechat.map.TrackShowDemo;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.CameraUtil;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.NetworkUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.google.zxing.activity.CaptureActivity;
 import com.google.zxing.activity.QRCodeCreateActivity;
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     Context mContext;
     ImageView pic;
     ConverFragment converf;
-    WebFragment webFragment;
+    TraceFragment webFragment;
     FragmentManager fm;
     FragmentTransaction fragmentTransaction;
     private Toolbar toolbar;
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         pic = (ImageView) findViewById(R.id.pic);
 
         converf = new ConverFragment();
-        webFragment = new WebFragment();
+        webFragment = new TraceFragment();
         mLatlngFragment = new LatlngFragment();
         mDeviceFragment = new DisplayFragment();
         fm = getSupportFragmentManager();
@@ -119,6 +121,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         converf.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!NetworkUtils.isConnected()){
+            Toast.makeText(MyApplication.getInstance(),"室内无法用GPS定位，如果需要，请打开网络连接！",Toast.LENGTH_LONG).show();
+        }
     }
 
     public void requestPermission(final PermissionResultListener listener, final String... permissions) {

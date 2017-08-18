@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.Sensor;
@@ -32,7 +33,9 @@ import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.R;
+import com.example.demowechat.utils.AlertDialogUtil;
 import com.example.demowechat.utils.AppConstant;
+import com.example.demowechat.utils.GpsUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.xdandroid.hellodaemon.IntentWrapper;
@@ -214,7 +217,29 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
             IntentWrapper.whiteListMatters(this, "行驶轨迹追踪服务的持续运行");
             SharePrefrenceUtils.getInstance().setAddWhiteList(true);
         }
+        if (!GpsUtil.isOpenGPS(mContext)){
+            LogUtils.i(tag,"gps no open");
+            AlertDialogUtil.showAlertDialog(new AlertDialogUtil.AlertListener() {
+                @Override
+                public void positiveResult(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    GpsUtil.goToOpenGPS(LocateActivity.this,AppConstant.REQUEST_CODE.OPEN_GPS);
+                }
+            });
 
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AppConstant.REQUEST_CODE.OPEN_GPS ){
+            if (resultCode == AppConstant.RESULT_CODE.RESULT_OK){
+                LogUtils.i(tag,"opengps ok");
+                return;
+            }
+            LogUtils.i(tag,"opengps no");
+        }
     }
 
     public void onClick(View v) {

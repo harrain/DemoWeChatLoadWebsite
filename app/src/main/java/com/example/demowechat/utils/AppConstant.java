@@ -41,6 +41,7 @@ public class AppConstant {
         int CAMERA = 0;
         int SHOW_PIC = 1;
         int ZXING_CODE = 2;
+        int OPEN_GPS = 3;
     }
 
     public interface RESULT_CODE {

@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
+import android.text.TextUtils;
 
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.FileUtil;
@@ -34,6 +35,8 @@ public class TraceServiceImpl extends AbsWorkService {
     private String path;
     private Date mDate;
     private SimpleDateFormat mSdf;
+    private String mLongitude;
+    private String mLatitude;
 
     public static void stopService() {
         //我们现在不再需要服务运行了, 将标志位置为 true
@@ -115,12 +118,19 @@ public class TraceServiceImpl extends AbsWorkService {
             public void onLocateCompleted(String longitude, String latitude) {
                 if (NumberValidationUtil.isPositiveDecimal(longitude) && NumberValidationUtil.isPositiveDecimal(latitude))
                 {
+                    if (!TextUtils.isEmpty(mLongitude) && !TextUtils.isEmpty(mLatitude)){
+                        if (mLongitude.equals(longitude) && mLatitude.equals(latitude)){
+                            return;
+                        }
+                    }
                     Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
                     intent1.putExtra("longitude", longitude);
                     intent1.putExtra("latitude", latitude);
 
                     sendBroadcast(intent1);
                     saveLocationToLocal(longitude, latitude);
+                    mLatitude = latitude;
+                    mLongitude = longitude;
                 }
             }
         });
@@ -173,10 +183,12 @@ public class TraceServiceImpl extends AbsWorkService {
         try {
 
             Date date = new Date();
-            if (date.getTime() - mDate.getTime() < 58000){
-                return;
+            if (mDate!=null) {
+                if (date.getTime() - mDate.getTime() < 58000) {
+                    return;
+                }
             }
-            
+
             mDate = date;
             bw.write(mSdf.format(date)+"   ");
 

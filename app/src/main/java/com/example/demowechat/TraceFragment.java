@@ -1,21 +1,18 @@
-/*
- * Copyright (C) 2015 Baidu, Inc. All Rights Reserved.
- */
-package com.example.demowechat.map;
+package com.example.demowechat;
+
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -35,8 +32,6 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.example.demowechat.MyApplication;
-import com.example.demowechat.R;
 import com.example.demowechat.rlPart.BaseAdapter;
 import com.example.demowechat.rlPart.FileListAdapter;
 import com.example.demowechat.utils.AppConstant;
@@ -44,6 +39,7 @@ import com.example.demowechat.utils.Link;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.SharePrefrenceUtils;
+import com.example.demowechat.utils.ThreadPoolUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.example.demowechat.widget.SwipeMenuRecyclerView;
 
@@ -55,7 +51,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,68 +58,65 @@ import butterknife.OnClick;
 
 
 /**
- * 轨迹运行demo展示
+ * 加载网页的fragment
  */
-public class TrackShowDemo extends AppCompatActivity {
-    @BindView(R.id.scanner_toolbar_back)
-    ImageView mTBack;
-    @BindView(R.id.scanner_toolbar_title)
-    TextView mTTitle;
-    @BindView(R.id.scanner_toolbar_more)
-    ImageView mTMore;
-    @BindView(R.id.titlebar)
-    Toolbar toolbar;
-    @BindView(R.id.trace_fname_tv)
+public class TraceFragment extends Fragment {
+
+    @BindView(R.id.trace_fname_tv_f)
     TextView mTraceFnameTv;
-    private MapView mMapView;
+    @BindView(R.id.bmapView_f)
+    MapView mMapView;
     private BaiduMap mBaiduMap;
     private Polyline mPolyline;
-
     private List<LatLng> mPolylines;
     private PolylineOptions polylineOptions;
     private boolean isDrawed = false;
     private boolean isDrawedStart = false;
     private boolean isDrawedEnd = false;
-    private Marker mMarkerS;
     private BitmapDescriptor qw;
-    private Marker mMarkerE;
     private BitmapDescriptor qx;
+    private Marker mMarkerS;
+    private Marker mMarkerE;
     private final String tag = "TrackShowDemo";
 
     private Link<String> tracesFileNames;
-    @BindView(R.id.popup_rl)
+    @BindView(R.id.popup_rl_f)
     RelativeLayout popupRl;
-    @BindView(R.id.pop_iv)
+    @BindView(R.id.pop_iv_f)
     ImageView popupIv;
 
     private Context mContext;
     private PopupWindow pw;
-    private String mPath;
+
+    public TraceFragment() {
+        // Required empty public constructor
+    }
+
     private ArrayList<LatLng> polylineCopy = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_simple_map);
-        ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-        Intent intent = getIntent();
-        mPath = intent.getStringExtra("tracePath");
-        mContext = this;
-
-        mMapView = (MapView) findViewById(R.id.bmapView);
-        mTTitle.setText("轨迹绘制");
-
-        if (savedInstanceState != null) {
-
-            mMapView.onCreate(this, savedInstanceState);
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_web, container, false);
+        ButterKnife.bind(this,view);
+        mContext = getActivity();
+//        if (savedInstanceState != null) {
+//
+//            mMapView.onCreate(this, savedInstanceState);
+//        }
         mBaiduMap = mMapView.getMap();
 
         mPolylines = new ArrayList<>();
         polylineOptions = new PolylineOptions();
         tracesFileNames = new Link<>();
+        ((MainActivity)mContext).setToolbarTitle("轨迹展示");
 
+        String path = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
+
+        obtainLocationDataFromFile(path);
+
+        invalidateMapAndTrace();
+        return view;
     }
 
     private void drawStart() {
@@ -155,7 +147,7 @@ public class TrackShowDemo extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
 
         tracesFileNames.clean();
@@ -174,25 +166,20 @@ public class TrackShowDemo extends AppCompatActivity {
 
         }
         LogUtils.i(tag, "tracesFileNames size:   " + tracesFileNames.size());
-//        for (int index = 0; index < latlngs.length; index++) {
-//            mPolylines.add(latlngs[index]);
-//        }
+
+
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         mMapView.onResume();
-        if (!isDrawed) {
-            isDrawed = true;
-            if (TextUtils.isEmpty(mPath)) {
-                mPath = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
-            }
-
-            obtainLocationDataFromFile(mPath);
-
-            isDrawed = true;
-        }
+//        if (!isDrawed) {
+//            isDrawed = true;
+//
+//
+//            isDrawed = true;
+//        }
     }
 
     private void invalidateMapAndTrace() {
@@ -228,20 +215,29 @@ public class TrackShowDemo extends AppCompatActivity {
                 return;
             }
         }
+        try {
+            ThreadPoolUtils.getInstance().cancel();
+
         mPolylines.clear();
         mBaiduMap.clear();
         mTraceTxtPath = traceTxtPath;
-        if (t.isAlive()){
-            t.stop();
-        }
-        t.start();
+//        if (t.isAlive()){
+//            LogUtils.i(tag,"t "+t.isAlive());
+//            t.stop();
+//        }
+//        t.start();
+
+        ThreadPoolUtils.getInstance().execute(mFRT);
         LogUtils.i(tag,"obtainLocationDataFromFile end---------------");
-        LogUtils.i(tag,"thread alive"+t.isAlive());
+        }catch (Exception e ){
+            e.printStackTrace();
+        }
+
 
     }
-
+    FileReaderTask mFRT = new FileReaderTask();
     private String mTraceTxtPath;
-    Thread t = new Thread(new Runnable() {
+    class FileReaderTask implements Runnable{
         @Override
         public void run() {
             try {
@@ -256,8 +252,8 @@ public class TrackShowDemo extends AppCompatActivity {
                             new FileInputStream(file));// 考虑到编码格式
                     BufferedReader bufferedReader = new BufferedReader(read);
                     String lineTxt = null;
-                    String line= "";
-                    String times= "";
+                    String line = "";
+                    String times = "";
                     ArrayList<LatLng> polylines = new ArrayList<>();
 
                     List<ArrayList<LatLng>> latlngContainer = new ArrayList<ArrayList<LatLng>>(10);
@@ -280,20 +276,20 @@ public class TrackShowDemo extends AppCompatActivity {
 
                             String time = lineTxt.substring(0, 19);
 
-                            if (!TextUtils.isEmpty(times)){
+                            if (!TextUtils.isEmpty(times)) {
                                 Date front = sdf.parse(times);
-                                Date after =  sdf.parse(time);
-                                if (after.getTime() - front.getTime() < 58000){
+                                Date after = sdf.parse(time);
+                                if (after.getTime() - front.getTime() < 58000) {
                                     continue;
                                 }
 //                                LogUtils.i(tag,"front "+times+"-"+"after "+time);
                             }
                             times = time;
-                            lineTxt  = lineTxt.substring(22, lineTxt.length() - 1);
+                            lineTxt = lineTxt.substring(22, lineTxt.length() - 1);
 
 //                        LogUtils.i(tag,time+"____"+lineTxt);
                         }
-                        if (lineTxt.equals(line)){
+                        if (lineTxt.equals(line)) {
                             continue;
                         }
                         String[] split = lineTxt.split("-");
@@ -307,8 +303,10 @@ public class TrackShowDemo extends AppCompatActivity {
                             if (polylines.size() > 300) {
 //                                polylineCopy.clear();
 //                                polylineCopy.addAll(polylines);
-                                if (count > 9){ count = 0; }
-                                if (latlngContainer.get(count)!=null && latlngContainer.get(count).size() > 0) {
+                                if (count > 9) {
+                                    count = 0;
+                                }
+                                if (latlngContainer.get(count) != null && latlngContainer.get(count).size() > 0) {
                                     latlngContainer.get(count).clear();
                                 }
                                 latlngContainer.get(count).addAll(polylines);
@@ -318,8 +316,8 @@ public class TrackShowDemo extends AppCompatActivity {
                                 message.what = 1;
                                 message.setData(bundle);
                                 mHandler.sendMessage(message);
-                                LogUtils.i(tag,"polylines size "+polylines.size());
-                                count ++;
+                                LogUtils.i(tag, "polylines size " + polylines.size());
+                                count++;
                                 polylines.clear();
                                 Thread.sleep(100);
                             }
@@ -327,7 +325,7 @@ public class TrackShowDemo extends AppCompatActivity {
                         }
 
                     }
-                    LogUtils.i(tag,"end polylines size "+polylines.size());
+                    LogUtils.i(tag, "end polylines size " + polylines.size());
                     polylineCopy.clear();
                     polylineCopy.addAll(polylines);
                     Bundle bundles = new Bundle();
@@ -348,7 +346,9 @@ public class TrackShowDemo extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-    });
+    }
+
+
 
     private Handler mHandler = new Handler(){
         @Override
@@ -390,13 +390,8 @@ public class TrackShowDemo extends AppCompatActivity {
         }
     };
 
-    public static boolean isInteger(String str) {
-        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
-        return pattern.matcher(str).matches();
-    }
-
-
-    public void popWindowShowFile(View v) {
+    @OnClick(R.id.popup_rl_f)
+    public void popWindowShowFile() {
         popupIv.setImageResource(R.drawable.upblack_downred);
 
         View popupView = View.inflate(mContext, R.layout.popup_file_rv, null);
@@ -415,18 +410,12 @@ public class TrackShowDemo extends AppCompatActivity {
         adapter.setOnClickListener(new BaseAdapter.OnClickListener() {
             @Override
             public void onShortClick(View v, int position) {
-                switch (v.getId()){
-                    case R.id.file_tv:
-                        pw.dismiss();
+                pw.dismiss();
 
-                        String path = AppConstant.TRACES_DIR + "/" + tracesFileNames.get(position);
-                        LogUtils.i(tag, "filelistitem: " + path);
-                        obtainLocationDataFromFile(path);
-                        break;
-                    case R.id.right_menu:
-                        tracesFileNames.remove(position);
-                        break;
-                }
+                String path = AppConstant.TRACES_DIR + "/" + tracesFileNames.get(position);
+                LogUtils.i(tag, "filelistitem: " + path);
+                obtainLocationDataFromFile(path);
+                invalidateMapAndTrace();
 
             }
 
@@ -441,19 +430,7 @@ public class TrackShowDemo extends AppCompatActivity {
         int[] location = new int[2];
         popupRl.getLocationOnScreen(location);
 
-//        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(200, View.MeasureSpec.AT_MOST);
-//        popupView.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.UNSPECIFIED);
-        LogUtils.i(tag, "popll: " + popupView.getMeasuredHeight() + "---" + "screenheight/3: " + MyApplication.getInstance().getScreenHeight() / 3);
-//        if (popLl.getMeasuredHeight() > MyApplication.getInstance().getScreenHeight() / 3) {
-//            LogUtils.i(tag, "popll: " + popLl.getMeasuredHeight() + "---" + "screenheight/3: " + MyApplication.getInstance().getScreenHeight() / 3);
-//            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-//            layoutParams.height = 450;
-//            popLl.setLayoutParams(layoutParams);
-//        }
-
         pw = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, MyApplication.getInstance().getScreenHeight() / 3, true);
-//        pw.setFocusable(true);
-//        pw.setOutsideTouchable(true);//没多大用
         pw.showAtLocation(popupRl, Gravity.NO_GRAVITY, location[0], location[1] - MyApplication.getInstance().getScreenHeight() / 3);
         pw.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
@@ -464,56 +441,25 @@ public class TrackShowDemo extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         mMapView.onPause();
     }
 
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mMapView.onSaveInstanceState(outState);
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+    public void onDestroyView() {
+        super.onDestroyView();
+        clearOverlay();
+        mMapView.onDestroy();
+        mBaiduMap.clear();
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        try {
-            clearOverlay();
-            mMapView.onDestroy();
-            mBaiduMap.clear();
-        }catch (Exception e){
-            LogUtils.e(tag,e.getMessage());
-        }
-
-    }
-
-
-    private static final LatLng[] latlngs = new LatLng[]{
-            new LatLng(40.055826, 116.307917),
-            new LatLng(40.055916, 116.308455),
-            new LatLng(40.055967, 116.308549),
-            new LatLng(40.056014, 116.308574),
-            new LatLng(40.056440, 116.308485),
-            new LatLng(40.056816, 116.308352),
-            new LatLng(40.057997, 116.307725),
-            new LatLng(40.058022, 116.307693),
-            new LatLng(40.058029, 116.307590),
-            new LatLng(40.057913, 116.307119),
-            new LatLng(40.057850, 116.306945),
-            new LatLng(40.057756, 116.306915),
-            new LatLng(40.057225, 116.307164),
-            new LatLng(40.056134, 116.307546),
-            new LatLng(40.055879, 116.307636),
-            new LatLng(40.055826, 116.307697),
-    };
 
     private void clearOverlay() {
         mMarkerS = null;
@@ -522,9 +468,6 @@ public class TrackShowDemo extends AppCompatActivity {
         qx.recycle();
     }
 
-    @OnClick(R.id.scanner_toolbar_back)
-    public void onBack() {
-        finish();
-    }
-}
 
+
+}
