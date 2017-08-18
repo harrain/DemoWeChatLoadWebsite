@@ -83,6 +83,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
     private MyLocationData locData;
     private boolean isLocated = false;
     private LocationBroadcastReceiver mLBR;
+    private Context mContext;
 
 
     @Override
@@ -92,7 +93,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         mTTitle.setText("行驶轨迹追踪服务");
-
+        mContext = this;
         list.add(mBtnStarService);
         list.add(mBtnStartManger);
         list.add(mBtnStopService);
@@ -213,6 +214,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
             IntentWrapper.whiteListMatters(this, "行驶轨迹追踪服务的持续运行");
             SharePrefrenceUtils.getInstance().setAddWhiteList(true);
         }
+
     }
 
     public void onClick(View v) {

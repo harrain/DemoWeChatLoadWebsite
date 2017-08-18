@@ -8,6 +8,7 @@ import android.os.IBinder;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.FileUtil;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.xdandroid.hellodaemon.AbsWorkService;
@@ -31,6 +32,8 @@ public class TraceServiceImpl extends AbsWorkService {
     private static BufferedWriter bw;
     private static FileWriter fileWriter;
     private String path;
+    private Date mDate;
+    private SimpleDateFormat mSdf;
 
     public static void stopService() {
         //我们现在不再需要服务运行了, 将标志位置为 true
@@ -70,6 +73,8 @@ public class TraceServiceImpl extends AbsWorkService {
 
         if (bw != null) return;
         System.out.println("startWork");
+        //19个字符串  index : 0-18
+        mSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
             if (SharePrefrenceUtils.getInstance().getLocateInterrupt()){
@@ -83,10 +88,10 @@ public class TraceServiceImpl extends AbsWorkService {
                 }
 
             }else {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
+
                 Date date = new Date();
 
-                path = AppConstant.TRACES_DIR + File.separator + sdf.format(date) + ".txt";
+                path = AppConstant.TRACES_DIR + File.separator + mSdf.format(date) + ".txt";
                 SharePrefrenceUtils.getInstance().setRecentTracePath(path);
                 LogUtils.i(tag, "trace path---" + path);
                 File file = FileUtil.createFile(path);
@@ -108,11 +113,15 @@ public class TraceServiceImpl extends AbsWorkService {
         LocationRequest.getInstance().start(new LocationRequest.BDLocateFinishListener() {
             @Override
             public void onLocateCompleted(String longitude, String latitude) {
-                Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
-                intent1.putExtra("longitude",longitude);
-                intent1.putExtra("latitude",latitude);
-                sendBroadcast(intent1);
-                saveLocationToLocal(longitude, latitude);
+                if (NumberValidationUtil.isPositiveDecimal(longitude) && NumberValidationUtil.isPositiveDecimal(latitude))
+                {
+                    Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
+                    intent1.putExtra("longitude", longitude);
+                    intent1.putExtra("latitude", latitude);
+
+                    sendBroadcast(intent1);
+                    saveLocationToLocal(longitude, latitude);
+                }
             }
         });
         SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
@@ -162,9 +171,14 @@ public class TraceServiceImpl extends AbsWorkService {
         }
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//19个字符串  index : 0-18
+
             Date date = new Date();
-            bw.write(sdf.format(date)+"   ");
+            if (date.getTime() - mDate.getTime() < 58000){
+                return;
+            }
+            
+            mDate = date;
+            bw.write(mSdf.format(date)+"   ");
 
             bw.write(longitude + "-" + latitude);
             bw.newLine();

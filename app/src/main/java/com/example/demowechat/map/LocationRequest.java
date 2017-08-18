@@ -97,7 +97,7 @@ public class LocationRequest {
         //可选，设置是否需要地址信息，默认不需要
 
         option.setOpenGps(true);
-        //可选，默认false,设置是否使用gps
+        //可选，默认false,设置是否使用gps,会打开GPS
 
         option.setLocationNotify(false);
         //可选，默认false，设置是否当GPS有效时按照1S/1次频率输出GPS结果
