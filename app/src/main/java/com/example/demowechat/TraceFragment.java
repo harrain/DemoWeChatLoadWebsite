@@ -98,7 +98,7 @@ public class TraceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_web, container, false);
-        ButterKnife.bind(this,view);
+        ButterKnife.bind(this, view);
         mContext = getActivity();
 //        if (savedInstanceState != null) {
 //
@@ -109,13 +109,9 @@ public class TraceFragment extends Fragment {
         mPolylines = new ArrayList<>();
         polylineOptions = new PolylineOptions();
         tracesFileNames = new Link<>();
-        ((MainActivity)mContext).setToolbarTitle("轨迹展示");
+        ((MainActivity) mContext).setToolbarTitle("轨迹展示");
 
-        String path = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
 
-        obtainLocationDataFromFile(path);
-
-        invalidateMapAndTrace();
         return view;
     }
 
@@ -129,7 +125,7 @@ public class TraceFragment extends Fragment {
         isDrawedStart = true;
     }
 
-    private void drawEnd(){
+    private void drawEnd() {
         qx = BitmapDescriptorFactory
                 .fromResource(R.drawable.qx);
         MarkerOptions ooB = new MarkerOptions().position(mPolylines.get(mPolylines.size() - 1)).icon(qx)
@@ -138,7 +134,7 @@ public class TraceFragment extends Fragment {
         isDrawedEnd = false;
     }
 
-    private void drawPolyLine() throws Exception{
+    private void drawPolyLine() throws Exception {
 
         polylineOptions.points(mPolylines).width(10).color(Color.RED);
 
@@ -173,7 +169,13 @@ public class TraceFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
         mMapView.onResume();
+        LogUtils.i(tag,"onResume");
+        String path = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
+
+        obtainLocationDataFromFile(path);
+
 //        if (!isDrawed) {
 //            isDrawed = true;
 //
@@ -196,8 +198,12 @@ public class TraceFragment extends Fragment {
         mMapView.showZoomControls(false);
 
         try {
-            if (!isDrawedStart){drawStart();}
-            if (isDrawedEnd) { drawEnd();}
+            if (!isDrawedStart) {
+                drawStart();
+            }
+            if (isDrawedEnd) {
+                drawEnd();
+            }
             drawPolyLine();
         } catch (Exception e) {
             e.printStackTrace();
@@ -210,7 +216,7 @@ public class TraceFragment extends Fragment {
             ToastFactory.showShortToast("TraceFilePath = null");
             return;
         }
-        if (!TextUtils.isEmpty(mTraceTxtPath)){
+        if (!TextUtils.isEmpty(mTraceTxtPath)) {
             if (mTraceTxtPath.equals(traceTxtPath)) {
                 return;
             }
@@ -218,26 +224,27 @@ public class TraceFragment extends Fragment {
         try {
             ThreadPoolUtils.getInstance().cancel();
 
-        mPolylines.clear();
-        mBaiduMap.clear();
-        mTraceTxtPath = traceTxtPath;
+            mPolylines.clear();
+            mBaiduMap.clear();
+            mTraceTxtPath = traceTxtPath;
 //        if (t.isAlive()){
 //            LogUtils.i(tag,"t "+t.isAlive());
 //            t.stop();
 //        }
 //        t.start();
 
-        ThreadPoolUtils.getInstance().execute(mFRT);
-        LogUtils.i(tag,"obtainLocationDataFromFile end---------------");
-        }catch (Exception e ){
+            ThreadPoolUtils.getInstance().execute(mFRT);
+            LogUtils.i(tag, "obtainLocationDataFromFile end---------------");
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-
     }
+
     FileReaderTask mFRT = new FileReaderTask();
     private String mTraceTxtPath;
-    class FileReaderTask implements Runnable{
+
+    class FileReaderTask implements Runnable {
         @Override
         public void run() {
             try {
@@ -349,39 +356,38 @@ public class TraceFragment extends Fragment {
     }
 
 
-
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what){
+            switch (msg.what) {
                 case 0:
                     mTraceFnameTv.setText((String) msg.obj);
                     break;
                 case 1:
                     Bundle data = msg.peekData();
-                    LogUtils.i(tag,"bundle size0 "+data.getParcelableArrayList("polylines").size());
+                    LogUtils.i(tag, "bundle size0 " + data.getParcelableArrayList("polylines").size());
                     if (data.getParcelableArrayList("polylines") != null && data.getParcelableArrayList("polylines").size() != 0) {
 
                         mPolylines = data.getParcelableArrayList("polylines");
                         LogUtils.i(tag, "handleMessage 1");
                         invalidateMapAndTrace();
                     }
-                    LogUtils.i(tag,"1 mPolylines size "+mPolylines.size());
+                    LogUtils.i(tag, "1 mPolylines size " + mPolylines.size());
                     break;
                 case 2:
                     Bundle datas = msg.peekData();
 //                    mPolylines = datas.getParcelableArrayList("polylineCopy");
 
-                    LogUtils.i(tag,"bundle size1 "+datas.getParcelableArrayList("polylineCopy").size());
+                    LogUtils.i(tag, "bundle size1 " + datas.getParcelableArrayList("polylineCopy").size());
                     if (datas.getParcelableArrayList("polylineCopy") != null && datas.getParcelableArrayList("polylineCopy").size() != 0) {
                         mPolylines = datas.getParcelableArrayList("polylineCopy");
 
-                        LogUtils.i(tag,"bundle size1 "+datas.getParcelableArrayList("polylineCopy").size());
+                        LogUtils.i(tag, "bundle size1 " + datas.getParcelableArrayList("polylineCopy").size());
                     }
 
-                    LogUtils.i(tag,"handleMessage 2");
-                    LogUtils.i(tag,"2 mPolylines size "+mPolylines.size());
+                    LogUtils.i(tag, "handleMessage 2");
+                    LogUtils.i(tag, "2 mPolylines size " + mPolylines.size());
                     isDrawedEnd = true;
                     invalidateMapAndTrace();
                     break;
@@ -456,9 +462,16 @@ public class TraceFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        clearOverlay();
-        mMapView.onDestroy();
-        mBaiduMap.clear();
+        try {
+            LogUtils.i(tag,"onDestroyView");
+            mTraceTxtPath = null;
+            clearOverlay();
+            mMapView.onDestroy();
+            mBaiduMap.clear();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     private void clearOverlay() {
@@ -467,7 +480,6 @@ public class TraceFragment extends Fragment {
         qw.recycle();
         qx.recycle();
     }
-
 
 
 }

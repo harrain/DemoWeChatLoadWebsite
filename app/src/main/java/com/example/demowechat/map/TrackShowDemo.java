@@ -44,6 +44,7 @@ import com.example.demowechat.utils.Link;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.SharePrefrenceUtils;
+import com.example.demowechat.utils.ThreadPoolUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.example.demowechat.widget.SwipeMenuRecyclerView;
 
@@ -137,7 +138,7 @@ public class TrackShowDemo extends AppCompatActivity {
         isDrawedStart = true;
     }
 
-    private void drawEnd(){
+    private void drawEnd() {
         qx = BitmapDescriptorFactory
                 .fromResource(R.drawable.qx);
         MarkerOptions ooB = new MarkerOptions().position(mPolylines.get(mPolylines.size() - 1)).icon(qx)
@@ -146,7 +147,7 @@ public class TrackShowDemo extends AppCompatActivity {
         isDrawedEnd = false;
     }
 
-    private void drawPolyLine() throws Exception{
+    private void drawPolyLine() throws Exception {
 
         polylineOptions.points(mPolylines).width(10).color(Color.RED);
 
@@ -209,8 +210,12 @@ public class TrackShowDemo extends AppCompatActivity {
         mMapView.showZoomControls(false);
 
         try {
-            if (!isDrawedStart){drawStart();}
-            if (isDrawedEnd) { drawEnd();}
+            if (!isDrawedStart) {
+                drawStart();
+            }
+            if (isDrawedEnd) {
+                drawEnd();
+            }
             drawPolyLine();
         } catch (Exception e) {
             e.printStackTrace();
@@ -223,25 +228,28 @@ public class TrackShowDemo extends AppCompatActivity {
             ToastFactory.showShortToast("TraceFilePath = null");
             return;
         }
-        if (!TextUtils.isEmpty(mTraceTxtPath)){
+        if (!TextUtils.isEmpty(mTraceTxtPath)) {
             if (mTraceTxtPath.equals(traceTxtPath)) {
                 return;
             }
         }
-        mPolylines.clear();
-        mBaiduMap.clear();
-        mTraceTxtPath = traceTxtPath;
-        if (t.isAlive()){
-            t.stop();
+        try {
+            ThreadPoolUtils.getInstance().cancel();
+            mPolylines.clear();
+            mBaiduMap.clear();
+            mTraceTxtPath = traceTxtPath;
+            ThreadPoolUtils.getInstance().execute(mFRT);
+            LogUtils.i(tag, "obtainLocationDataFromFile end---------------");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        t.start();
-        LogUtils.i(tag,"obtainLocationDataFromFile end---------------");
-        LogUtils.i(tag,"thread alive"+t.isAlive());
 
     }
 
+    FileReaderTask mFRT = new FileReaderTask();
     private String mTraceTxtPath;
-    Thread t = new Thread(new Runnable() {
+
+    class FileReaderTask implements Runnable {
         @Override
         public void run() {
             try {
@@ -256,8 +264,8 @@ public class TrackShowDemo extends AppCompatActivity {
                             new FileInputStream(file));// 考虑到编码格式
                     BufferedReader bufferedReader = new BufferedReader(read);
                     String lineTxt = null;
-                    String line= "";
-                    String times= "";
+                    String line = "";
+                    String times = "";
                     ArrayList<LatLng> polylines = new ArrayList<>();
 
                     List<ArrayList<LatLng>> latlngContainer = new ArrayList<ArrayList<LatLng>>(10);
@@ -280,20 +288,20 @@ public class TrackShowDemo extends AppCompatActivity {
 
                             String time = lineTxt.substring(0, 19);
 
-                            if (!TextUtils.isEmpty(times)){
+                            if (!TextUtils.isEmpty(times)) {
                                 Date front = sdf.parse(times);
-                                Date after =  sdf.parse(time);
-                                if (after.getTime() - front.getTime() < 58000){
+                                Date after = sdf.parse(time);
+                                if (after.getTime() - front.getTime() < 58000) {
                                     continue;
                                 }
 //                                LogUtils.i(tag,"front "+times+"-"+"after "+time);
                             }
                             times = time;
-                            lineTxt  = lineTxt.substring(22, lineTxt.length() - 1);
+                            lineTxt = lineTxt.substring(22, lineTxt.length() - 1);
 
 //                        LogUtils.i(tag,time+"____"+lineTxt);
                         }
-                        if (lineTxt.equals(line)){
+                        if (lineTxt.equals(line)) {
                             continue;
                         }
                         String[] split = lineTxt.split("-");
@@ -307,8 +315,10 @@ public class TrackShowDemo extends AppCompatActivity {
                             if (polylines.size() > 300) {
 //                                polylineCopy.clear();
 //                                polylineCopy.addAll(polylines);
-                                if (count > 9){ count = 0; }
-                                if (latlngContainer.get(count)!=null && latlngContainer.get(count).size() > 0) {
+                                if (count > 9) {
+                                    count = 0;
+                                }
+                                if (latlngContainer.get(count) != null && latlngContainer.get(count).size() > 0) {
                                     latlngContainer.get(count).clear();
                                 }
                                 latlngContainer.get(count).addAll(polylines);
@@ -318,8 +328,8 @@ public class TrackShowDemo extends AppCompatActivity {
                                 message.what = 1;
                                 message.setData(bundle);
                                 mHandler.sendMessage(message);
-                                LogUtils.i(tag,"polylines size "+polylines.size());
-                                count ++;
+                                LogUtils.i(tag, "polylines size " + polylines.size());
+                                count++;
                                 polylines.clear();
                                 Thread.sleep(100);
                             }
@@ -327,7 +337,7 @@ public class TrackShowDemo extends AppCompatActivity {
                         }
 
                     }
-                    LogUtils.i(tag,"end polylines size "+polylines.size());
+                    LogUtils.i(tag, "end polylines size " + polylines.size());
                     polylineCopy.clear();
                     polylineCopy.addAll(polylines);
                     Bundle bundles = new Bundle();
@@ -348,40 +358,40 @@ public class TrackShowDemo extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-    });
+    }
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what){
+            switch (msg.what) {
                 case 0:
                     mTraceFnameTv.setText((String) msg.obj);
                     break;
                 case 1:
                     Bundle data = msg.peekData();
-                    LogUtils.i(tag,"bundle size0 "+data.getParcelableArrayList("polylines").size());
+                    LogUtils.i(tag, "bundle size0 " + data.getParcelableArrayList("polylines").size());
                     if (data.getParcelableArrayList("polylines") != null && data.getParcelableArrayList("polylines").size() != 0) {
 
                         mPolylines = data.getParcelableArrayList("polylines");
                         LogUtils.i(tag, "handleMessage 1");
                         invalidateMapAndTrace();
                     }
-                    LogUtils.i(tag,"1 mPolylines size "+mPolylines.size());
+                    LogUtils.i(tag, "1 mPolylines size " + mPolylines.size());
                     break;
                 case 2:
                     Bundle datas = msg.peekData();
 //                    mPolylines = datas.getParcelableArrayList("polylineCopy");
 
-                    LogUtils.i(tag,"bundle size1 "+datas.getParcelableArrayList("polylineCopy").size());
+                    LogUtils.i(tag, "bundle size1 " + datas.getParcelableArrayList("polylineCopy").size());
                     if (datas.getParcelableArrayList("polylineCopy") != null && datas.getParcelableArrayList("polylineCopy").size() != 0) {
                         mPolylines = datas.getParcelableArrayList("polylineCopy");
 
-                        LogUtils.i(tag,"bundle size1 "+datas.getParcelableArrayList("polylineCopy").size());
+                        LogUtils.i(tag, "bundle size1 " + datas.getParcelableArrayList("polylineCopy").size());
                     }
 
-                    LogUtils.i(tag,"handleMessage 2");
-                    LogUtils.i(tag,"2 mPolylines size "+mPolylines.size());
+                    LogUtils.i(tag, "handleMessage 2");
+                    LogUtils.i(tag, "2 mPolylines size " + mPolylines.size());
                     isDrawedEnd = true;
                     invalidateMapAndTrace();
                     break;
@@ -415,7 +425,7 @@ public class TrackShowDemo extends AppCompatActivity {
         adapter.setOnClickListener(new BaseAdapter.OnClickListener() {
             @Override
             public void onShortClick(View v, int position) {
-                switch (v.getId()){
+                switch (v.getId()) {
                     case R.id.file_tv:
                         pw.dismiss();
 
@@ -489,8 +499,8 @@ public class TrackShowDemo extends AppCompatActivity {
             clearOverlay();
             mMapView.onDestroy();
             mBaiduMap.clear();
-        }catch (Exception e){
-            LogUtils.e(tag,e.getMessage());
+        } catch (Exception e) {
+            LogUtils.e(tag, e.getMessage());
         }
 
     }

@@ -219,7 +219,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
         }
         if (!GpsUtil.isOpenGPS(mContext)){
             LogUtils.i(tag,"gps no open");
-            AlertDialogUtil.showAlertDialog(new AlertDialogUtil.AlertListener() {
+            AlertDialogUtil.showAlertDialog(mContext,"GPS未开启","点击 确认 去开启GPS",new AlertDialogUtil.AlertListener() {
                 @Override
                 public void positiveResult(DialogInterface dialog, int which) {
                     dialog.dismiss();

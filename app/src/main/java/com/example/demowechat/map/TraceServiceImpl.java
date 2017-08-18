@@ -6,12 +6,14 @@ import android.os.Build;
 import android.os.IBinder;
 import android.text.TextUtils;
 
+import com.example.demowechat.MyApplication;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.FileUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.example.demowechat.utils.ToastFactory;
+import com.loonggg.lib.alarmmanager.clock.AlarmManagerUtil;
 import com.xdandroid.hellodaemon.AbsWorkService;
 
 import java.io.BufferedWriter;
@@ -37,6 +39,13 @@ public class TraceServiceImpl extends AbsWorkService {
     private SimpleDateFormat mSdf;
     private String mLongitude;
     private String mLatitude;
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        AlarmManagerUtil.setAlarm(MyApplication.getInstance(),1,7,0,AppConstant.START_WORK,0);
+        AlarmManagerUtil.setAlarm(MyApplication.getInstance(),1,23,59,AppConstant.STOP_WORK,0);
+        return super.onStartCommand(intent, flags, startId);
+    }
 
     public static void stopService() {
         //我们现在不再需要服务运行了, 将标志位置为 true

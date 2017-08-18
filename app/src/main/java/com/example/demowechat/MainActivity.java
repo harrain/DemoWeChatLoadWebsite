@@ -165,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
 //                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 //                startActivityForResult(cameraIntent, CAMERA_REQUEST);
 //                capture();
+                cameraType = 0;
                 requestCameraPermission();
 
             }
@@ -172,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
         captureNow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cameraType = 1;
+
                 requestPermission(new PermissionResultListener() {
                     @Override
                     public void onHandlePermissionResult(boolean granted) {

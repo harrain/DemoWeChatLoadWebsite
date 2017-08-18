@@ -464,9 +464,9 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
 
         //这里第三个参数为最小尺寸 getPropPreviewSize方法会对从最小尺寸开始升序排列 取出所有支持尺寸的最小尺寸
-        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), screenHeight);
-        parameters.setPreviewSize(previewSize.width, previewSize.height);
-//        parameters.setPreviewSize(screenHeight, screenWidth);
+//        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), screenHeight);
+//        parameters.setPreviewSize(previewSize.width, previewSize.height);
+        parameters.setPreviewSize(screenHeight, screenWidth);
         Camera.Size pictrueSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), screenHeight);
         parameters.setPictureSize(pictrueSize.width, pictrueSize.height);
 //        parameters.setPictureSize(screenHeight, screenWidth);
@@ -479,9 +479,9 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
          * previewSize.width才是surfaceView的高度
          * 一般相机都是屏幕的宽度 这里设置为屏幕宽度 高度自适应 你也可以设置自己想要的大小
          *
-         */
+        */
 
-        picHeight = screenWidth * 4 / 3;
+        picHeight = screenWidth * pictrueSize.width / pictrueSize.height;
 //        LogUtils.i("previewSize.width-previewSize.height",previewSize.width+"-"+previewSize.height);
 //        LogUtils.i("pictrueSize.width-pictrueSize.height",pictrueSize.width+"-"+pictrueSize.height);
 //        LogUtils.i("picHeight",picHeight+"");

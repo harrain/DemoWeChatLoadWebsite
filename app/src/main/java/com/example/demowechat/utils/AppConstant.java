@@ -16,6 +16,8 @@ public class AppConstant {
     public static final String CAMERA_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/Camera/";
     public static final String GALARY_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/";
     public static final String LOCATION_BROADCAST = "com.example.demowechat.map.latlng";
+    public static final int START_WORK = 1;
+    public static final int STOP_WORK = 2;
 
     //WHAT 0-10 预留值
     public interface WHAT {
