@@ -14,6 +14,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -62,7 +63,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
     @BindView(R.id.titlebar)
     Toolbar toolbar;
     @BindView(R.id.locate_more_iv)
-    ImageView mMoreIv;
+    FloatingActionButton mMoreIv;
     private boolean isSelected = false;
     private List<View> list = new ArrayList<>();
 
@@ -95,12 +96,16 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_locate);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-        mTTitle.setText("行驶轨迹追踪服务");
+        mTTitle.setTextColor(getResources().getColor(android.R.color.black));
+        mTTitle.setText("");
+        toolbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        mTBack.setImageResource(R.drawable.back_map);
         mContext = this;
         list.add(mBtnStarService);
         list.add(mBtnStartManger);
         list.add(mBtnStopService);
         mMoreIv.setOnClickListener(this);
+
         locateMap();
 
         mBtnStopService.setVisibility(View.INVISIBLE);
@@ -119,7 +124,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
                     isLocated = true;
                 } else {
                     isLocated = false;
-                    mTTitle.setText("行驶轨迹追踪服务\r\n" + "后台持续获取位置坐标中···");
+                    mTTitle.setText("后台持续获取位置坐标中···");
                 }
                 return;
             }
@@ -256,12 +261,12 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
                 mBtnStarService.setVisibility(View.INVISIBLE);
                 mBtnStopService.setVisibility(View.VISIBLE);
 
-                mTTitle.setText("行驶轨迹追踪服务\r\n" + "后台持续获取位置坐标中···");
+                mTTitle.setText("后台持续获取位置坐标中···");
 //                bindService(intent,sc,BIND_AUTO_CREATE);
 
                 break;
             case R.id.btn_white:
-                IntentWrapper.whiteListMatters(this, "行驶轨迹追踪服务的持续运行");
+                IntentWrapper.whiteListMatters(this, "后台定位");
 //                mBtnStartManger.setEnabled(false);
 //                mBtnStartManger.setClickable(false);
                 mBtnStartManger.setBackgroundColor(getResources().getColor(R.color.light_grey));
@@ -278,7 +283,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
                 TraceServiceImpl.stopService();
 
 //                stopService(intent);
-                mTTitle.setText("行驶轨迹追踪服务");
+//                mTTitle.setText("行驶轨迹追踪服务");
 
                 break;
             case R.id.locate_more_iv:

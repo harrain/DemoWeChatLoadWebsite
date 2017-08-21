@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     Context mContext;
     ImageView pic;
     ConverFragment converf;
-    TraceFragment webFragment;
+    TraceFragment mTraceFragment;
     FragmentManager fm;
     FragmentTransaction fragmentTransaction;
     private Toolbar toolbar;
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         pic = (ImageView) findViewById(R.id.pic);
 
         converf = new ConverFragment();
-        webFragment = new TraceFragment();
+        mTraceFragment = new TraceFragment();
         mLatlngFragment = new LatlngFragment();
         mDeviceFragment = new DisplayFragment();
         fm = getSupportFragmentManager();
@@ -365,10 +365,11 @@ public class MainActivity extends AppCompatActivity {
      * @param v
      */
     public void search(View v) {
-        fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.fl, webFragment);
-        fragmentTransaction.show(webFragment);
-        fragmentTransaction.commit();
+        startActivity(new Intent(mContext, LocateActivity.class));
+//        fragmentTransaction = fm.beginTransaction();
+//        fragmentTransaction.replace(R.id.fl, mTraceFragment);
+//        fragmentTransaction.show(mTraceFragment);
+//        fragmentTransaction.commit();
     }
 
     public void device(View v){

@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Environment;
@@ -12,6 +13,7 @@ import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,6 +27,8 @@ import java.io.RandomAccessFile;
  */
 @SuppressWarnings("deprecation")
 public class DeviceInfoUtils {
+    private static final String tag = "DeviceInfoUtils";
+
     private DeviceInfoUtils() {
     }
 
@@ -75,6 +79,24 @@ public class DeviceInfoUtils {
         return dm.widthPixels;
     }
 
+    public static double getScreenInches(Activity activity) {
+        Point point = new Point();
+        activity.getWindowManager().getDefaultDisplay().getRealSize(point);
+        DisplayMetrics dm = activity.getResources().getDisplayMetrics();
+        double x = Math.pow(point.x/ dm.xdpi, 2);
+        double y = Math.pow(point.y / dm.ydpi, 2);
+        double screenInches = Math.sqrt(x + y);
+
+        Log.i(tag,"density "+dm.density);
+        Log.i(tag,"densityDpi "+dm.densityDpi);
+        Log.i(tag,"scaledDensity "+dm.scaledDensity);
+        double PPI = Math.sqrt(Math.pow(dm.xdpi,2)+Math.pow(dm.ydpi,2));
+        Log.i(tag,"ppi "+PPI);
+        Log.i(tag,"real size "+point.x+"-"+point.y);
+        Log.i(tag, "Screen inches : " + screenInches);
+        return screenInches;
+    }
+
     /**
      * 获取屏幕密度
      *
@@ -85,6 +107,12 @@ public class DeviceInfoUtils {
         DisplayMetrics metrics = context.getApplicationContext().getResources()
                 .getDisplayMetrics();
         return metrics.density;
+    }
+
+    public static float getDPI(Context context) {
+        DisplayMetrics metrics = context.getApplicationContext().getResources()
+                .getDisplayMetrics();
+        return metrics.densityDpi;
     }
 
     /**

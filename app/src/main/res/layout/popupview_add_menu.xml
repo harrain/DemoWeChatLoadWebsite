@@ -7,6 +7,7 @@
     >
 
     <LinearLayout
+        android:visibility="gone"
         android:id="@+id/locate"
         android:paddingTop="15dp"
         android:paddingBottom="13dp"
@@ -26,38 +27,6 @@
 
         <TextView
             android:text="定位追踪"
-            android:layout_marginLeft="13dp"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <View
-        style="@style/list_decoration_theme"
-        />
-
-    <LinearLayout
-        android:id="@+id/scan_own"
-        android:paddingTop="15dp"
-        android:paddingBottom="13dp"
-        android:paddingRight="16dp"
-        android:paddingLeft="16dp"
-        android:orientation="horizontal"
-
-        android:background="@drawable/titlebar_button_selector"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:src="@drawable/em_camera_pressed"
-            android:scaleType="centerCrop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:text="拍照"
             android:layout_marginLeft="13dp"
             android:textColor="@android:color/white"
             android:textSize="18sp"
@@ -167,6 +136,7 @@
 
 
     <LinearLayout
+        android:visibility="gone"
         android:id="@+id/track_draw"
         android:paddingTop="15dp"
         android:paddingBottom="13dp"
@@ -186,6 +156,38 @@
 
         <TextView
             android:text="历史轨迹"
+            android:layout_marginLeft="13dp"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <View
+        style="@style/list_decoration_theme"
+        />
+
+    <LinearLayout
+        android:id="@+id/scan_own"
+        android:paddingTop="15dp"
+        android:paddingBottom="13dp"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"
+        android:orientation="horizontal"
+
+        android:background="@drawable/titlebar_button_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:src="@drawable/em_camera_pressed"
+            android:scaleType="centerCrop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:text="拍照"
             android:layout_marginLeft="13dp"
             android:textColor="@android:color/white"
             android:textSize="18sp"

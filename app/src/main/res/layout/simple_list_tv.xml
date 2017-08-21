@@ -13,7 +13,7 @@
 
     <ImageView
         android:id="@+id/filenamelist_left_iv"
-        android:src="@drawable/latlng_note"
+        android:src="@drawable/latlng"
         android:scaleType="fitCenter"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@id/name_tv"

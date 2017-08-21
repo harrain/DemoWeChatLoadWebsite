@@ -1,6 +1,7 @@
 package com.example.demowechat;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -36,8 +37,14 @@ public class DisplayFragment extends Fragment {
     TextView CPU;
     @BindView(R.id.CPU_ABI)
     TextView cpuABI;
+    @BindView(R.id.widthPixel)
+    TextView widthPixel;
+    @BindView(R.id.heightPixel)
+    TextView heightPixel;
+    @BindView(R.id.physical)
+    TextView realSize;
     Unbinder unbinder;
-    private Object mContext;
+    private Context mContext;
 
     public DisplayFragment() {
         // Required empty public constructor
@@ -59,6 +66,9 @@ public class DisplayFragment extends Fragment {
         ROM.setText(DeviceInfoUtils.getOSName()+" "+DeviceInfoUtils.getOsVersion());
         CPU.setText(DeviceInfoUtils.getCpuType());
         cpuABI.setText(DeviceInfoUtils.getCPU_ABI());
+        widthPixel.setText(DeviceInfoUtils.getScreenWidth(mContext)+"");
+        heightPixel.setText(DeviceInfoUtils.getScreenHeight(mContext)+"");
+        realSize.setText("屏幕尺寸 "+DeviceInfoUtils.getScreenInches(getActivity())+"寸"+"  dpi "+DeviceInfoUtils.getDPI(mContext));
         return view;
     }
 

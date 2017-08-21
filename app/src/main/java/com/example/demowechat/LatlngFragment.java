@@ -20,7 +20,11 @@ import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.LogUtils;
 
 import java.io.File;
+import java.io.RandomAccessFile;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -89,7 +93,7 @@ public class LatlngFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        ((MainActivity)mContext).setToolbarTitle("定位文件("+tracesFileNames.size()+")");
+        ((MainActivity)mContext).setToolbarTitle("坐标文件("+tracesFileNames.size()+")");
         return view;
     }
 
@@ -103,14 +107,76 @@ public class LatlngFragment extends Fragment {
             LogUtils.e(tag, "TRACES_DIR is not existed");
             return;
         }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm:ss");
+
         File[] files = cacheDir.listFiles();
         for (File file : files) {
             if (file.isFile()) {
-                tracesFileNames.add(file.getName());
+                String name = file.getName();
+                String path = file.getAbsolutePath();
+                if (name.indexOf(".txt") == 19){
+                    String time0 = name.substring(0,19);
+                    String time1 = readLastStr(path).substring(0,19);
+                    try {
+                        long time = sdf.parse(time1).getTime() - sdf.parse(time0).getTime();
+                        Date date = new Date(time);
+                        LogUtils.i(tag,"date "+date);
+                        String s = timeSdf.format(date);
+                        String s1 = s.substring(0, 2);
+                        String s2 = s.substring(2,s.length());
+                        int hour = Integer.parseInt(s1) - 8;
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(time0.substring(0,10));
+                        sb.append("  ");
+                        sb.append("时长 ");
+                        String h = null;
+                        if (hour<10){
+                            sb.append("0");
+                            h = "0";
+                        }
+                        h += hour;
+                        sb.append(hour);
+                        sb.append(s2);
+//                        LogUtils.i(tag,sb.toString());
+                        tracesFileNames.add(sb.toString());
+//                        if (!file.getAbsolutePath().equals(SharePrefrenceUtils.getInstance().getRecentTraceFilePath())){
+//                            file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"),"$"+h+s2).toString()));
+//                        }
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         }
         adapter.notifyDataSetChanged();
         ((MainActivity)mContext).setToolbarTitle("定位文件("+tracesFileNames.size()+")");
+    }
+
+    private String readLastStr(String path) {
+        try {
+            RandomAccessFile raf = new RandomAccessFile(path, "r");
+            long len = raf.length();
+            String lastLine = "";
+            if (len != 0L) {
+                long pos = len - 1;
+                while (pos > 0) {
+                    pos--;
+                    raf.seek(pos);
+                    if (raf.readByte() == '\n') {
+                        lastLine = raf.readLine();
+                        break;
+                    }
+                }
+            }
+            raf.close();
+            return lastLine;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

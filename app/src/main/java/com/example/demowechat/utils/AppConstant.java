@@ -9,10 +9,11 @@ public class AppConstant {
     public static final int CAPTURE_NOW = 10;
     public static final String  TRACE_TXT_PATH = MyApplication.getInstance()
             .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "trace.txt";
-    public static final String  TRACES_DIR = MyApplication.getInstance()
-            .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "traces";
+//    public static final String  TRACES_DIR = MyApplication.getInstance()
+//            .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "traces";
     public static final String  CRASH_DIR = MyApplication.getInstance()
             .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/" + "crashes";
+    public static final String  TRACES_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/traces";
     public static final String CAMERA_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/Camera/";
     public static final String GALARY_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/";
     public static final String LOCATION_BROADCAST = "com.example.demowechat.map.latlng";

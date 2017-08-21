@@ -114,7 +114,9 @@ public class TrackShowDemo extends AppCompatActivity {
         mContext = this;
 
         mMapView = (MapView) findViewById(R.id.bmapView);
-        mTTitle.setText("轨迹绘制");
+        mTTitle.setText("");
+        toolbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        mTBack.setImageResource(R.drawable.back_map);
 
         if (savedInstanceState != null) {
 

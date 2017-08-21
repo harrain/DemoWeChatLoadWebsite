@@ -2,18 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
-
-    <include layout="@layout/scanner_toolbar"
-        android:id="@+id/titlebar"/>
+    >
 
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapView"
-        android:layout_below="@id/titlebar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/popup_rl"
         android:clickable="true" />
+
+    <include layout="@layout/scanner_toolbar"
+        android:id="@+id/titlebar"/>
 
     <TextView
         android:id="@+id/trace_fname_tv"
@@ -25,6 +23,7 @@
         android:layout_height="wrap_content" />
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/popup_rl"
         android:layout_alignParentBottom="true"
         android:clickable="true"
