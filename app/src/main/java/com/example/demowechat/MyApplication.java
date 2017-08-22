@@ -46,7 +46,7 @@ public class MyApplication extends Application {
         context = this.getApplicationContext();
 //        CrashReport.initCrashReport(this, "900011702", AppConfig.DEBUG);//bugly
         LogUtils.init(this, AppConfig.TAG, AppConfig.DEBUG);//初始化LOG
-        ToastFactory.setIsToast(false);
+        ToastFactory.setIsToast(true);
         screenWidth = DeviceInfoUtils.getScreenWidth(this);//获取屏幕宽度
         screenHeight = DeviceInfoUtils.getScreenHeight(this);//获取屏幕高度
 

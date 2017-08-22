@@ -14,14 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.demowechat.map.TrackShowDemo;
-import com.example.demowechat.rlPart.ArrayListAdapter;
 import com.example.demowechat.rlPart.BaseAdapter;
+import com.example.demowechat.rlPart.LatlngFragmentAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.LogUtils;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,8 +43,8 @@ public class LatlngFragment extends Fragment {
     Unbinder unbinder;
 
     private Context mContext;
-    private List<String> tracesFileNames;
-    private ArrayListAdapter adapter;
+    private List<TracesType> mTracesData;
+    private LatlngFragmentAdapter adapter;
 
     public LatlngFragment() {
 
@@ -59,7 +58,7 @@ public class LatlngFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
         mContext = getActivity();
 
-        tracesFileNames = new ArrayList<>();
+        mTracesData = new ArrayList<>();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         rv.setLayoutManager(layoutManager);
@@ -67,19 +66,19 @@ public class LatlngFragment extends Fragment {
                 new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL);
         rv.addItemDecoration(dividerItemDecoration);
 
-        adapter = new ArrayListAdapter(mContext,tracesFileNames);
+        adapter = new LatlngFragmentAdapter(mContext, mTracesData);
         adapter.setOnClickListener(new BaseAdapter.OnClickListener() {
             @Override
             public void onShortClick(View v, int position) {
-                switch (v.getId()){
+                switch (v.getId()) {
                     case R.id.filenamelist_left_iv:
-                        Intent intent = new Intent(mContext,LatlngActivity.class);
-                        intent.putExtra("tracePath",AppConstant.TRACES_DIR + "/" + tracesFileNames.get(position));
+                        Intent intent = new Intent(mContext, LatlngActivity.class);
+                        intent.putExtra("tracePath", mTracesData.get(position).getmFilePath());
                         startActivity(intent);
                         break;
                     case R.id.filenamelist_right_iv:
-                        Intent intent1 = new Intent(mContext,TrackShowDemo.class);
-                        intent1.putExtra("tracePath",AppConstant.TRACES_DIR + "/" + tracesFileNames.get(position));
+                        Intent intent1 = new Intent(mContext, TrackShowDemo.class);
+                        intent1.putExtra("tracePath", mTracesData.get(position).getmFilePath());
                         startActivity(intent1);
                         break;
                 }
@@ -93,14 +92,14 @@ public class LatlngFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        ((MainActivity)mContext).setToolbarTitle("坐标文件("+tracesFileNames.size()+")");
+        ((MainActivity) mContext).setToolbarTitle("坐标文件(" + mTracesData.size() + ")");
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        tracesFileNames.clear();
+        mTracesData.clear();
         File cacheDir = new File(AppConstant.TRACES_DIR);
         Log.e(tag, "file:" + cacheDir.getAbsolutePath());
         if (!cacheDir.exists()) {
@@ -114,37 +113,48 @@ public class LatlngFragment extends Fragment {
         for (File file : files) {
             if (file.isFile()) {
                 String name = file.getName();
+//                LogUtils.i(tag,"filename "+name);
                 String path = file.getAbsolutePath();
-                if (name.indexOf(".txt") == 19){
-                    String time0 = name.substring(0,19);
-                    String time1 = readLastStr(path).substring(0,19);
+//                if (name.contains("trace")) {
+//                    file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"), "$").toString()));
+//                }
+                if (name.indexOf(".txt") == 19) {
                     try {
+
+                        String time0 = name.substring(0, 19);
+                        String time1 = readLastStr(path).substring(0, 19);
+
                         long time = sdf.parse(time1).getTime() - sdf.parse(time0).getTime();
                         Date date = new Date(time);
-                        LogUtils.i(tag,"date "+date);
+                        LogUtils.i(tag, "date " + date);
                         String s = timeSdf.format(date);
                         String s1 = s.substring(0, 2);
-                        String s2 = s.substring(2,s.length());
-                        int hour = Integer.parseInt(s1) - 8;
+                        String s2 = s.substring(2, s.length());
+                        int hour = Integer.parseInt(s1);
+                        if (hour >= 8){
+                            hour -= 8;
+                        }
                         StringBuilder sb = new StringBuilder();
-                        sb.append(time0.substring(0,10));
+                        sb.append(time0.substring(0, 10));
                         sb.append("  ");
                         sb.append("时长 ");
                         String h = null;
-                        if (hour<10){
+                        if (hour < 10) {
                             sb.append("0");
                             h = "0";
                         }
                         h += hour;
+                        LogUtils.i(tag,"hour "+hour+" ");
                         sb.append(hour);
                         sb.append(s2);
 //                        LogUtils.i(tag,sb.toString());
-                        tracesFileNames.add(sb.toString());
+                        mTracesData.add(new TracesType(path,sb.toString()));
 //                        if (!file.getAbsolutePath().equals(SharePrefrenceUtils.getInstance().getRecentTraceFilePath())){
 //                            file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"),"$"+h+s2).toString()));
 //                        }
 
-                    } catch (ParseException e) {
+
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -152,7 +162,7 @@ public class LatlngFragment extends Fragment {
             }
         }
         adapter.notifyDataSetChanged();
-        ((MainActivity)mContext).setToolbarTitle("定位文件("+tracesFileNames.size()+")");
+        ((MainActivity) mContext).setToolbarTitle("定位文件(" + mTracesData.size() + ")");
     }
 
     private String readLastStr(String path) {
@@ -173,7 +183,7 @@ public class LatlngFragment extends Fragment {
             }
             raf.close();
             return lastLine;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -183,5 +193,23 @@ public class LatlngFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    public class TracesType {
+        String mFilePath;
+        String mContent;
+
+        public TracesType(String mFilePath, String mContent) {
+            this.mFilePath = mFilePath;
+            this.mContent = mContent;
+        }
+
+        public String getmFilePath() {
+            return mFilePath;
+        }
+
+        public String getmContent() {
+            return mContent;
+        }
     }
 }

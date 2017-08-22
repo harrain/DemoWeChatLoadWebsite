@@ -2,8 +2,8 @@ package com.example.demowechat;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,13 +27,17 @@ import com.example.demowechat.diyCamera.ShowPicActivity;
 import com.example.demowechat.listener.PermissionResultListener;
 import com.example.demowechat.map.LocateActivity;
 import com.example.demowechat.map.TrackShowDemo;
+import com.example.demowechat.utils.AlertDialogUtil;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.CameraUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.NetworkUtils;
+import com.example.demowechat.utils.PermissionsUtil;
+import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.google.zxing.activity.CaptureActivity;
 import com.google.zxing.activity.QRCodeCreateActivity;
+import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.xdandroid.hellodaemon.IntentWrapper;
 
@@ -42,6 +46,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -51,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
     private static final int CAMERA_REQUEST = 0;
+    @BindView(R.id.wx)
+    LinearLayout front;
     ImageButton addBtn;
     Context mContext;
     ImageView pic;
@@ -76,14 +84,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ButterKnife.bind(this);
         mContext = this;
         toolbar = (Toolbar) findViewById(R.id.tb);
         setSupportActionBar(toolbar);
 
         addBtn = (ImageButton) findViewById(R.id.add_btn);
         pic = (ImageView) findViewById(R.id.pic);
-
+        rxPermissions = new RxPermissions(this);
         converf = new ConverFragment();
         mTraceFragment = new TraceFragment();
         mLatlngFragment = new LatlngFragment();
@@ -91,48 +99,86 @@ public class MainActivity extends AppCompatActivity {
         fm = getSupportFragmentManager();
         fragmentTransaction = fm.beginTransaction();
 
-        fragmentTransaction.add(R.id.fl, converf);
-        fragmentTransaction.show(converf);
-        fragmentTransaction.commit();
+//        fragmentTransaction.add(R.id.fl, converf);
+//        fragmentTransaction.show(converf);
+//        fragmentTransaction.commit();
 
         isLoad = false;
-
-        requestPermission(new PermissionResultListener() {
-                              @Override
-                              public void onHandlePermissionResult(boolean granted) {
-                                  if (!granted) {
-
-                                      ToastFactory.showShortToast("您没有授权应用权限，将无法正常使用本应用");
-                                      finish();
-                                  }
-                              }
-                          },Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_PHONE_STATE);
-
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-        }
-        converf.notifyDataSetChanged();
+        rxPermissions.requestEach(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE)
+                .subscribe(new Consumer<Permission>() {
+                    @Override
+                    public void accept(Permission permission) throws Exception {
+                        if (permission.granted) {// `permission.name` is granted !
+                            LogUtils.i(TAG, "granted");
+                            front.performClick();
+                        } else if (permission.shouldShowRequestPermissionRationale) {
+                            // Denied permission without ask never again
+                            LogUtils.i(TAG, "!granted");
+                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需'"+permission.name+"'的权限", "点击 [确认] 去开启'存储 定位 手机状态'权限", new AlertDialogUtil.AlertListener() {
+                                @Override
+                                public void positiveResult(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    PermissionsUtil.goToSettingsForRequestPermission(mContext);
+                                }
+                            });
+                        } else {
+                            // Denied permission with ask never again
+                            // Need to go to the settings
+                            LogUtils.i(TAG, "ungranted");
+                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需的权限", "点击 [确认] 去开启'存储 定位 手机状态'权限", new AlertDialogUtil.AlertListener() {
+                                @Override
+                                public void positiveResult(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    PermissionsUtil.goToSettingsForRequestPermission(mContext);
+                                }
+                            });
+
+                        }
+                    }
+                });
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//                return;
+//            }
+//        }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (!NetworkUtils.isConnected()){
-            Toast.makeText(MyApplication.getInstance(),"室内无法用GPS定位，如果需要，请打开网络连接！",Toast.LENGTH_LONG).show();
+        if (!NetworkUtils.isConnected()) {
+            Toast.makeText(MyApplication.getInstance(), "室内无法用GPS定位，如果需要，请打开网络连接！", Toast.LENGTH_LONG).show();
         }
+
+        if (!SharePrefrenceUtils.getInstance().getAddWhiteList()) {
+            IntentWrapper.whiteListMatters(this, "行驶轨迹追踪服务的持续运行");
+            if (PermissionsUtil.getManufacturer().equals("vivo")) {
+                AlertDialogUtil.showAlertDialog(mContext, "应用后台计算服务需要 ‘自启动’权限", "点击 [确认] 打开自启动开关", new AlertDialogUtil.AlertListener() {
+                    @Override
+                    public void positiveResult(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        PermissionsUtil.goToOpenAutoStart(mContext);
+                    }
+                });
+            }
+            SharePrefrenceUtils.getInstance().setAddWhiteList(true);
+        }
+
+
+
     }
 
     public void requestPermission(final PermissionResultListener listener, final String... permissions) {
-        rxPermissions = new RxPermissions(this);
+
         rxPermissions.request(permissions)
                 .subscribe(new Consumer<Boolean>() {
                     @Override
@@ -177,14 +223,14 @@ public class MainActivity extends AppCompatActivity {
                 requestPermission(new PermissionResultListener() {
                     @Override
                     public void onHandlePermissionResult(boolean granted) {
-                        if (granted){
+                        if (granted) {
                             captureByDIYCameraNow();
-                        }else {
+                        } else {
                             ToastFactory.showShortToast("应用没有获得拍照、定位权限！");
                         }
 
                     }
-                },Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION);
+                }, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION);
             }
         });
         trackDraw.setOnClickListener(new View.OnClickListener() {
@@ -227,19 +273,19 @@ public class MainActivity extends AppCompatActivity {
         pw.dismiss();
     }
 
-    private void goToSao1Sao(){
+    private void goToSao1Sao() {
         Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
         startActivityForResult(intent, AppConstant.REQUEST_CODE.ZXING_CODE);
         pw.dismiss();
     }
 
-    private void goToDrawTrace(){
+    private void goToDrawTrace() {
         Intent intent = new Intent(mContext, TrackShowDemo.class);
         startActivity(intent);
         pw.dismiss();
     }
 
-    private void goToLocateActivity(){
+    private void goToLocateActivity() {
         startActivity(new Intent(mContext, LocateActivity.class));
         pw.dismiss();
     }
@@ -303,11 +349,11 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             Uri uri = Uri.parse(data.getStringExtra(AppConstant.KEY.IMG_PATH));
-            LogUtils.i(TAG,"AppConstant.KEY.IMG_PATH "+ data.getStringExtra(AppConstant.KEY.IMG_PATH));
+            LogUtils.i(TAG, "AppConstant.KEY.IMG_PATH " + data.getStringExtra(AppConstant.KEY.IMG_PATH));
             String picTime = data.getStringExtra(AppConstant.KEY.PIC_TIME);
             String longitude = data.getStringExtra(AppConstant.KEY.LONGITUDE);
             String latitude = data.getStringExtra(AppConstant.KEY.LATITUDE);
-            LogUtils.i(TAG,"updateAdapterData "+ longitude + "-" + latitude);
+            LogUtils.i(TAG, "updateAdapterData " + longitude + "-" + latitude);
             try {
                 converf.addUri(uri, picTime, longitude, latitude);//保存URI到fragment里，并更新adapter的数据源
                 getSupportActionBar().setTitle("照片(" + converf.getImageCount() + ")");
@@ -321,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
     private void goToShowPic(int requestCode, Intent data) {
         if (requestCode == AppConstant.REQUEST_CODE.CAMERA) {
             String img_path = data.getStringExtra(AppConstant.KEY.IMG_PATH);
-            LogUtils.i(TAG,"goToShowPic");
+            LogUtils.i(TAG, "goToShowPic");
             int picWidth = data.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
             int picHeight = data.getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
             String millis = data.getStringExtra(AppConstant.KEY.PIC_TIME);
@@ -372,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
 //        fragmentTransaction.commit();
     }
 
-    public void device(View v){
+    public void device(View v) {
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl, mDeviceFragment);
         fragmentTransaction.show(mDeviceFragment);
@@ -391,33 +437,41 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onHandlePermissionResult(boolean granted) {
                 if (granted) {
-                    switch (cameraType){
-                        case 0: captureByDIYCamera(); break;
+                    switch (cameraType) {
+                        case 0:
+                            captureByDIYCamera();
+                            break;
 
-                        case 2: goToSao1Sao(); break;
+                        case 2:
+                            goToSao1Sao();
+                            break;
                     }
-                }else {
+                } else {
                     ToastFactory.showShortToast("没有开通摄像头权限，无法拍照，请前往 应用权限管理 打开授权");
                 }
             }
-        },Manifest.permission.CAMERA);
+        }, Manifest.permission.CAMERA);
 
     }
 
-    public void requestLocationPermissions(){
+    public void requestLocationPermissions() {
         requestPermission(new PermissionResultListener() {
             @Override
             public void onHandlePermissionResult(boolean granted) {
-                if (granted){
-                    switch (locateForType){
-                        case 0: goToDrawTrace(); break;
-                        case 1: goToLocateActivity(); break;
+                if (granted) {
+                    switch (locateForType) {
+                        case 0:
+                            goToDrawTrace();
+                            break;
+                        case 1:
+                            goToLocateActivity();
+                            break;
                     }
-                }else {
+                } else {
                     ToastFactory.showShortToast("没有开通定位权限，无法拍照，请前往 应用权限管理 打开授权");
                 }
             }
-        },Manifest.permission.ACCESS_FINE_LOCATION);
+        }, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
     /**

@@ -222,9 +222,12 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
             IntentWrapper.whiteListMatters(this, "行驶轨迹追踪服务的持续运行");
             SharePrefrenceUtils.getInstance().setAddWhiteList(true);
         }
+        if (!GpsUtil.isOpenNetWork(mContext)){
+            AlertDialogUtil.showTipDialog(mContext,"网络无法使用","检查网络是否打开");
+        }
         if (!GpsUtil.isOpenGPS(mContext)){
             LogUtils.i(tag,"gps no open");
-            AlertDialogUtil.showAlertDialog(mContext,"GPS未开启","点击 确认 去开启GPS",new AlertDialogUtil.AlertListener() {
+            AlertDialogUtil.showAlertDialogTwo(mContext,"GPS未开启","如果您在室内，点击 [取消] 忽略此消息；在室外需要开启GPS，点击 [确认] 前去开启",new AlertDialogUtil.AlertListener() {
                 @Override
                 public void positiveResult(DialogInterface dialog, int which) {
                     dialog.dismiss();
@@ -281,7 +284,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
                 SharePrefrenceUtils.getInstance().setNeedLocate(false);
 //                LogUtils.e(tag, "SharePrefrenceUtils" + SharePrefrenceUtils.getInstance().getNeedLocate());
                 TraceServiceImpl.stopService();
-
+                mTTitle.setText("");
 //                stopService(intent);
 //                mTTitle.setText("行驶轨迹追踪服务");
 
