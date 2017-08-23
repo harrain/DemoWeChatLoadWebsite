@@ -117,33 +117,35 @@ public class MainActivity extends AppCompatActivity {
                     public void accept(Permission permission) throws Exception {
                         if (permission.granted) {// `permission.name` is granted !
                             LogUtils.i(TAG, "granted");
-                            front.performClick();
+
                         } else if (permission.shouldShowRequestPermissionRationale) {
                             // Denied permission without ask never again
                             LogUtils.i(TAG, "!granted");
-                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需'"+permission.name+"'的权限", "点击 [确认] 去开启'存储 定位 手机状态'权限", new AlertDialogUtil.AlertListener() {
+                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需'"+permission.name+"'的权限", "点击 [确认] 去开启'"+permission.name+"'权限", new AlertDialogUtil.AlertListener() {
                                 @Override
                                 public void positiveResult(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     PermissionsUtil.goToSettingsForRequestPermission(mContext);
+                                    return;
                                 }
                             });
                         } else {
                             // Denied permission with ask never again
                             // Need to go to the settings
                             LogUtils.i(TAG, "ungranted");
-                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需的权限", "点击 [确认] 去开启'存储 定位 手机状态'权限", new AlertDialogUtil.AlertListener() {
+                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用'"+permission.name+"'所需的权限", "点击 [确认] 去开启'"+permission.name+"'权限", new AlertDialogUtil.AlertListener() {
                                 @Override
                                 public void positiveResult(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     PermissionsUtil.goToSettingsForRequestPermission(mContext);
+                                    return;
                                 }
                             });
 
                         }
                     }
                 });
-
+        front.performClick();
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 //                return;
@@ -390,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
      * @param v
      */
     public void front(View v) {
-
+        LogUtils.i(TAG,"front click");
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl, converf);
         fragmentTransaction.show(converf);

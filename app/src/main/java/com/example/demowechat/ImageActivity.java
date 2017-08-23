@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.demowechat.map.LocationDemo;
+import com.example.demowechat.utils.NumberValidationUtil;
 
 
 /**
@@ -52,22 +54,28 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
         imagePath = intent.getStringExtra("imagepath");
         longitude = intent.getStringExtra("longitude");
         latitude = intent.getStringExtra("latitude");
-        Log.e(TAG+"imagepath",imagePath);
+        Log.e(TAG + "imagepath", imagePath);
 //        Bitmap bitmap = null;
         try {
 //            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(Uri.parse(imagePath)));
 //            imaIv.setImageBitmap(bitmap);
-
+            geoTv.setOnClickListener(this);
             Glide.with(mContext).load(imagePath).into(imaIv);
-            geoTv.setText("经:"+longitude+"  "+"纬:"+latitude);
-            geoTv.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
-            geoTv.getPaint().setAntiAlias(true);//抗锯齿
+            if (!TextUtils.isEmpty(longitude) && !TextUtils.isEmpty(latitude)) {
+                if (NumberValidationUtil.isPositiveDecimal(longitude) && NumberValidationUtil.isPositiveDecimal(latitude)) {
+                    geoTv.setText("经:" + longitude + "  " + "纬:" + latitude);
+                    geoTv.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
+                    geoTv.getPaint().setAntiAlias(true);//抗锯齿
+                    return;
+                }
+            }
+            geoTv.setVisibility(View.INVISIBLE);
         } catch (Exception e) {
             e.printStackTrace();
         }
 //        Glide.with(this).load(bitmap).into(imaIv);
 
-        geoTv.setOnClickListener(this);
+
     }
 
     @Override
@@ -85,10 +93,10 @@ public class ImageActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.geo_tv){
+        if (v.getId() == R.id.geo_tv) {
             Intent intent = new Intent(mContext, LocationDemo.class);
-            intent.putExtra("longitude",longitude);
-            intent.putExtra("latitude",latitude);
+            intent.putExtra("longitude", longitude);
+            intent.putExtra("latitude", latitude);
             startActivity(intent);
         }
     }

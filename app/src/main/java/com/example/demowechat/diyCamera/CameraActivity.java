@@ -66,6 +66,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private int captureMills = 0;
     private WaterMarkOperation waterMarkOperation;
     private final String tag = "CameraActivity";
+    private boolean canFinish = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -350,6 +351,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
                 isview = false;
+                canFinish = false;
+                home_custom_top_relative.setVisibility(View.INVISIBLE);
                 //将data 转换为位图 或者你也可以直接保存为文件使用 FileOutputStream
                 //这里我相信大部分都有其他用处把 比如加个水印 后续再讲解
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -399,8 +402,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                 //正常预览下的操作
 
                 BitmapUtils.saveJPGE_After(context, saveBitmap, img_path, 100);
-
-
 
                 setResultToMainActivity(time, img_path);
 
@@ -466,9 +467,9 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         //这里第三个参数为最小尺寸 getPropPreviewSize方法会对从最小尺寸开始升序排列 取出所有支持尺寸的最小尺寸
 //        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), screenHeight);
 //        parameters.setPreviewSize(previewSize.width, previewSize.height);
-        parameters.setPreviewSize(screenHeight, screenWidth);
-        Camera.Size pictrueSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), screenHeight);
-        parameters.setPictureSize(pictrueSize.width, pictrueSize.height);
+//        parameters.setPreviewSize(screenHeight, screenWidth);
+//        Camera.Size pictrueSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), screenHeight);
+//        parameters.setPictureSize(pictrueSize.width, pictrueSize.height);
 //        parameters.setPictureSize(screenHeight, screenWidth);
         LogUtils.i(tag,"parameters.setPictureSize-------------");
         camera.setParameters(parameters);
@@ -481,7 +482,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
          *
         */
 
-        picHeight = screenWidth * pictrueSize.width / pictrueSize.height;
+//        picHeight = screenWidth * pictrueSize.width / pictrueSize.height;
+        picHeight = screenWidth * 4 / 3;
 //        LogUtils.i("previewSize.width-previewSize.height",previewSize.width+"-"+previewSize.height);
 //        LogUtils.i("pictrueSize.width-pictrueSize.height",pictrueSize.width+"-"+pictrueSize.height);
 //        LogUtils.i("picHeight",picHeight+"");
@@ -545,6 +547,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         releaseCamera();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (canFinish){
+            finish();
+        }
     }
 
     @Override

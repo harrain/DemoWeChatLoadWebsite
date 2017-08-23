@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import com.example.demowechat.map.LocationRequest;
 import com.example.demowechat.utils.BitmapUtils;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.ProgressDialogUtil;
 import com.example.demowechat.utils.ToastFactory;
 
@@ -159,6 +160,16 @@ public class WaterMarkOperation {
         mLongitude = longitude;
         mLatitude = latitude;
         if (!TextUtils.isEmpty(mLongitude) && !TextUtils.isEmpty(mLatitude)) {
+            if (!NumberValidationUtil.isPositiveDecimal(longitude) || !NumberValidationUtil.isPositiveDecimal(latitude)){
+                if (bitmap == null) {
+                    bitmap = BitmapUtils.getBitemapFromFile(new File(img_path));
+                }
+                BitmapUtils.saveJPGE_After(mContext, bitmap, img_path, 100);
+                if (onFinshListener != null) {
+                    onFinshListener.onfinish(img_path, "", "");
+                }
+                return;
+            }
             if (!fileModified) {
                 modifyPicName();
 

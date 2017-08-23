@@ -90,6 +90,11 @@ public class ConverFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        notifyDataSetChanged();
+    }
 
     public void addUri(Uri uri, String time){
 
@@ -160,6 +165,7 @@ public class ConverFragment extends Fragment {
      * 应用启动后从本地读取保存的照片，显示到列表上
      */
     private void loadFromLocal() {
+
         clearPics();
         try {
             File cacheDir = new File(AppConstant.KEY.IMG_DIR);
