@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private String time;
     private File outputImage;
 
-    private boolean isLoad;
+    private boolean firstEnter = true;
     private int cameraType = 0;
     private int locateForType = 0;
     private RxPermissions rxPermissions;
@@ -102,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
 //        fragmentTransaction.add(R.id.fl, converf);
 //        fragmentTransaction.show(converf);
 //        fragmentTransaction.commit();
-
-        isLoad = false;
 
     }
 
@@ -145,7 +143,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-        front.performClick();
+        if (firstEnter) {
+            front.performClick();
+            firstEnter = false;
+        }
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 //                return;

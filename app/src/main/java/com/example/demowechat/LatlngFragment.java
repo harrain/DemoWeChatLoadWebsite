@@ -18,12 +18,19 @@ import com.example.demowechat.rlPart.BaseAdapter;
 import com.example.demowechat.rlPart.LatlngFragmentAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.LogUtils;
+import com.example.demowechat.utils.SharePrefrenceUtils;
+
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -108,7 +115,17 @@ public class LatlngFragment extends Fragment {
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm:ss");
-
+        DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+//        DateTime dateTime = DateTime.parse("2017-05-22 07:58:59", format);
+//        DateTime dt1 = DateTime.parse("2017-05-27 09:00:00", format);
+//        Period p = new Period(dateTime, dt1, PeriodType.time());
+//        LogUtils.i(tag, "format" + "  " + p.getHours() + "-" + p.getMinutes() + "-" + p.getSeconds());
+//        Duration d = new Duration(dateTime.getMillis(),dt1.getMillis());
+//        if (p.getHours() > 24){
+//            LogUtils.i(tag, "format" + "  " + new DateTime(d.getMillis()).toString("dd-HH:mm:ss"));
+//        }else {
+//            LogUtils.i(tag, "format" + "  " + new DateTime(d.getMillis()).toString("HH:mm:ss"));
+//        }
         File[] files = cacheDir.listFiles();
         for (File file : files) {
             if (file.isFile()) {
@@ -118,45 +135,39 @@ public class LatlngFragment extends Fragment {
 //                if (name.contains("trace")) {
 //                    file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"), "$").toString()));
 //                }
+                String time0 = name.substring(0, 19);
+                StringBuilder sb = new StringBuilder();
+                sb.append(time0.substring(0, 10));
+                sb.append("  ");
+                sb.append("时长 ");
                 if (name.indexOf(".txt") == 19) {
                     try {
-
-                        String time0 = name.substring(0, 19);
                         String time1 = readLastStr(path).substring(0, 19);
 
-                        long time = sdf.parse(time1).getTime() - sdf.parse(time0).getTime();
-                        Date date = new Date(time);
-                        LogUtils.i(tag, "date " + date);
-                        String s = timeSdf.format(date);
-                        String s1 = s.substring(0, 2);
-                        String s2 = s.substring(2, s.length());
-                        int hour = Integer.parseInt(s1);
-                        if (hour >= 8){
-                            hour -= 8;
+                        DateTime dateTime = DateTime.parse(time0,format);
+                        DateTime dt1 = DateTime.parse(time1,format);
+                        Period p = new Period(dateTime,dt1, PeriodType.time());
+                        LogUtils.i(tag,name+"  "+p.getHours()+"-"+p.getMinutes()+"-"+p.getSeconds());
+                        Duration d = new Duration(dateTime.getMillis(),dt1.getMillis());
+                        String t;
+                        if (p.getHours() > 24){
+                            t =  new DateTime(d.getMillis()).toString("dd-HH:mm:ss");
+                        }else {
+                            t = new DateTime(d.getMillis()).toString("HH:mm:ss");
                         }
-                        StringBuilder sb = new StringBuilder();
-                        sb.append(time0.substring(0, 10));
-                        sb.append("  ");
-                        sb.append("时长 ");
-                        String h = null;
-                        if (hour < 10) {
-                            sb.append("0");
-                            h = "0";
-                        }
-                        h += hour;
-                        LogUtils.i(tag,"hour "+hour+" ");
-                        sb.append(hour);
-                        sb.append(s2);
-//                        LogUtils.i(tag,sb.toString());
+                        sb.append(t);
                         mTracesData.add(new TracesType(path,sb.toString()));
-//                        if (!file.getAbsolutePath().equals(SharePrefrenceUtils.getInstance().getRecentTraceFilePath())){
-//                            file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"),"$"+h+s2).toString()));
-//                        }
-
+                        if (!path.equals(SharePrefrenceUtils.getInstance().getRecentTraceFilePath()) && !name.contains("$")){
+                            file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"),"$"+t).toString()));
+                        }
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                }else if (name.contains("$")){
+                    String t = name.substring(name.indexOf("$"),name.indexOf(".txt"));
+                    sb.append(t);
+                    mTracesData.add(new TracesType(path,t));
                 }
 
             }
