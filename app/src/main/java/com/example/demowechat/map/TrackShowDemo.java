@@ -37,7 +37,7 @@ import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.MyApplication;
 import com.example.demowechat.R;
-import com.example.demowechat.rlPart.BaseAdapter;
+import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.rlPart.FileListAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.Link;

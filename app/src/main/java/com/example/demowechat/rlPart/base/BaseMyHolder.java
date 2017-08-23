@@ -1,4 +1,4 @@
-package com.example.demowechat.rlPart;
+package com.example.demowechat.rlPart.base;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +9,7 @@ import android.view.View;
  */
 
 public abstract class BaseMyHolder<DT> extends RecyclerView.ViewHolder {
-    private Context mContext;
+    public Context mContext;
     public BaseAdapter.OnClickListener mOnClickListener;
 
 

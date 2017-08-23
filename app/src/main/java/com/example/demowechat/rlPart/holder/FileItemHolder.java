@@ -1,4 +1,4 @@
-package com.example.demowechat.rlPart;
+package com.example.demowechat.rlPart.holder;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,6 +7,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.demowechat.R;
+import com.example.demowechat.rlPart.base.AdapterDataOperation;
+import com.example.demowechat.rlPart.base.AdapterLinkOperation;
+import com.example.demowechat.rlPart.base.BaseMyHolder;
 import com.example.demowechat.widget.SwipeItemLayout;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.Link;

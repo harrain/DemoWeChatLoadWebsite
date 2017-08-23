@@ -32,7 +32,7 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.example.demowechat.rlPart.BaseAdapter;
+import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.rlPart.FileListAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.Link;

@@ -1,4 +1,4 @@
-package com.example.demowechat.rlPart;
+package com.example.demowechat.rlPart.base;
 
 import android.support.v7.widget.RecyclerView;
 

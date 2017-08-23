@@ -5,4 +5,7 @@
     <dimen name="dot_view_size">8px</dimen>
     <dimen name="float_button_menu_marginBottom">120dp</dimen>
     <dimen name="list_item_icon_size">35dp</dimen>
+    <dimen name="horizontal_margin">16dp</dimen>
+    <dimen name="me_item_text_size">16sp</dimen>
+    <dimen name="me_item_height">50dp</dimen>
 </resources>

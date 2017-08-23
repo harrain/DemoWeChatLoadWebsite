@@ -1,4 +1,4 @@
-package com.example.demowechat.rlPart;
+package com.example.demowechat.rlPart.base;
 
 import android.support.v7.widget.RecyclerView;
 
@@ -8,7 +8,7 @@ import com.example.demowechat.utils.Link;
  * Created by stephen on 2017/8/13.
  */
 
-public class AdapterLinkOperation<DT> extends AdapterDataOperation<Link<DT>>{
+public class AdapterLinkOperation<DT> extends AdapterDataOperation<Link<DT>> {
 
 
 

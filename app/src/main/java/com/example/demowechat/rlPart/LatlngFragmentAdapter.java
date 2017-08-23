@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 
 import com.example.demowechat.LatlngFragment;
 import com.example.demowechat.R;
+import com.example.demowechat.rlPart.base.AdapterArrayListOperation;
+import com.example.demowechat.rlPart.base.BaseAdapter;
+import com.example.demowechat.rlPart.holder.LatlngListHolder;
 
 import java.util.List;
 
@@ -15,7 +18,7 @@ import java.util.List;
  * Created by data on 2017/8/22.
  */
 
-public class LatlngFragmentAdapter extends BaseAdapter<List<LatlngFragment.TracesType>>{
+public class LatlngFragmentAdapter extends BaseAdapter<List<LatlngFragment.TracesType>> {
 
     public LatlngFragmentAdapter(Context context, List<LatlngFragment.TracesType> data) {
         super(context);

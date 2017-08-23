@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.demowechat.R;
+import com.example.demowechat.rlPart.base.AdapterLinkOperation;
+import com.example.demowechat.rlPart.base.BaseAdapter;
+import com.example.demowechat.rlPart.holder.FileItemHolder;
 import com.example.demowechat.utils.Link;
 
 /**

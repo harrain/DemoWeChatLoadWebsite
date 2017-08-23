@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.demowechat.map.TrackShowDemo;
-import com.example.demowechat.rlPart.BaseAdapter;
+import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.rlPart.LatlngFragmentAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.LogUtils;
@@ -29,7 +29,6 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,63 +112,50 @@ public class LatlngFragment extends Fragment {
             LogUtils.e(tag, "TRACES_DIR is not existed");
             return;
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm:ss");
+
         DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-//        DateTime dateTime = DateTime.parse("2017-05-22 07:58:59", format);
-//        DateTime dt1 = DateTime.parse("2017-05-27 09:00:00", format);
-//        Period p = new Period(dateTime, dt1, PeriodType.time());
-//        LogUtils.i(tag, "format" + "  " + p.getHours() + "-" + p.getMinutes() + "-" + p.getSeconds());
-//        Duration d = new Duration(dateTime.getMillis(),dt1.getMillis());
-//        if (p.getHours() > 24){
-//            LogUtils.i(tag, "format" + "  " + new DateTime(d.getMillis()).toString("dd-HH:mm:ss"));
-//        }else {
-//            LogUtils.i(tag, "format" + "  " + new DateTime(d.getMillis()).toString("HH:mm:ss"));
-//        }
         File[] files = cacheDir.listFiles();
         for (File file : files) {
             if (file.isFile()) {
                 String name = file.getName();
 //                LogUtils.i(tag,"filename "+name);
                 String path = file.getAbsolutePath();
-//                if (name.contains("trace")) {
-//                    file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"), "$").toString()));
-//                }
-                String time0 = name.substring(0, 19);
-                StringBuilder sb = new StringBuilder();
-                sb.append(time0.substring(0, 10));
-                sb.append("  ");
-                sb.append("时长 ");
-                if (name.indexOf(".txt") == 19) {
-                    try {
+                try {
+                    String time0 = name.substring(0, 19);
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(time0.substring(0, 10));
+                    sb.append("  ");
+                    sb.append("时长 ");
+                    if (name.indexOf(".txt") == 19) {
+
                         String time1 = readLastStr(path).substring(0, 19);
 
-                        DateTime dateTime = DateTime.parse(time0,format);
-                        DateTime dt1 = DateTime.parse(time1,format);
-                        Period p = new Period(dateTime,dt1, PeriodType.time());
-                        LogUtils.i(tag,name+"  "+p.getHours()+"-"+p.getMinutes()+"-"+p.getSeconds());
-                        Duration d = new Duration(dateTime.getMillis(),dt1.getMillis());
+                        DateTime dateTime = DateTime.parse(time0, format);
+                        DateTime dt1 = DateTime.parse(time1, format);
+                        Period p = new Period(dateTime, dt1, PeriodType.time());
+                        LogUtils.i(tag, name + "  " + p.getHours() + "-" + p.getMinutes() + "-" + p.getSeconds());
+                        Duration d = new Duration(dateTime.getMillis(), dt1.getMillis());
                         String t;
-                        if (p.getHours() > 24){
-                            t =  new DateTime(d.getMillis()).toString("dd-HH:mm:ss");
-                        }else {
+                        if (p.getHours() > 24) {
+                            t = new DateTime(d.getMillis()).toString("dd-HH:mm:ss");
+                        } else {
                             t = new DateTime(d.getMillis()).toString("HH:mm:ss");
                         }
                         sb.append(t);
-                        mTracesData.add(new TracesType(path,sb.toString()));
-                        if (!path.equals(SharePrefrenceUtils.getInstance().getRecentTraceFilePath()) && !name.contains("$")){
-                            file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"),"$"+t).toString()));
+                        mTracesData.add(new TracesType(path, sb.toString()));
+                        if (!path.equals(SharePrefrenceUtils.getInstance().getRecentTraceFilePath()) && !name.contains("$")) {
+                            file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"), "$" + t).toString()));
                         }
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }else if (name.contains("$")){
-                    String t = name.substring(name.indexOf("$"),name.indexOf(".txt"));
-                    sb.append(t);
-                    mTracesData.add(new TracesType(path,t));
-                }
 
+                    } else if (name.contains("$")) {
+                        String t = name.substring(name.indexOf("$"), name.indexOf(".txt"));
+                        sb.append(t);
+                        mTracesData.add(new TracesType(path, t));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         adapter.notifyDataSetChanged();

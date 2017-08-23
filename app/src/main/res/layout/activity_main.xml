@@ -24,7 +24,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent">
             <ImageView
-                android:src="@drawable/weixin_pressed"
+                android:src="@drawable/weixin_seletor"
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView
