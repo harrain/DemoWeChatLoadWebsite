@@ -62,6 +62,7 @@ public class DisplayFragment extends Fragment {
     private void initItemModel() {
         mItemList.add(new MeFragmentAdapter.ItemModel(MeFragmentAdapter.HEAD_LAYOUT
                 ,new String[]{"","昵称 暂无","账号 暂无"},null));
+        mItemList.add(new MeFragmentAdapter.ItemModel(MeFragmentAdapter.EMPTY_LAYOUT,null));
         mItemList.add(new MeFragmentAdapter.ItemModel(MeFragmentAdapter.TEXT_ONOFF_LAYOUT
                 ,new String[]{"自动定位"}));
         mItemList.add(new MeFragmentAdapter.ItemModel(MeFragmentAdapter.TEXTONLY_LAYOUT

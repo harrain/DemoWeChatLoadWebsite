@@ -36,6 +36,7 @@ import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.R;
 import com.example.demowechat.utils.AlertDialogUtil;
 import com.example.demowechat.utils.AppConstant;
+import com.example.demowechat.utils.DeviceInfoUtils;
 import com.example.demowechat.utils.GpsUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
@@ -88,6 +89,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
     private boolean isLocated = false;
     private LocationBroadcastReceiver mLBR;
     private Context mContext;
+    private int animHeight;
 
 
     @Override
@@ -113,6 +115,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
         mBtnStartManger.setVisibility(View.INVISIBLE);
 
         registerLocationBroadcastReceiver();
+        animHeight = DeviceInfoUtils.getScreenHeight(mContext) / 10;
 
         ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningServiceInfo> infos = am.getRunningServices(100);
@@ -301,9 +304,9 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
 
     private void endAnimator() {
         isSelected = false;
-
+        LogUtils.i(tag,"animHeight "+animHeight);
         for (int i = 0; i < 3; i++) {
-            ObjectAnimator translationY = ObjectAnimator.ofFloat(list.get(i), "translationY", -100 * (i + 1), 0F);
+            ObjectAnimator translationY = ObjectAnimator.ofFloat(list.get(i), "translationY", -animHeight * (i + 1), 0F);
             translationY.setInterpolator(new AccelerateInterpolator());
             ObjectAnimator alpha = ObjectAnimator.ofFloat(list.get(i), "alpha", 1f, 0);
             AnimatorSet set = new AnimatorSet();
@@ -341,7 +344,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
 
 
         for (int i = 0; i < 3; i++) {
-            ObjectAnimator animator = ObjectAnimator.ofFloat(list.get(i), "translationY", 0F, -100 * (i + 1));
+            ObjectAnimator animator = ObjectAnimator.ofFloat(list.get(i), "translationY", 0F, -animHeight * (i + 1));
             animator.setInterpolator(new AccelerateDecelerateInterpolator());//设置插值器
 
             ObjectAnimator alpha = ObjectAnimator.ofFloat(list.get(i), "alpha", 0, 1f);

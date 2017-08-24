@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import com.example.demowechat.R;
 import com.example.demowechat.rlPart.base.AdapterArrayListOperation;
 import com.example.demowechat.rlPart.base.BaseAdapter;
+import com.example.demowechat.rlPart.holder.EmptyHolder;
 import com.example.demowechat.rlPart.holder.HeadLayoutHolder;
 import com.example.demowechat.rlPart.holder.TextOnOffHolder;
 import com.example.demowechat.rlPart.holder.TextOnlyHolder;
@@ -25,6 +26,7 @@ public class MeFragmentAdapter extends BaseAdapter<List<MeFragmentAdapter.ItemMo
     public static final int HEAD_LAYOUT = 0;
     public static final int TEXTONLY_LAYOUT = 1;
     public static final int TEXT_ONOFF_LAYOUT = 2;
+    public static final int EMPTY_LAYOUT = 3;
     private final String tag = "MeFragmentAdapter";
     private List<ItemModel> mItems;
 
@@ -44,17 +46,20 @@ public class MeFragmentAdapter extends BaseAdapter<List<MeFragmentAdapter.ItemMo
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType){
             case HEAD_LAYOUT:
-                LogUtils.i(tag,"onCreateViewHolder 0");
+//                LogUtils.i(tag,"onCreateViewHolder 0");
                 View headLayout = LayoutInflater.from(mContext).inflate(R.layout.me_headlayout,parent,false);
                 return new HeadLayoutHolder(headLayout,mContext);
             case TEXTONLY_LAYOUT:
-                LogUtils.i(tag,"onCreateViewHolder 1");
+//                LogUtils.i(tag,"onCreateViewHolder 1");
                 View textOnlyLayout = LayoutInflater.from(mContext).inflate(R.layout.me_textonly_layout,parent,false);
                 return new TextOnlyHolder(textOnlyLayout,mContext);
             case TEXT_ONOFF_LAYOUT:
-                LogUtils.i(tag,"onCreateViewHolder 2");
+//                LogUtils.i(tag,"onCreateViewHolder 2");
                 View onOffLayout = LayoutInflater.from(mContext).inflate(R.layout.me_text_onoff_layout,parent,false);
                 return new TextOnOffHolder(onOffLayout,mContext);
+            case EMPTY_LAYOUT:
+                View emptyLayout = LayoutInflater.from(mContext).inflate(R.layout.empty_view,parent,false);
+                return new EmptyHolder(emptyLayout);
         }
         return super.onCreateViewHolder(parent, viewType);
     }
