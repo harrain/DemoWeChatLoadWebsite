@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
+import com.example.demowechat.map.CommonUtil;
+import com.example.demowechat.map.TraceControl;
 import com.example.demowechat.map.TraceServiceImpl;
 import com.example.demowechat.utils.AppConfig;
 import com.example.demowechat.utils.AppConstant;
@@ -31,7 +33,7 @@ public class MyApplication extends Application {
     private int screenWidth;
     private int screenHeight;
 
-
+    public String entityName = "baidumaptrace";
 
 
     public static MyApplication getInstance() {
@@ -44,9 +46,23 @@ public class MyApplication extends Application {
         super.onCreate();
         instance = this;
         context = this.getApplicationContext();
+
+        entityName = CommonUtil.getImei(this);
+
+        // 若为创建独立进程，则不初始化成员变量
+        if ("com.baidu.track:remote".equals(CommonUtil.getCurProcessName(this))) {
+            return;
+        }
+
+        if ("com.example.demowechat:watch".equals(CommonUtil.getCurProcessName(this))) {
+            return;
+        }
+
 //        CrashReport.initCrashReport(this, "900011702", AppConfig.DEBUG);//bugly
         LogUtils.init(this, AppConfig.TAG, AppConfig.DEBUG);//初始化LOG
         ToastFactory.setIsToast(true);
+
+
         screenWidth = DeviceInfoUtils.getScreenWidth(this);//获取屏幕宽度
         screenHeight = DeviceInfoUtils.getScreenHeight(this);//获取屏幕高度
 
@@ -79,6 +95,8 @@ public class MyApplication extends Application {
         //自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
         //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
         SDKInitializer.setCoordType(CoordType.BD09LL);
+        TraceControl.init(this);
+        TraceControl.getInstance().startTrace();
 
         //个人封装，针对升级----开始
         APIWebviewTBS mAPIWebviewTBS= APIWebviewTBS.getAPIWebview();
@@ -86,6 +104,8 @@ public class MyApplication extends Application {
         //个人封装，针对升级----结束
 
         CrashUtils.init(FileUtil.createFile(AppConstant.CRASH_DIR));
+
+
 
     }
 

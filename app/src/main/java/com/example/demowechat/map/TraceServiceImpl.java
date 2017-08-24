@@ -122,6 +122,8 @@ public class TraceServiceImpl extends AbsWorkService {
             LogUtils.e(tag,e.getMessage());
         }
 
+        TraceControl.getInstance().startGather();
+
         LocationRequest.getInstance().start(new LocationRequest.BDLocateFinishListener() {
             @Override
             public void onLocateCompleted(String longitude, String latitude) {
@@ -144,16 +146,6 @@ public class TraceServiceImpl extends AbsWorkService {
             }
         });
         SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
-//        LocationRequest.getInstance().startLocate(new LocationRequest.BDLocateFinishListener() {
-//            @Override
-//            public void onLocateCompleted(String longitude, String latitude) {
-//                Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
-//                intent1.putExtra("longitude",longitude);
-//                intent1.putExtra("latitude",latitude);
-//                sendBroadcast(intent1);
-//                saveLocationToLocal(longitude, latitude);
-//            }
-//        },60*1000);
 
 //        sDisposable = Flowable
 //                .interval(3, TimeUnit.SECONDS)

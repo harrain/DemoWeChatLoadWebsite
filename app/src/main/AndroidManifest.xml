@@ -80,10 +80,18 @@
             android:name=".map.LocateActivity"
             android:screenOrientation="portrait" />
 
+        <!--<service-->
+            <!--android:name="com.baidu.location.f"-->
+            <!--android:enabled="true"-->
+            <!--android:process=":remote" />-->
+
         <service
-            android:name="com.baidu.location.f"
+            android:name="com.baidu.trace.LBSTraceService"
             android:enabled="true"
-            android:process=":remote" />
+            android:exported="true"
+            android:process=":remote"
+            />
+
         <service android:name=".map.TraceServiceImpl" />
 
         <activity
