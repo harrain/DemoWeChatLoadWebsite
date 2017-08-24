@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_toRightOf="@id/iv_profile_avatar"
-        android:textSize="18sp" />
+        android:textSize="@dimen/profile_nickname_tvsize" />
 
     <TextView
         android:id="@+id/tv_profile_username"
@@ -35,11 +35,11 @@
         android:layout_below="@id/tv_profile_nickname"
         android:layout_marginTop="5dp"
         android:layout_toRightOf="@id/iv_profile_avatar"
-        android:textSize="12sp" />
+        android:textSize="@dimen/profile_account_tvsize" />
 
     <ImageView
-        android:layout_width="23dp"
-        android:layout_height="23dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:scaleType="centerCrop"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"

@@ -31,7 +31,7 @@ public class PermissionsUtil {
         try {
             switch (getManufacturer()) {
 
-                case "Huawei":
+                case "HUAWEI":
 
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra("packageName", BuildConfig.APPLICATION_ID);
@@ -171,7 +171,7 @@ public class PermissionsUtil {
     }
 
 
-//    华为——Huawei
+//    华为——HUAWEI
 //    魅族——Meizu
 //    小米——Xiaomi
 //    索尼——Sony

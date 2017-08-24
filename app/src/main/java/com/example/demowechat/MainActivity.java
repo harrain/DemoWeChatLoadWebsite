@@ -118,8 +118,20 @@ public class MainActivity extends AppCompatActivity {
 
                         } else if (permission.shouldShowRequestPermissionRationale) {
                             // Denied permission without ask never again
+                            String permissionName = "";
+                            switch (permission.name){
+                                case Manifest.permission.ACCESS_FINE_LOCATION:
+                                    permissionName = "定位";
+                                    break;
+                                case Manifest.permission.WRITE_EXTERNAL_STORAGE:
+                                    permissionName = "存储";
+                                    break;
+                                case Manifest.permission.READ_PHONE_STATE:
+                                    permissionName = "访问手机安全码";
+                                    break;
+                            }
                             LogUtils.i(TAG, "!granted");
-                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需'"+permission.name+"'的权限", "点击 [确认] 去开启'"+permission.name+"'权限", new AlertDialogUtil.AlertListener() {
+                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需'"+permissionName+"'的权限", "点击 [确认] 去开启'"+permission.name+"'权限", new AlertDialogUtil.AlertListener() {
                                 @Override
                                 public void positiveResult(DialogInterface dialog, int which) {
                                     dialog.dismiss();

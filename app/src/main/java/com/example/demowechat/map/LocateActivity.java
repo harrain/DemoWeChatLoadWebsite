@@ -152,7 +152,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
                     case NORMAL:
                         requestLocButton.setText("跟随");
                         mCurrentMode = MyLocationConfiguration.LocationMode.FOLLOWING;
-                        mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(
+                        mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(
                                 mCurrentMode, true, mCurrentMarker));
                         MapStatus.Builder builder = new MapStatus.Builder();
                         builder.overlook(0);//俯仰角
@@ -161,7 +161,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
                     case COMPASS:
                         requestLocButton.setText("普通");
                         mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
-                        mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(
+                        mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(
                                 mCurrentMode, true, mCurrentMarker));
                         MapStatus.Builder builder1 = new MapStatus.Builder();
                         builder1.overlook(0);
@@ -170,7 +170,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
                     case FOLLOWING:
                         requestLocButton.setText("罗盘");
                         mCurrentMode = MyLocationConfiguration.LocationMode.COMPASS;
-                        mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(
+                        mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(
                                 mCurrentMode, true, mCurrentMarker));
                         break;
                     default:
