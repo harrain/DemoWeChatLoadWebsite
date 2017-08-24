@@ -142,17 +142,17 @@ public class LatlngFragment extends Fragment {
                             t = new DateTime(d.getMillis()).toString("HH:mm:ss");
                         }
                         sb.append(t);
-                        mTracesData.add(new TracesType(path, sb.toString()));
+
                         if (!path.equals(SharePrefrenceUtils.getInstance().getRecentTraceFilePath()) && !name.contains("$")) {
                             file.renameTo(new File(new StringBuilder(path).insert(path.indexOf(".txt"), "$" + t).toString()));
                         }
 
-
                     } else if (name.contains("$")) {
-                        String t = name.substring(name.indexOf("$"), name.indexOf(".txt"));
+                        String t = name.substring(name.indexOf("$")+1, name.indexOf(".txt"));
                         sb.append(t);
-                        mTracesData.add(new TracesType(path, t));
+
                     }
+                    mTracesData.add(new TracesType(path, sb.toString()));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

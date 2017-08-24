@@ -61,11 +61,19 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout front;
     ImageButton addBtn;
     Context mContext;
-    ImageView pic;
+
     ConverFragment converf;
     TraceFragment mTraceFragment;
     FragmentManager fm;
     FragmentTransaction fragmentTransaction;
+    @BindView(R.id.weixin_iv)
+    ImageView mWeixinIv;
+    @BindView(R.id.contact_iv)
+    ImageView mContactIv;
+    @BindView(R.id.find_iv)
+    ImageView mFindIv;
+    @BindView(R.id.profile_iv)
+    ImageView mProfileIv;
     private Toolbar toolbar;
     private Uri imageUri;
     private PopupWindow pw;
@@ -90,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         addBtn = (ImageButton) findViewById(R.id.add_btn);
-        pic = (ImageView) findViewById(R.id.pic);
         rxPermissions = new RxPermissions(this);
         converf = new ConverFragment();
         mTraceFragment = new TraceFragment();
@@ -119,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                         } else if (permission.shouldShowRequestPermissionRationale) {
                             // Denied permission without ask never again
                             String permissionName = "";
-                            switch (permission.name){
+                            switch (permission.name) {
                                 case Manifest.permission.ACCESS_FINE_LOCATION:
                                     permissionName = "定位";
                                     break;
@@ -131,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                                     break;
                             }
                             LogUtils.i(TAG, "!granted");
-                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需'"+permissionName+"'的权限", "点击 [确认] 去开启'"+permission.name+"'权限", new AlertDialogUtil.AlertListener() {
+                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用所需'" + permissionName + "'的权限", "点击 [确认] 去开启'" + permission.name + "'权限", new AlertDialogUtil.AlertListener() {
                                 @Override
                                 public void positiveResult(DialogInterface dialog, int which) {
                                     dialog.dismiss();
@@ -143,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                             // Denied permission with ask never again
                             // Need to go to the settings
                             LogUtils.i(TAG, "ungranted");
-                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用'"+permission.name+"'所需的权限", "点击 [确认] 去开启'"+permission.name+"'权限", new AlertDialogUtil.AlertListener() {
+                            AlertDialogUtil.showAlertDialog(mContext, "你拒绝了应用'" + permission.name + "'所需的权限", "点击 [确认] 去开启'" + permission.name + "'权限", new AlertDialogUtil.AlertListener() {
                                 @Override
                                 public void positiveResult(DialogInterface dialog, int which) {
                                     dialog.dismiss();
@@ -187,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
             }
             SharePrefrenceUtils.getInstance().setAddWhiteList(true);
         }
-
 
 
     }
@@ -405,12 +411,16 @@ public class MainActivity extends AppCompatActivity {
      * @param v
      */
     public void front(View v) {
-        LogUtils.i(TAG,"front click");
+        LogUtils.i(TAG, "front click");
         fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl, converf);
         fragmentTransaction.show(converf);
         fragmentTransaction.commit();
 
+        mWeixinIv.setImageResource(R.drawable.weixin_pressed);
+        mContactIv.setImageResource(R.drawable.contact_list_normal);
+        mFindIv.setImageResource(R.drawable.find_normal);
+        mProfileIv.setImageResource(R.drawable.profile_normal);
     }
 
     public void list(View view) {
@@ -418,6 +428,11 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.fl, mLatlngFragment);
         fragmentTransaction.show(mLatlngFragment);
         fragmentTransaction.commit();
+
+        mWeixinIv.setImageResource(R.drawable.weixin_normal);
+        mContactIv.setImageResource(R.drawable.contact_list_pressed);
+        mFindIv.setImageResource(R.drawable.find_normal);
+        mProfileIv.setImageResource(R.drawable.profile_normal);
     }
 
     /**
@@ -438,6 +453,11 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.fl, mDeviceFragment);
         fragmentTransaction.show(mDeviceFragment);
         fragmentTransaction.commit();
+
+        mWeixinIv.setImageResource(R.drawable.weixin_normal);
+        mContactIv.setImageResource(R.drawable.contact_list_normal);
+        mFindIv.setImageResource(R.drawable.find_normal);
+        mProfileIv.setImageResource(R.drawable.profile_pressed);
     }
 
     //防止华为机型未加入白名单时按返回键回到桌面再锁屏后几秒钟进程被杀

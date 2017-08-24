@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="47dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true">
+        >
         <LinearLayout
             android:id="@+id/wx"
             android:onClick="front"
@@ -24,7 +24,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent">
             <ImageView
-                android:src="@drawable/weixin_seletor"
+                android:id="@+id/weixin_iv"
+                android:src="@drawable/weixin_normal"
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView
@@ -42,7 +43,8 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:src="@drawable/contact_list_pressed"
+                android:id="@+id/contact_iv"
+                android:src="@drawable/contact_list_normal"
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView
@@ -61,10 +63,10 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/find_iv"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/find_pressed" />
+                android:src="@drawable/find_seletor" />
 
             <TextView
                 android:text="定位"
@@ -81,7 +83,8 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:src="@drawable/profile_pressed"
+                android:id="@+id/profile_iv"
+                android:src="@drawable/profile_normal"
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView
@@ -114,17 +117,11 @@
     <FrameLayout
         android:id="@+id/fl"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/tb"
-        android:layout_above="@id/ll"
-        android:layout_alignParentStart="true" />
+        android:layout_above="@+id/ll" />
 
 
-    <ImageView
-        android:id="@+id/pic"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+
 
 </RelativeLayout>

@@ -12,7 +12,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_centerVertical="true"
-        android:src="@drawable/weixin_seletor"
+        android:src="@drawable/find_seletor"
         android:scaleType="centerInside"
         android:layout_width="50dp"
         android:layout_height="50dp" />
