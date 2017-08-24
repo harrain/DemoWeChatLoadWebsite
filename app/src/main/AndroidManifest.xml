@@ -54,7 +54,8 @@
         <activity
             android:name=".WebsiteShowActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name=".ImageActivity" />
+        <activity android:name=".ImageActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".diyCamera.CameraActivity"
             android:screenOrientation="portrait" />
@@ -95,7 +96,8 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".DeviceActivity"></activity>
+        <activity android:name=".DeviceActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
