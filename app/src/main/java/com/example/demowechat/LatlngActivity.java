@@ -12,9 +12,14 @@ import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.demowechat.map.TraceControl;
 import com.example.demowechat.rlPart.ArrayListAdapter;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.ToastFactory;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,6 +47,8 @@ public class LatlngActivity extends AppCompatActivity {
     private Context mContext;
     private String tracePath;
     private ArrayListAdapter adapter;
+    private boolean isEagleEye = false;
+    private String date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +58,11 @@ public class LatlngActivity extends AppCompatActivity {
         mContext = this;
         setSupportActionBar(toolbar);
         mTTitle.setText("定位坐标");
+
+        Intent intent = getIntent();
+        tracePath = intent.getStringExtra("tracePath");
+        isEagleEye = intent.getBooleanExtra("isEagleEye",false);
+        date = intent.getStringExtra("date");
         latlngList = new ArrayList<>();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
@@ -61,17 +73,31 @@ public class LatlngActivity extends AppCompatActivity {
         adapter = new ArrayListAdapter(mContext,latlngList);
         mLatlngRv.setAdapter(adapter);
 
-        Intent intent = getIntent();
-        tracePath = intent.getStringExtra("tracePath");
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        obtainLocationDataFromFile(tracePath);
+        if (isEagleEye){
+            obtainLatlngFromEagleEye();
+        }else {
+            obtainLocationDataFromFile(tracePath);
+        }
         adapter.notifyDataSetChanged();
         mTTitle.setText("定位坐标("+latlngList.size()+")");
+    }
+
+    private void obtainLatlngFromEagleEye() {
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTime dt = DateTime.parse(date,dtf).plusHours(7);
+        DateTime dt1 = DateTime.parse(date,dtf).plusHours(22);
+        TraceControl.getInstance().queryHistoryTrackPoints(dt.getMillis(),dt1.getMillis(),new TraceControl.TrackStringListener() {
+            @Override
+            public void onObtainTrackStringList(List<String> trackList) {
+                latlngList.addAll(trackList);
+            }
+        });
     }
 
     private void obtainLocationDataFromFile(String traceTxtPath) {

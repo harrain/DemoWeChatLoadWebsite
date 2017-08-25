@@ -10,22 +10,22 @@ public final class Constants {
 
     public static final int DEFAULT_RADIUS_THRESHOLD = 0;
 
-    public static final int PAGE_SIZE = 5000;
+    public static final int PAGE_SIZE = 500;
 
     /**
      * 默认采集周期
      */
-    public static final int DEFAULT_GATHER_INTERVAL = 1000;
+    public static final int DEFAULT_GATHER_INTERVAL = 60;
 
     /**
      * 默认打包周期
      */
-    public static final int DEFAULT_PACK_INTERVAL = 2000;
+    public static final int DEFAULT_PACK_INTERVAL = 120;
 
     /**
      * 实时定位间隔(单位:秒)
      */
-    public static final int LOC_INTERVAL = 1000;
+    public static final int LOC_INTERVAL = 10;
 
     /**
      * 最后一次定位信息

@@ -14,7 +14,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,8 +36,8 @@ import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.MyApplication;
 import com.example.demowechat.R;
-import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.rlPart.FileListAdapter;
+import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.Link;
 import com.example.demowechat.utils.LogUtils;
@@ -102,6 +101,8 @@ public class TrackShowDemo extends AppCompatActivity {
     private PopupWindow pw;
     private String mPath;
     private ArrayList<LatLng> polylineCopy = new ArrayList<>();
+    private boolean isEagleEye = false;
+    private String date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +112,8 @@ public class TrackShowDemo extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Intent intent = getIntent();
         mPath = intent.getStringExtra("tracePath");
+        isEagleEye = intent.getBooleanExtra("isEagleEye",false);
+        date = intent.getStringExtra("date");
         mContext = this;
 
         mMapView = (MapView) findViewById(R.id.bmapView);
@@ -161,22 +164,22 @@ public class TrackShowDemo extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        tracesFileNames.clean();
-        File cacheDir = new File(AppConstant.TRACES_DIR);
-        Log.e(tag, "file:" + cacheDir.getAbsolutePath());
-        if (!cacheDir.exists()) {
-            LogUtils.e(tag, "TRACES_DIR is not existed");
-            return;
-        }
-        File[] files = cacheDir.listFiles();
-        for (File file : files) {
-            if (file.isFile()) {
-                tracesFileNames.add(file.getName());
-
-            }
-
-        }
-        LogUtils.i(tag, "tracesFileNames size:   " + tracesFileNames.size());
+//        tracesFileNames.clean();
+//        File cacheDir = new File(AppConstant.TRACES_DIR);
+//        Log.e(tag, "file:" + cacheDir.getAbsolutePath());
+//        if (!cacheDir.exists()) {
+//            LogUtils.e(tag, "TRACES_DIR is not existed");
+//            return;
+//        }
+//        File[] files = cacheDir.listFiles();
+//        for (File file : files) {
+//            if (file.isFile()) {
+//                tracesFileNames.add(file.getName());
+//
+//            }
+//
+//        }
+//        LogUtils.i(tag, "tracesFileNames size:   " + tracesFileNames.size());
 //        for (int index = 0; index < latlngs.length; index++) {
 //            mPolylines.add(latlngs[index]);
 //        }
@@ -191,7 +194,11 @@ public class TrackShowDemo extends AppCompatActivity {
             if (TextUtils.isEmpty(mPath)) {
                 mPath = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
             }
+            if (isEagleEye){
 
+            }else {
+                
+            }
             obtainLocationDataFromFile(mPath);
 
             isDrawed = true;

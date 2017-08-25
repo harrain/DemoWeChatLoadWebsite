@@ -13,7 +13,6 @@ import com.example.demowechat.map.TraceServiceImpl;
 import com.example.demowechat.utils.AppConfig;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.CrashUtils;
-import com.example.demowechat.utils.DeviceInfoUtils;
 import com.example.demowechat.utils.FileUtil;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.ToastFactory;
@@ -62,9 +61,25 @@ public class MyApplication extends Application {
         LogUtils.init(this, AppConfig.TAG, AppConfig.DEBUG);//初始化LOG
         ToastFactory.setIsToast(true);
 
+// 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
+        SDKInitializer.initialize(getApplicationContext());
+        //自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
+        //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
+        SDKInitializer.setCoordType(CoordType.BD09LL);
+        TraceControl.init(this);
+        TraceControl.getInstance().startTrace();
 
-        screenWidth = DeviceInfoUtils.getScreenWidth(this);//获取屏幕宽度
-        screenHeight = DeviceInfoUtils.getScreenHeight(this);//获取屏幕高度
+        //个人封装，针对升级----开始
+        APIWebviewTBS mAPIWebviewTBS= APIWebviewTBS.getAPIWebview();
+        mAPIWebviewTBS.initTbs(getApplicationContext());
+        //个人封装，针对升级----结束
+
+        CrashUtils.init(FileUtil.createFile(AppConstant.CRASH_DIR));
+
+        Log.e("pro ",getApplicationInfo().processName);
+        //需要在 Application 的 onCreate() 中调用一次 DaemonEnv.initialize()
+        DaemonEnv.initialize(this, TraceServiceImpl.class, DaemonEnv.DEFAULT_WAKE_UP_INTERVAL);
+        startService(new Intent(this, TraceServiceImpl.class));
 
 
 //        ActivityManager am = (ActivityManager)getSystemService(context.ACTIVITY_SERVICE);
@@ -79,31 +94,15 @@ public class MyApplication extends Application {
 //
 //            }
 //        }
-        Log.e("pro ",getApplicationInfo().processName);
-        //需要在 Application 的 onCreate() 中调用一次 DaemonEnv.initialize()
-        DaemonEnv.initialize(this, TraceServiceImpl.class, DaemonEnv.DEFAULT_WAKE_UP_INTERVAL);
-        startService(new Intent(this, TraceServiceImpl.class));
-        //12076
-        if (getApplicationInfo().processName.equals("com.example.demowechat:watch")){
-            Log.e("process",getApplicationInfo().processName);
-            return;
-        }
-        Log.e("组件初始化","--------------------------------------");
 
-        // 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
-        SDKInitializer.initialize(getApplicationContext());
-        //自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
-        //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
-        SDKInitializer.setCoordType(CoordType.BD09LL);
-        TraceControl.init(this);
-        TraceControl.getInstance().startTrace();
+//        //12076
+//        if (getApplicationInfo().processName.equals("com.example.demowechat:watch")){
+//            Log.e("process",getApplicationInfo().processName);
+//            return;
+//        }
+//        Log.e("组件初始化","--------------------------------------");
 
-        //个人封装，针对升级----开始
-        APIWebviewTBS mAPIWebviewTBS= APIWebviewTBS.getAPIWebview();
-        mAPIWebviewTBS.initTbs(getApplicationContext());
-        //个人封装，针对升级----结束
 
-        CrashUtils.init(FileUtil.createFile(AppConstant.CRASH_DIR));
 
 
 

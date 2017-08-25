@@ -53,6 +53,26 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
         <LinearLayout
+            android:onClick="track"
+            android:background="@android:color/white"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/track_iv"
+                android:src="@drawable/contact_list_normal"
+                android:layout_width="30dp"
+                android:layout_height="30dp" />
+            <TextView
+                android:text="鹰眼"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/baidu"
             android:onClick="search"
             android:background="@android:color/white"
@@ -88,7 +108,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView
-                android:text="设备"
+                android:text="我的"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

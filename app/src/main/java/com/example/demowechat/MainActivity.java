@@ -435,6 +435,10 @@ public class MainActivity extends AppCompatActivity {
         mProfileIv.setImageResource(R.drawable.profile_normal);
     }
 
+    public void track(View v){
+
+    }
+
     /**
      * 导航按钮2点击事件
      *

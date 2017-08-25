@@ -4,13 +4,11 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.text.TextUtils;
 
 import com.example.demowechat.MyApplication;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.FileUtil;
 import com.example.demowechat.utils.LogUtils;
-import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.loonggg.lib.alarmmanager.clock.AlarmManagerUtil;
@@ -123,28 +121,38 @@ public class TraceServiceImpl extends AbsWorkService {
         }
 
         TraceControl.getInstance().startGather();
-
-        LocationRequest.getInstance().start(new LocationRequest.BDLocateFinishListener() {
+        TraceControl.getInstance().getCurrentLocation(new TraceControl.CurrentLatlngListener() {
             @Override
-            public void onLocateCompleted(String longitude, String latitude) {
-                if (NumberValidationUtil.isPositiveDecimal(longitude) && NumberValidationUtil.isPositiveDecimal(latitude))
-                {
-                    if (!TextUtils.isEmpty(mLongitude) && !TextUtils.isEmpty(mLatitude)){
-                        if (mLongitude.equals(longitude) && mLatitude.equals(latitude)){
-                            return;
-                        }
-                    }
-                    Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
-                    intent1.putExtra("longitude", longitude);
-                    intent1.putExtra("latitude", latitude);
+            public void onObtainCurrentLatlng(double longitude, double latitude, long time) {
 
-                    sendBroadcast(intent1);
-                    saveLocationToLocal(longitude, latitude);
-                    mLatitude = latitude;
-                    mLongitude = longitude;
-                }
+                Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
+                intent1.putExtra("longitude", longitude);
+                intent1.putExtra("latitude", latitude);
+                sendBroadcast(intent1);
             }
         });
+
+//        LocationRequest.getInstance().start(new LocationRequest.BDLocateFinishListener() {
+//            @Override
+//            public void onLocateCompleted(String longitude, String latitude) {
+//                if (NumberValidationUtil.isPositiveDecimal(longitude) && NumberValidationUtil.isPositiveDecimal(latitude))
+//                {
+//                    if (!TextUtils.isEmpty(mLongitude) && !TextUtils.isEmpty(mLatitude)){
+//                        if (mLongitude.equals(longitude) && mLatitude.equals(latitude)){
+//                            return;
+//                        }
+//                    }
+//                    Intent intent1 = new Intent(AppConstant.LOCATION_BROADCAST);
+//                    intent1.putExtra("longitude", longitude);
+//                    intent1.putExtra("latitude", latitude);
+//
+//                    sendBroadcast(intent1);
+//                    saveLocationToLocal(longitude, latitude);
+//                    mLatitude = latitude;
+//                    mLongitude = longitude;
+//                }
+//            }
+//        });
         SharePrefrenceUtils.getInstance().setLocateInterrupt(true);
 
 //        sDisposable = Flowable

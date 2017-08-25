@@ -9,26 +9,38 @@ import com.baidu.trace.LBSTraceClient;
 import com.baidu.trace.Trace;
 import com.baidu.trace.api.entity.LocRequest;
 import com.baidu.trace.api.entity.OnEntityListener;
+import com.baidu.trace.api.track.DistanceRequest;
+import com.baidu.trace.api.track.DistanceResponse;
 import com.baidu.trace.api.track.HistoryTrackRequest;
 import com.baidu.trace.api.track.HistoryTrackResponse;
 import com.baidu.trace.api.track.LatestPoint;
+import com.baidu.trace.api.track.LatestPointRequest;
 import com.baidu.trace.api.track.LatestPointResponse;
 import com.baidu.trace.api.track.OnTrackListener;
 import com.baidu.trace.api.track.QueryCacheTrackResponse;
+import com.baidu.trace.api.track.SupplementMode;
 import com.baidu.trace.api.track.TrackPoint;
 import com.baidu.trace.model.BaseRequest;
+import com.baidu.trace.model.CoordType;
 import com.baidu.trace.model.OnCustomAttributeListener;
 import com.baidu.trace.model.OnTraceListener;
 import com.baidu.trace.model.ProcessOption;
 import com.baidu.trace.model.PushMessage;
+import com.baidu.trace.model.SortType;
 import com.baidu.trace.model.StatusCodes;
 import com.baidu.trace.model.TraceLocation;
 import com.baidu.trace.model.TransportMode;
 import com.example.demowechat.MyApplication;
 import com.example.demowechat.utils.DeviceInfoUtils;
+import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.NetworkUtils;
 import com.example.demowechat.utils.ToastFactory;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +53,19 @@ import static android.content.Context.MODE_PRIVATE;
  */
 
 public class TraceControl {
+
+    /**
+     * 轨迹点集合
+     */
+    private List<LatLng> trackPoints = new ArrayList<>();
+    private List<String> trackStr = new ArrayList<>();
+
+    /**
+     * 轨迹排序规则
+     */
+    private SortType sortType = SortType.asc;
+    // 分页索引
+    private int pageIndex = 1;
 
     /**
      * 轨迹客户端
@@ -85,8 +110,11 @@ public class TraceControl {
     private static TraceControl instance;
     private boolean firstLocate = true;
     private MapUtil mapUtil;
-    private LocationRequest.BDLocateFinishListener mListener;
 
+    private TrackResultListener mListener;
+    private TrackStringListener mTSListener;
+    private CurrentLatlngListener mLatlngListener;
+    private DistanceListener mDistanceListener;
     /**
      * 轨迹服务监听器
      */
@@ -107,28 +135,31 @@ public class TraceControl {
      */
     public int packInterval = Constants.DEFAULT_PACK_INTERVAL;
     private HistoryTrackRequest historyTrackRequest;
+    private final String tag = "TraceContrl";
+    private long mStartTime;
+    private long mEndTime;
 
-    public static void init(Context context){
-        if (instance == null){
+    public static void init(Context context) {
+        if (instance == null) {
             instance = new TraceControl(context);
         }
     }
 
-    private TraceControl(Context context){
+    private TraceControl(Context context) {
         mContext = context;
         entityName = DeviceInfoUtils.getImei(mContext);
         initClient();
         mapUtil = MapUtil.getInstance();
     }
 
-    public static TraceControl getInstance(){
-        if (instance == null){
+    public static TraceControl getInstance() {
+        if (instance == null) {
             instance = new TraceControl(MyApplication.getInstance());
         }
         return instance;
     }
 
-    public void initClient(){
+    public void initClient() {
         mClient = new LBSTraceClient(mContext);
         mTrace = new Trace(serviceId, entityName);
 
@@ -146,63 +177,121 @@ public class TraceControl {
         });
         mClient.setInterval(Constants.DEFAULT_GATHER_INTERVAL, packInterval);
         initTraceListener();
+        initListener();
         historyTrackRequest = new HistoryTrackRequest();
     }
 
-    public void startTrace(){
+    public void startTrace() {
         mClient.startTrace(TraceControl.getInstance().mTrace, traceListener);
     }
 
-    public void stopTrace(){
+    public void stopTrace() {
         mClient.stopTrace(TraceControl.getInstance().mTrace, traceListener);
     }
 
-    public void startGather(LocationRequest.BDLocateFinishListener listener){
-        mListener = listener;
+    public void startGather() {
+
         mClient.startGather(traceListener);//开启采集
     }
 
-    public void stopGather(){
+    public void stopGather() {
         mClient.stopGather(traceListener);
     }
 
     /**
-    * 获取当前位置
-    */
-    public void getCurrentLocation(OnEntityListener entityListener, OnTrackListener trackListener) {
+     * 获取当前位置
+     */
+    public void getCurrentLocation(CurrentLatlngListener listener) {
+        mLatlngListener = listener;
         // 网络连接正常，开启服务及采集，则查询纠偏后实时位置；否则进行实时定位
         if (NetworkUtils.isConnected()
                 && trackConf.contains("is_trace_started")
                 && trackConf.contains("is_gather_started")
                 && trackConf.getBoolean("is_trace_started", false)
                 && trackConf.getBoolean("is_gather_started", false)) {
-//            LatestPointRequest request = new LatestPointRequest(getTag(), serviceId, entityName);
+            LatestPointRequest request = new LatestPointRequest(getTag(), serviceId, entityName);
             ProcessOption processOption = new ProcessOption();
             processOption.setRadiusThreshold(50);
             processOption.setTransportMode(TransportMode.walking);
             processOption.setNeedDenoise(true);
             processOption.setNeedMapMatch(true);
-//            request.setProcessOption(processOption);
+            request.setProcessOption(processOption);
             // 设置需要抽稀
             processOption.setNeedVacuate(true);
-//            mClient.queryLatestPoint(request, trackListener);
-            int startTime = (int)(System.currentTimeMillis()/1000);
-            int endTime = startTime+60;
-            // 分页索引
-            int pageIndex = 1;
-            historyTrackRequest.setProcessOption(processOption);
-            historyTrackRequest.setEntityName(entityName);
-            historyTrackRequest.setStartTime(startTime);
-            historyTrackRequest.setEndTime(endTime);
-            historyTrackRequest.setPageIndex(pageIndex);
-            historyTrackRequest.setPageSize(Constants.PAGE_SIZE);
-            mClient.queryHistoryTrack(historyTrackRequest,trackListener);
-        } else {}
+            mClient.queryLatestPoint(request, trackListener);
+        } else {
+            mClient.queryRealTimeLoc(locRequest, entityListener);
+        }
+    }
+
+    public void queryHistoryTrackPoints(long startTime,long endTime,TrackResultListener listener){
+        mListener = listener;
+        mStartTime = startTime;
+        mEndTime = endTime;
+        queryHistoryTrack();
+    }
+
+    public void queryHistoryTrackPoints(long startTime,long endTime,TrackStringListener listener){
+        mTSListener = listener;
+        mStartTime = startTime;
+        mEndTime = endTime;
+        queryHistoryTrack();
+    }
+
+    public void queryHistoryTrack() {
+
+        ProcessOption processOption = new ProcessOption();
+        processOption.setRadiusThreshold(50);//精度
+        processOption.setTransportMode(TransportMode.walking);
+        processOption.setNeedDenoise(true);//去燥
+        processOption.setNeedMapMatch(true);//绑路
+        processOption.setNeedVacuate(true);//抽稀
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+//        DateTime dt = DateTime.parse("2017-08-24 07:00:00", dtf);
+//        DateTime dt1 = DateTime.parse("2017-08-24 22:00:00", dtf);
+//        int startTime = (int) dt.getMillis();
+//        int endTime = (int) dt1.getMillis();
+
+        initRequest(historyTrackRequest);
+        historyTrackRequest.setProcessOption(processOption);
+        historyTrackRequest.setProcessed(true);//纠偏
+        historyTrackRequest.setEntityName(entityName);
+        historyTrackRequest.setStartTime(mStartTime);
+        historyTrackRequest.setEndTime(mEndTime);
+        historyTrackRequest.setPageIndex(pageIndex);
+        historyTrackRequest.setPageSize(Constants.PAGE_SIZE);
+        historyTrackRequest.setSupplementMode(SupplementMode.no_supplement);//里程填充 无
+        historyTrackRequest.setSortType(SortType.asc);//排序规则
+        historyTrackRequest.setCoordTypeOutput(CoordType.bd09ll);
+        mClient.queryHistoryTrack(historyTrackRequest, trackListener);
+    }
+
+    public void queryDistance(int startTime,int endTime,DistanceListener listener) {
+        mDistanceListener = listener;
+        DistanceRequest distanceRequest = new DistanceRequest(TraceControl.getInstance().getTag(), TraceControl.getInstance().serviceId, TraceControl.getInstance().entityName);
+        distanceRequest.setStartTime(startTime);// 设置开始时间
+        distanceRequest.setEndTime(endTime);// 设置结束时间
+        distanceRequest.setProcessed(true);// 纠偏
+        ProcessOption processOption = new ProcessOption();// 创建纠偏选项实例
+        processOption.setNeedDenoise(true);// 去噪
+        processOption.setNeedMapMatch(true);// 绑路
+        processOption.setTransportMode(TransportMode.walking);// 交通方式为步行
+        distanceRequest.setProcessOption(processOption);// 设置纠偏选项
+        distanceRequest.setSupplementMode(SupplementMode.no_supplement);// 里程填充方式为无
+        TraceControl.getInstance().mClient.queryDistance(distanceRequest, trackListener);// 查询里程
+
     }
 
     private void initListener() {
 
         trackListener = new OnTrackListener() {
+
+            @Override
+            public void onDistanceCallback(DistanceResponse response) {
+                super.onDistanceCallback(response);
+                LogUtils.i(tag,response.toString());
+                mDistanceListener.onObtainDistance(response.getDistance());
+            }
 
             @Override
             public void onQueryCacheTrackCallback(QueryCacheTrackResponse queryCacheTrackResponse) {
@@ -213,22 +302,38 @@ public class TraceControl {
             @Override
             public void onHistoryTrackCallback(HistoryTrackResponse response) {
                 super.onHistoryTrackCallback(response);
-                int total = response.getTotal();
-                if (StatusCodes.SUCCESS != response.getStatus()) {
-                    ToastFactory.showShortToast(response.getMessage());
-                } else if (0 == total) {
-                    ToastFactory.showShortToast("no_track_data");
-                } else {
-                    List<TrackPoint> points = response.getTrackPoints();
-                    if (null != points) {
-                        for (TrackPoint trackPoint : points) {
-                            if (!CommonUtil.isZeroPoint(trackPoint.getLocation().getLatitude(),
-                                    trackPoint.getLocation().getLongitude())) {
-                                ToastFactory.showShortToast(""+MapUtil.convertTrace2Map(trackPoint.getLocation()));
+                try {
+                    int total = response.getTotal();
+                    if (StatusCodes.SUCCESS != response.getStatus()) {
+                        ToastFactory.showShortToast(response.getMessage());
+                    } else if (0 == total) {
+                        ToastFactory.showShortToast("no_track_data");
+                    } else {
+                        List<TrackPoint> points = response.getTrackPoints();
+                        if (null != points) {
+                            for (TrackPoint trackPoint : points) {
+                                if (!CommonUtil.isZeroPoint(trackPoint.getLocation().getLatitude(),
+                                        trackPoint.getLocation().getLongitude())) {
+                                    trackPoints.add(MapUtil.convertTrace2Map(trackPoint.getLocation()));
+                                    ToastFactory.showShortToast("" + MapUtil.convertTrace2Map(trackPoint.getLocation()));
+                                    DateTime dt = new DateTime(trackPoint.getLocTime());
+                                    trackStr.add(dt.toString("yyyy-MM-dd hh:mm:ss")+"\t\n"+trackPoint.getLocation().getLongitude()+"-"+trackPoint.getLocation().getLatitude());
+                                }
                             }
+                            mListener.onObtainTrackPointsList(trackPoints);
+                            trackPoints.clear();
+                            mTSListener.onObtainTrackStringList(trackStr);
+                            trackStr.clear();
                         }
                     }
-                }
+                    //查找下一页数据
+                    if (total > Constants.PAGE_SIZE * pageIndex) {
+                        historyTrackRequest.setPageIndex(++pageIndex);
+                        queryHistoryTrack();
+                    }
+                }catch (Exception e){
+                    LogUtils.i(tag,"error "+e.getMessage());}
+
             }
 
             @Override
@@ -249,8 +354,8 @@ public class TraceControl {
                     if (null == currentLatLng) {
                         return;
                     }
-                    Log.i("OnTrackListener",currentLatLng.longitude+"-"+currentLatLng.latitude);
-                    if(firstLocate){
+                    Log.i("OnTrackListener", currentLatLng.longitude + "-" + currentLatLng.latitude);
+                    if (firstLocate) {
                         firstLocate = false;
                         ToastFactory.showShortToast("起点获取中，请稍后...");
                         return;
@@ -260,17 +365,15 @@ public class TraceControl {
                     CurrentLocation.locTime = point.getLocTime();
                     CurrentLocation.latitude = currentLatLng.latitude;
                     CurrentLocation.longitude = currentLatLng.longitude;
+                    mLatlngListener.onObtainCurrentLatlng(CurrentLocation.longitude,CurrentLocation.latitude,CurrentLocation.locTime);
 
-
-                    Log.i("to add trackPoint",currentLatLng.longitude+"-"+currentLatLng.latitude);
+                    Log.i("current trackPoint", currentLatLng.longitude + "-" + currentLatLng.latitude);
 //                    trackPoints.add(currentLatLng);
 //
 //                    mapUtil.drawHistoryTrack(trackPoints, false, mCurrentDirection);//时时动态的画出运动轨迹
-                } catch (Exception x) {
-
+                } catch (Exception e) {
+                    LogUtils.i(tag,"error "+e.getMessage());
                 }
-
-
             }
         };
 
@@ -292,6 +395,7 @@ public class TraceControl {
                     CurrentLocation.latitude = currentLatLng.latitude;
                     CurrentLocation.longitude = currentLatLng.longitude;
 
+                    mLatlngListener.onObtainCurrentLatlng(CurrentLocation.longitude,CurrentLocation.latitude,CurrentLocation.locTime);
 //                    if (null != mapUtil) {
 //                        mapUtil.updateMapLocation(currentLatLng, mCurrentDirection);//显示当前位置
 //                        mapUtil.animateMapStatus(currentLatLng);//缩放
@@ -308,7 +412,7 @@ public class TraceControl {
 
     }
 
-    public void initTraceListener(){
+    public void initTraceListener() {
         traceListener = new OnTraceListener() {
 
             @Override
@@ -379,7 +483,7 @@ public class TraceControl {
 
     /**
      * 清除Trace状态：初始化app时，判断上次是正常停止服务还是强制杀死进程，根据trackConf中是否有is_trace_started字段进行判断。
-     *
+     * <p>
      * 停止服务成功后，会将该字段清除；若未清除，表明为非正常停止服务。
      */
     public void clearTraceStatus() {
@@ -408,5 +512,21 @@ public class TraceControl {
      */
     public int getTag() {
         return mSequenceGenerator.incrementAndGet();
+    }
+
+    public interface TrackResultListener{
+        void onObtainTrackPointsList(List trackList);
+    }
+
+    public interface TrackStringListener{
+        void onObtainTrackStringList(List<String> trackList);
+    }
+
+    public interface CurrentLatlngListener{
+        void onObtainCurrentLatlng(double longitude,double latitude,long time);
+    }
+
+    public interface DistanceListener{
+        void onObtainDistance(double distance);
     }
 }

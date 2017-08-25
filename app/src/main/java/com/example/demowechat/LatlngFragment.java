@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.demowechat.map.TraceControl;
 import com.example.demowechat.map.TrackShowDemo;
 import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.rlPart.LatlngFragmentAdapter;
@@ -52,8 +53,20 @@ public class LatlngFragment extends Fragment {
     private List<TracesType> mTracesData;
     private LatlngFragmentAdapter adapter;
 
+    private boolean isEagleEye = false;
+
     public LatlngFragment() {
 
+    }
+
+    public static LatlngFragment newInstance(boolean eagleEye) {
+        LatlngFragment myFragment = new LatlngFragment();
+
+        Bundle args = new Bundle();
+        args.putBoolean("isEagleEye", eagleEye);
+        myFragment.setArguments(args);
+
+        return myFragment;
     }
 
 
@@ -63,6 +76,8 @@ public class LatlngFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_latlng, container, false);
         unbinder = ButterKnife.bind(this, view);
         mContext = getActivity();
+        try {isEagleEye = getArguments().getBoolean("isEagleEye",false);
+        }catch (Exception e){e.printStackTrace();}
 
         mTracesData = new ArrayList<>();
 
@@ -79,11 +94,15 @@ public class LatlngFragment extends Fragment {
                 switch (v.getId()) {
                     case R.id.filenamelist_left_iv:
                         Intent intent = new Intent(mContext, LatlngActivity.class);
+                        intent.putExtra("isEagleEye",isEagleEye);
+                        intent.putExtra("date",mTracesData.get(position).getDateTime());
                         intent.putExtra("tracePath", mTracesData.get(position).getmFilePath());
                         startActivity(intent);
                         break;
                     case R.id.filenamelist_right_iv:
                         Intent intent1 = new Intent(mContext, TrackShowDemo.class);
+                        intent1.putExtra("isEagleEye",isEagleEye);
+                        intent1.putExtra("date",mTracesData.get(position).getDateTime());
                         intent1.putExtra("tracePath", mTracesData.get(position).getmFilePath());
                         startActivity(intent1);
                         break;
@@ -106,11 +125,49 @@ public class LatlngFragment extends Fragment {
     public void onStart() {
         super.onStart();
         mTracesData.clear();
+        if (isEagleEye){
+            loadTrackFromEagleEye();
+            ((MainActivity) mContext).setToolbarTitle("鹰眼轨迹(" + mTracesData.size() + ")");
+        }else {
+            if (loadLocalTrackFiles()) return;
+            ((MainActivity) mContext).setToolbarTitle("定位文件(" + mTracesData.size() + ")");
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void loadTrackFromEagleEye() {
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        DateTime dt = DateTime.parse("2017-08-24 07:00:00",dtf);
+        DateTime dt1 = DateTime.parse("2017-08-24 23:00:00",dtf);
+
+        final String[] t = new String[1];
+        t[0] = dt.toString("yyyy-MM-dd");
+        for (int i = 24;i<= DateTime.now().getDayOfMonth();i++){
+
+            TraceControl.getInstance().queryDistance((int) dt.getMillis(), (int) dt1.getMillis(), new TraceControl.DistanceListener() {
+                @Override
+                public void onObtainDistance(double distance) {
+                    if (distance >0 ){
+                        mTracesData.add(new TracesType(true,t[0],t[0]));
+                    }
+
+                }
+            });
+            dt = dt.plusDays(1);
+            dt1 = dt1.plusDays(1);
+            t[0] = dt.toString("yyyy-MM-dd");
+
+        }
+
+
+    }
+
+    private boolean loadLocalTrackFiles() {
         File cacheDir = new File(AppConstant.TRACES_DIR);
         Log.e(tag, "file:" + cacheDir.getAbsolutePath());
         if (!cacheDir.exists()) {
             LogUtils.e(tag, "TRACES_DIR is not existed");
-            return;
+            return true;
         }
 
         DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
@@ -158,8 +215,7 @@ public class LatlngFragment extends Fragment {
                 }
             }
         }
-        adapter.notifyDataSetChanged();
-        ((MainActivity) mContext).setToolbarTitle("定位文件(" + mTracesData.size() + ")");
+        return false;
     }
 
     private String readLastStr(String path) {
@@ -196,8 +252,17 @@ public class LatlngFragment extends Fragment {
         String mFilePath;
         String mContent;
 
+        String dateTime;
+        boolean isEagleEye = false;
+
         public TracesType(String mFilePath, String mContent) {
             this.mFilePath = mFilePath;
+            this.mContent = mContent;
+        }
+
+        public TracesType(boolean isEagleEye ,String dateTime, String mContent) {
+            this.isEagleEye = isEagleEye;
+            this.dateTime = dateTime;
             this.mContent = mContent;
         }
 
@@ -207,6 +272,10 @@ public class LatlngFragment extends Fragment {
 
         public String getmContent() {
             return mContent;
+        }
+
+        public String getDateTime() {
+            return dateTime;
         }
     }
 }
