@@ -241,11 +241,12 @@ public class TraceServiceImpl extends AbsWorkService {
      */
     @Override
     public Boolean isWorkRunning(Intent intent, int flags, int startId) {
-        if (!LocationRequest.getInstance().isStartLocate()){
-            LogUtils.i(tag,"locateClent is not started");
-        }
+//        if (!LocationRequest.getInstance().isStartLocate()){
+//            LogUtils.i(tag,"locateClent is not started");
+//        }
+        return TraceControl.getInstance().isGatherStarted;
+//        return LocationRequest.getInstance().isStartLocate();
         //若还没有取消订阅, 就说明任务仍在运行.
-        return LocationRequest.getInstance().isStartLocate();
 //        return sDisposable != null && !sDisposable.isDisposed();
     }
 

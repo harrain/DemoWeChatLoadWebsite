@@ -63,7 +63,7 @@
 
             <ImageView
                 android:id="@+id/track_iv"
-                android:src="@drawable/contact_list_normal"
+                android:src="@drawable/contact_list_pressed"
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView

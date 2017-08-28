@@ -15,8 +15,8 @@ import android.view.ViewGroup;
 
 import com.example.demowechat.map.TraceControl;
 import com.example.demowechat.map.TrackShowDemo;
-import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.rlPart.LatlngFragmentAdapter;
+import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
@@ -30,7 +30,9 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -54,6 +56,8 @@ public class LatlngFragment extends Fragment {
     private LatlngFragmentAdapter adapter;
 
     private boolean isEagleEye = false;
+    private SimpleDateFormat sdf;
+    private Calendar calendar;
 
     public LatlngFragment() {
 
@@ -117,7 +121,7 @@ public class LatlngFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        ((MainActivity) mContext).setToolbarTitle("坐标文件(" + mTracesData.size() + ")");
+//        ((MainActivity) mContext).setToolbarTitle("坐标文件(" + mTracesData.size() + ")");
         return view;
     }
 
@@ -127,40 +131,89 @@ public class LatlngFragment extends Fragment {
         mTracesData.clear();
         if (isEagleEye){
             loadTrackFromEagleEye();
-            ((MainActivity) mContext).setToolbarTitle("鹰眼轨迹(" + mTracesData.size() + ")");
         }else {
-            if (loadLocalTrackFiles()) return;
+            loadLocalTrackFiles();
+            adapter.notifyDataSetChanged();
             ((MainActivity) mContext).setToolbarTitle("定位文件(" + mTracesData.size() + ")");
         }
-        adapter.notifyDataSetChanged();
+
     }
 
     private void loadTrackFromEagleEye() {
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-        DateTime dt = DateTime.parse("2017-08-24 07:00:00",dtf);
-        DateTime dt1 = DateTime.parse("2017-08-24 23:00:00",dtf);
-
+//        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+//        final DateTime[] dts = new DateTime[2];
+//
+//        dts[0] = DateTime.parse("2017-08-28 07:00",dtf);
+//        dts[1] = DateTime.parse("2017-08-28 23:00",dtf);
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
+        calendar = Calendar.getInstance();
+        calendar.set(2017,7,24,7,0);
         final String[] t = new String[1];
-        t[0] = dt.toString("yyyy-MM-dd");
-        for (int i = 24;i<= DateTime.now().getDayOfMonth();i++){
-
-            TraceControl.getInstance().queryDistance((int) dt.getMillis(), (int) dt1.getMillis(), new TraceControl.DistanceListener() {
-                @Override
-                public void onObtainDistance(double distance) {
-                    if (distance >0 ){
-                        mTracesData.add(new TracesType(true,t[0],t[0]));
-                    }
-
-                }
-            });
-            dt = dt.plusDays(1);
-            dt1 = dt1.plusDays(1);
-            t[0] = dt.toString("yyyy-MM-dd");
-
-        }
-
+//        t[0] = dts[0].toString("yyyy-MM-dd");
+        t[0] = sdf.format(calendar.getTime());
+        Long[] dts = new Long[2];
+        dts[0] = calendar.getTime().getTime()/1000;
+        calendar.set(2017,7,24,23,0);
+        dts[1] = calendar.getTime().getTime()/1000;
+        final int[] i = {24};
+        getTrack(dts, t, i);
 
     }
+
+    private void getTrack(final DateTime[] dts, final String[] t, final int[] i) {
+        calendar.setTimeInMillis(dts[0].getMillis());
+        long d0 = calendar.getTime().getTime()/1000;
+        calendar.setTimeInMillis(dts[1].getMillis());
+        long d1 = calendar.getTime().getTime()/1000;
+        TraceControl.getInstance().queryDistance(d0
+                , d1, new TraceControl.DistanceListener() {
+            @Override
+            public void onObtainDistance(double distance) {
+                LogUtils.i(tag,"dt "+t[0]);
+                if (distance >0 ){
+                    mTracesData.add(new TracesType(true,t[0],t[0]));
+                    adapter.notifyDataSetChanged();
+                    ((MainActivity) mContext).setToolbarTitle("鹰眼轨迹(" + mTracesData.size() + ")");
+                }
+
+                i[0]++;
+//                LogUtils.i(tag,"dt "+t[0]+"-"+dts[1].toString("yyyy-MM-dd HH:mm:ss"));
+                if (i[0] <= DateTime.now().getDayOfMonth()){
+
+                    dts[0] = dts[0].plusDays(1);
+                    dts[1] = dts[1].plusDays(1);
+                    t[0] = dts[0].toString("yyyy-MM-dd");
+                    getTrack(dts, t, i);
+                }
+            }
+        });
+    }
+
+    private void getTrack(final Long[] dts, final String[] t, final int[] i) {
+        TraceControl.getInstance().queryDistance(dts[0],dts[1], new TraceControl.DistanceListener() {
+                    @Override
+                    public void onObtainDistance(double distance) {
+                        LogUtils.i(tag,"dt "+t[0]);
+                        if (distance >0 ){
+                            mTracesData.add(new TracesType(true,t[0],t[0]));
+                            adapter.notifyDataSetChanged();
+                            ((MainActivity) mContext).setToolbarTitle("鹰眼轨迹(" + mTracesData.size() + ")");
+                        }
+
+                        i[0]++;
+
+                        if (i[0] <= DateTime.now().getDayOfMonth()){
+                            calendar.set(2017,7,i[0],7,0);
+                            dts[0] = calendar.getTime().getTime()/1000;
+                            t[0] = sdf.format(calendar.getTime());
+                            calendar.set(2017,7,i[0],23,0);
+                            dts[1] = calendar.getTime().getTime()/1000;
+                            getTrack(dts, t, i);
+                        }
+                    }
+                });
+    }
+
 
     private boolean loadLocalTrackFiles() {
         File cacheDir = new File(AppConstant.TRACES_DIR);

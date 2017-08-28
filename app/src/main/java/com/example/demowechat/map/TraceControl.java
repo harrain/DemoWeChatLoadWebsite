@@ -82,7 +82,7 @@ public class TraceControl {
     /**
      * 轨迹服务ID
      */
-    public long serviceId = 148904;//这里是申请的鹰眼服务id
+    public long serviceId = 148936;//这里是申请的鹰眼服务id
 
     /**
      * Entity标识
@@ -135,7 +135,7 @@ public class TraceControl {
      */
     public int packInterval = Constants.DEFAULT_PACK_INTERVAL;
     private HistoryTrackRequest historyTrackRequest;
-    private final String tag = "TraceContrl";
+    private final String tag = "TraceControl";
     private long mStartTime;
     private long mEndTime;
 
@@ -148,6 +148,7 @@ public class TraceControl {
     private TraceControl(Context context) {
         mContext = context;
         entityName = DeviceInfoUtils.getImei(mContext);
+        LogUtils.i(tag,"entity "+entityName);//866146031694122
         initClient();
         mapUtil = MapUtil.getInstance();
     }
@@ -241,7 +242,7 @@ public class TraceControl {
     public void queryHistoryTrack() {
 
         ProcessOption processOption = new ProcessOption();
-        processOption.setRadiusThreshold(50);//精度
+        processOption.setRadiusThreshold(Constants.DEFAULT_RADIUS_THRESHOLD);//精度
         processOption.setTransportMode(TransportMode.walking);
         processOption.setNeedDenoise(true);//去燥
         processOption.setNeedMapMatch(true);//绑路
@@ -266,9 +267,13 @@ public class TraceControl {
         mClient.queryHistoryTrack(historyTrackRequest, trackListener);
     }
 
-    public void queryDistance(int startTime,int endTime,DistanceListener listener) {
+    public void queryDistance(long startTime,long endTime,DistanceListener listener) {
+        LogUtils.i(tag,"dt "+new DateTime(startTime).toString("yyyy-MM-dd HH:mm:ss"));
+        LogUtils.i(tag,"dt1 "+new DateTime(endTime).toString("yyyy-MM-dd HH:mm:ss"));
+        LogUtils.i(tag,startTime+"");
+        LogUtils.i(tag,endTime+"");
         mDistanceListener = listener;
-        DistanceRequest distanceRequest = new DistanceRequest(TraceControl.getInstance().getTag(), TraceControl.getInstance().serviceId, TraceControl.getInstance().entityName);
+        DistanceRequest distanceRequest = new DistanceRequest(getTag(), serviceId, entityName);
         distanceRequest.setStartTime(startTime);// 设置开始时间
         distanceRequest.setEndTime(endTime);// 设置结束时间
         distanceRequest.setProcessed(true);// 纠偏
@@ -278,7 +283,7 @@ public class TraceControl {
         processOption.setTransportMode(TransportMode.walking);// 交通方式为步行
         distanceRequest.setProcessOption(processOption);// 设置纠偏选项
         distanceRequest.setSupplementMode(SupplementMode.no_supplement);// 里程填充方式为无
-        TraceControl.getInstance().mClient.queryDistance(distanceRequest, trackListener);// 查询里程
+        mClient.queryDistance(distanceRequest, trackListener);// 查询里程
 
     }
 
@@ -314,22 +319,33 @@ public class TraceControl {
                             for (TrackPoint trackPoint : points) {
                                 if (!CommonUtil.isZeroPoint(trackPoint.getLocation().getLatitude(),
                                         trackPoint.getLocation().getLongitude())) {
-                                    trackPoints.add(MapUtil.convertTrace2Map(trackPoint.getLocation()));
-                                    ToastFactory.showShortToast("" + MapUtil.convertTrace2Map(trackPoint.getLocation()));
-                                    DateTime dt = new DateTime(trackPoint.getLocTime());
-                                    trackStr.add(dt.toString("yyyy-MM-dd hh:mm:ss")+"\t\n"+trackPoint.getLocation().getLongitude()+"-"+trackPoint.getLocation().getLatitude());
+                                    if (mListener!=null) {
+                                        trackPoints.add(MapUtil.convertTrace2Map(trackPoint.getLocation()));
+                                    }
+                                    if (mTSListener!=null) {
+                                        DateTime dt = new DateTime(trackPoint.getLocTime());
+                                        trackStr.add(dt.toString("yyyy-MM-dd hh:mm:ss") + "\t\n" + trackPoint.getLocation().getLongitude() + "-" + trackPoint.getLocation().getLatitude());
+                                    }
                                 }
                             }
-                            mListener.onObtainTrackPointsList(trackPoints);
-                            trackPoints.clear();
-                            mTSListener.onObtainTrackStringList(trackStr);
-                            trackStr.clear();
+                            ToastFactory.showShortToast("points " + points.size());
+                            if (mListener!=null) {
+                                mListener.onObtainTrackPointsList(trackPoints, points);
+                            }
+                            if (mTSListener!=null) {
+                                mTSListener.onObtainTrackStringList(trackStr);
+                            }
                         }
                     }
                     //查找下一页数据
                     if (total > Constants.PAGE_SIZE * pageIndex) {
+                        Thread.sleep(80);
                         historyTrackRequest.setPageIndex(++pageIndex);
                         queryHistoryTrack();
+                    }else {
+                        if (mListener!=null) {
+                            mListener.onComplete();
+                        }
                     }
                 }catch (Exception e){
                     LogUtils.i(tag,"error "+e.getMessage());}
@@ -481,6 +497,14 @@ public class TraceControl {
         };
     }
 
+    public void resetTrackResultListener(){
+        mListener = null;
+    }
+
+    public void resetTrackStringListener(){
+        mTSListener = null;
+    }
+
     /**
      * 清除Trace状态：初始化app时，判断上次是正常停止服务还是强制杀死进程，根据trackConf中是否有is_trace_started字段进行判断。
      * <p>
@@ -515,7 +539,8 @@ public class TraceControl {
     }
 
     public interface TrackResultListener{
-        void onObtainTrackPointsList(List trackList);
+        void onObtainTrackPointsList(List trackList,List<TrackPoint> trackPointList);
+        void onComplete();
     }
 
     public interface TrackStringListener{

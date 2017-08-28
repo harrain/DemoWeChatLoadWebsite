@@ -62,8 +62,6 @@ public class MainActivity extends AppCompatActivity {
     ImageButton addBtn;
     Context mContext;
 
-    ConverFragment converf;
-    TraceFragment mTraceFragment;
     FragmentManager fm;
     FragmentTransaction fragmentTransaction;
     @BindView(R.id.weixin_iv)
@@ -87,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
     private PermissionResultListener mPermissionResultListener;
     private LatlngFragment mLatlngFragment;
     private DisplayFragment mDeviceFragment;
+    ConverFragment converf;
+    TraceFragment mTraceFragment;
+    LatlngFragment ComplexLatlngFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         mTraceFragment = new TraceFragment();
         mLatlngFragment = new LatlngFragment();
         mDeviceFragment = new DisplayFragment();
+        ComplexLatlngFragment = LatlngFragment.newInstance(true);
         fm = getSupportFragmentManager();
         fragmentTransaction = fm.beginTransaction();
 
@@ -436,7 +438,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void track(View v){
-
+        fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.fl, ComplexLatlngFragment);
+        fragmentTransaction.show(ComplexLatlngFragment);
+        fragmentTransaction.commit();
     }
 
     /**

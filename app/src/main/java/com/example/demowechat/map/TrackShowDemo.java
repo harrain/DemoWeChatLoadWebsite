@@ -34,6 +34,7 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.trace.api.track.TrackPoint;
 import com.example.demowechat.MyApplication;
 import com.example.demowechat.R;
 import com.example.demowechat.rlPart.FileListAdapter;
@@ -46,6 +47,10 @@ import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.example.demowechat.utils.ThreadPoolUtils;
 import com.example.demowechat.utils.ToastFactory;
 import com.example.demowechat.widget.SwipeMenuRecyclerView;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -129,35 +134,7 @@ public class TrackShowDemo extends AppCompatActivity {
 
         mPolylines = new ArrayList<>();
         polylineOptions = new PolylineOptions();
-        tracesFileNames = new Link<>();
-
-    }
-
-    private void drawStart() {
-        qw = BitmapDescriptorFactory
-                .fromResource(R.drawable.qw);
-        MarkerOptions ooA = new MarkerOptions().position(mPolylines.get(0)).icon(qw)
-                .zIndex(9);
-        mMarkerS = (Marker) (mBaiduMap.addOverlay(ooA));
-
-        isDrawedStart = true;
-    }
-
-    private void drawEnd() {
-        qx = BitmapDescriptorFactory
-                .fromResource(R.drawable.qx);
-        MarkerOptions ooB = new MarkerOptions().position(mPolylines.get(mPolylines.size() - 1)).icon(qx)
-                .zIndex(9);
-        mMarkerE = (Marker) (mBaiduMap.addOverlay(ooB));
-        isDrawedEnd = false;
-    }
-
-    private void drawPolyLine() throws Exception {
-
-        polylineOptions.points(mPolylines).width(10).color(Color.RED);
-
-        mPolyline = (Polyline) mBaiduMap.addOverlay(polylineOptions);
-        mPolyline.setDottedLine(true);
+//        tracesFileNames = new Link<>();
     }
 
     @Override
@@ -195,19 +172,17 @@ public class TrackShowDemo extends AppCompatActivity {
                 mPath = SharePrefrenceUtils.getInstance().getRecentTraceFilePath();
             }
             if (isEagleEye){
-
+                obtainLatlngFromEagleEye();
             }else {
-                
+                obtainLocationDataFromFile(mPath);
             }
-            obtainLocationDataFromFile(mPath);
-
             isDrawed = true;
         }
     }
 
     private void invalidateMapAndTrace() {
         if (mPolylines.size() == 0) {
-            ToastFactory.showShortToast("本地文件无坐标点");
+            ToastFactory.showShortToast("文件无坐标点");
             return;
         }
 
@@ -229,6 +204,88 @@ public class TrackShowDemo extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void drawStart() {
+        qw = BitmapDescriptorFactory
+                .fromResource(R.drawable.qw);
+        MarkerOptions ooA = new MarkerOptions().position(mPolylines.get(0)).icon(qw)
+                .zIndex(9);
+        mMarkerS = (Marker) (mBaiduMap.addOverlay(ooA));
+
+        isDrawedStart = true;
+    }
+
+    private void drawEnd() {
+        qx = BitmapDescriptorFactory
+                .fromResource(R.drawable.qx);
+        MarkerOptions ooB = new MarkerOptions().position(mPolylines.get(mPolylines.size() - 1)).icon(qx)
+                .zIndex(9);
+        mMarkerE = (Marker) (mBaiduMap.addOverlay(ooB));
+        isDrawedEnd = false;
+    }
+
+    private void drawPolyLine() throws Exception {
+
+        polylineOptions.points(mPolylines).width(10).color(Color.RED);
+
+        mPolyline = (Polyline) mBaiduMap.addOverlay(polylineOptions);
+        mPolyline.setDottedLine(true);
+    }
+
+    private void obtainLatlngFromEagleEye() {
+        final List<TrackPoint> mTracks = new ArrayList<>();
+        final List<ArrayList<LatLng>> latlngContainer = new ArrayList<ArrayList<LatLng>>(10);
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        latlngContainer.add(new ArrayList<LatLng>());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final int[] count = {0};
+                DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
+                DateTime dt = DateTime.parse(date,dtf).plusHours(7);
+                DateTime dt1 = DateTime.parse(date,dtf).plusHours(23);
+
+                TraceControl.getInstance().queryHistoryTrackPoints(dt.getMillis()/1000,dt1.getMillis()/1000,new TraceControl.TrackResultListener() {
+
+                    @Override
+                    public void onObtainTrackPointsList(List trackList, List<TrackPoint> points) {
+                        if (count[0] > 9) {
+                            count[0] = 0;
+                        }
+                        if (latlngContainer.get(count[0]) != null && latlngContainer.get(count[0]).size() > 0) {
+                            latlngContainer.get(count[0]).clear();
+                        }
+                        latlngContainer.get(count[0]).addAll(trackList);
+
+                        mTracks.addAll(points);
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelableArrayList("polylines", latlngContainer.remove(count[0]));
+                        Message message = Message.obtain();
+                        message.what = 1;
+                        message.setData(bundle);
+                        mHandler.sendMessage(message);
+                        trackList.clear();
+                        count[0]++;
+                    }
+                    @Override
+                    public void onComplete() {
+                        Message message = Message.obtain();
+                        message.what = 2;
+                        mHandler.sendMessage(message);
+                    }
+                });
+            }
+        }).start();
+
     }
 
     private void obtainLocationDataFromFile(final String traceTxtPath) {
@@ -375,32 +432,39 @@ public class TrackShowDemo extends AppCompatActivity {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 0:
-                    mTraceFnameTv.setText((String) msg.obj);
+                    try {
+                        mTraceFnameTv.setText((String) msg.obj);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                     break;
                 case 1:
                     Bundle data = msg.peekData();
-                    LogUtils.i(tag, "bundle size0 " + data.getParcelableArrayList("polylines").size());
-                    if (data.getParcelableArrayList("polylines") != null && data.getParcelableArrayList("polylines").size() != 0) {
+                    try {
+                        if (data.getParcelableArrayList("polylines") != null && data.getParcelableArrayList("polylines").size() != 0) {
 
-                        mPolylines = data.getParcelableArrayList("polylines");
-                        LogUtils.i(tag, "handleMessage 1");
-                        invalidateMapAndTrace();
+                            mPolylines = data.getParcelableArrayList("polylines");
+                            LogUtils.i(tag, "handleMessage 1");
+                            invalidateMapAndTrace();
+                        }
+                        LogUtils.i(tag, "1 mPolylines size " + mPolylines.size());
+                    }catch (Exception e){
+                        LogUtils.e(tag,e.getMessage());
                     }
-                    LogUtils.i(tag, "1 mPolylines size " + mPolylines.size());
                     break;
                 case 2:
                     Bundle datas = msg.peekData();
-//                    mPolylines = datas.getParcelableArrayList("polylineCopy");
+                    try {
+                        if (datas.getParcelableArrayList("polylineCopy") != null && datas.getParcelableArrayList("polylineCopy").size() != 0) {
+                            mPolylines = datas.getParcelableArrayList("polylineCopy");
 
-                    LogUtils.i(tag, "bundle size1 " + datas.getParcelableArrayList("polylineCopy").size());
-                    if (datas.getParcelableArrayList("polylineCopy") != null && datas.getParcelableArrayList("polylineCopy").size() != 0) {
-                        mPolylines = datas.getParcelableArrayList("polylineCopy");
-
-                        LogUtils.i(tag, "bundle size1 " + datas.getParcelableArrayList("polylineCopy").size());
+                            LogUtils.i(tag, "bundle size1 " + datas.getParcelableArrayList("polylineCopy").size());
+                        }
+                        LogUtils.i(tag, "handleMessage 2");
+                        LogUtils.i(tag, "2 mPolylines size " + mPolylines.size());
+                    }catch (Exception e){
+                        LogUtils.e(tag,e.getMessage());
                     }
-
-                    LogUtils.i(tag, "handleMessage 2");
-                    LogUtils.i(tag, "2 mPolylines size " + mPolylines.size());
                     isDrawedEnd = true;
                     invalidateMapAndTrace();
                     break;
@@ -508,6 +572,7 @@ public class TrackShowDemo extends AppCompatActivity {
             clearOverlay();
             mMapView.onDestroy();
             mBaiduMap.clear();
+            TraceControl.getInstance().resetTrackResultListener();
         } catch (Exception e) {
             LogUtils.e(tag, e.getMessage());
         }

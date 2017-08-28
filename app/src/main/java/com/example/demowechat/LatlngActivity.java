@@ -83,19 +83,22 @@ public class LatlngActivity extends AppCompatActivity {
             obtainLatlngFromEagleEye();
         }else {
             obtainLocationDataFromFile(tracePath);
+            adapter.notifyDataSetChanged();
+            mTTitle.setText("定位坐标("+latlngList.size()+")");
         }
-        adapter.notifyDataSetChanged();
-        mTTitle.setText("定位坐标("+latlngList.size()+")");
+
     }
 
     private void obtainLatlngFromEagleEye() {
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
         DateTime dt = DateTime.parse(date,dtf).plusHours(7);
-        DateTime dt1 = DateTime.parse(date,dtf).plusHours(22);
-        TraceControl.getInstance().queryHistoryTrackPoints(dt.getMillis(),dt1.getMillis(),new TraceControl.TrackStringListener() {
+        DateTime dt1 = DateTime.parse(date,dtf).plusHours(23);
+        TraceControl.getInstance().queryHistoryTrackPoints(dt.getMillis()/1000,dt1.getMillis()/1000,new TraceControl.TrackStringListener() {
             @Override
             public void onObtainTrackStringList(List<String> trackList) {
                 latlngList.addAll(trackList);
+                adapter.notifyDataSetChanged();
+                mTTitle.setText("定位坐标("+latlngList.size()+")");
             }
         });
     }
@@ -139,5 +142,11 @@ public class LatlngActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        TraceControl.getInstance().resetTrackStringListener();
     }
 }
