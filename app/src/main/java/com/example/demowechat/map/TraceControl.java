@@ -31,14 +31,11 @@ import com.baidu.trace.model.StatusCodes;
 import com.baidu.trace.model.TraceLocation;
 import com.baidu.trace.model.TransportMode;
 import com.example.demowechat.MyApplication;
-import com.example.demowechat.utils.DeviceInfoUtils;
 import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.NetworkUtils;
 import com.example.demowechat.utils.ToastFactory;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -89,7 +86,7 @@ public class TraceControl {
     /**
      * Entity标识
      */
-    public String entityName = "baidumaptrace";
+    public String entityName = "866146031694122";
 
     public boolean isRegisterReceiver = false;
 
@@ -151,7 +148,7 @@ public class TraceControl {
 
     private TraceControl(Context context) {
         mContext = context;
-        entityName = DeviceInfoUtils.getImei(mContext);
+//        entityName = DeviceInfoUtils.getImei(mContext);
         LogUtils.i(tag,"entity "+entityName);//866146031694122
         initClient();
         mapUtil = MapUtil.getInstance();
@@ -218,7 +215,7 @@ public class TraceControl {
                 && trackConf.getBoolean("is_gather_started", false)) {
             LatestPointRequest request = new LatestPointRequest(getTag(), serviceId, entityName);
             ProcessOption processOption = new ProcessOption();
-            processOption.setRadiusThreshold(50);
+            processOption.setRadiusThreshold(Constants.DEFAULT_RADIUS_THRESHOLD);
             processOption.setTransportMode(TransportMode.walking);
             processOption.setNeedDenoise(true);
             processOption.setNeedMapMatch(true);
@@ -231,10 +228,16 @@ public class TraceControl {
         }
     }
 
+    public void queryRealTimeLocation(CurrentLatlngListener listener){
+        mLatlngListener = listener;
+        mClient.queryRealTimeLoc(locRequest, entityListener);
+    }
+
     public void queryHistoryTrackPoints(long startTime,long endTime,TrackResultListener listener){
         mListener = listener;
         mStartTime = startTime;
         mEndTime = endTime;
+        initHistoryTrackRequest();
         queryHistoryTrack();
     }
 
@@ -242,34 +245,21 @@ public class TraceControl {
         mTSListener = listener;
         mStartTime = startTime;
         mEndTime = endTime;
+        initHistoryTrackRequest();
+        queryHistoryTrack();
+    }
+
+    public void queryHistoryTrackPoints(boolean mapMatch,long startTime,long endTime,TrackResultListener listener){
+        mListener = listener;
+        mStartTime = startTime;
+        mEndTime = endTime;
+        initHistoryTrackRequest(mapMatch);
         queryHistoryTrack();
     }
 
     public void queryHistoryTrack() {
 
-        ProcessOption processOption = new ProcessOption();
-        processOption.setRadiusThreshold(Constants.DEFAULT_RADIUS_THRESHOLD);//精度
-        processOption.setTransportMode(TransportMode.walking);
-        processOption.setNeedDenoise(true);//去燥
-        processOption.setNeedMapMatch(true);//绑路
-        processOption.setNeedVacuate(true);//抽稀
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-//        DateTime dt = DateTime.parse("2017-08-24 07:00:00", dtf);
-//        DateTime dt1 = DateTime.parse("2017-08-24 22:00:00", dtf);
-//        int startTime = (int) dt.getMillis();
-//        int endTime = (int) dt1.getMillis();
-
         initRequest(historyTrackRequest);
-        historyTrackRequest.setProcessOption(processOption);
-        historyTrackRequest.setProcessed(true);//纠偏
-        historyTrackRequest.setEntityName(entityName);
-        historyTrackRequest.setStartTime(mStartTime);
-        historyTrackRequest.setEndTime(mEndTime);
-        historyTrackRequest.setPageIndex(pageIndex);
-        historyTrackRequest.setPageSize(Constants.PAGE_SIZE);
-        historyTrackRequest.setSupplementMode(SupplementMode.no_supplement);//里程填充 无
-        historyTrackRequest.setSortType(SortType.asc);//排序规则
-        historyTrackRequest.setCoordTypeOutput(CoordType.bd09ll);
         mClient.queryHistoryTrack(historyTrackRequest, trackListener);
     }
 
@@ -291,6 +281,46 @@ public class TraceControl {
         distanceRequest.setSupplementMode(SupplementMode.no_supplement);// 里程填充方式为无
         mClient.queryDistance(distanceRequest, trackListener);// 查询里程
 
+    }
+
+    private void initHistoryTrackRequest(){
+        ProcessOption processOption = new ProcessOption();
+        processOption.setRadiusThreshold(Constants.DEFAULT_RADIUS_THRESHOLD);//精度
+        processOption.setTransportMode(TransportMode.walking);
+        processOption.setNeedDenoise(true);//去燥
+        processOption.setNeedMapMatch(true);//绑路
+        processOption.setNeedVacuate(true);//抽稀
+
+        historyTrackRequest.setProcessOption(processOption);
+        historyTrackRequest.setProcessed(true);//纠偏
+        historyTrackRequest.setEntityName(entityName);
+        historyTrackRequest.setStartTime(mStartTime);
+        historyTrackRequest.setEndTime(mEndTime);
+        historyTrackRequest.setPageIndex(pageIndex);
+        historyTrackRequest.setPageSize(Constants.PAGE_SIZE);
+        historyTrackRequest.setSupplementMode(SupplementMode.no_supplement);//里程填充 无
+        historyTrackRequest.setSortType(SortType.asc);//排序规则
+        historyTrackRequest.setCoordTypeOutput(CoordType.bd09ll);
+    }
+
+    private void initHistoryTrackRequest(boolean needMapMatch){
+        ProcessOption processOption = new ProcessOption();
+        processOption.setRadiusThreshold(Constants.DEFAULT_RADIUS_THRESHOLD);//精度
+        processOption.setTransportMode(TransportMode.walking);
+        processOption.setNeedDenoise(true);//去燥
+        processOption.setNeedMapMatch(needMapMatch);//绑路
+        processOption.setNeedVacuate(true);//抽稀
+
+        historyTrackRequest.setProcessOption(processOption);
+        historyTrackRequest.setProcessed(true);//纠偏
+        historyTrackRequest.setEntityName(entityName);
+        historyTrackRequest.setStartTime(mStartTime);
+        historyTrackRequest.setEndTime(mEndTime);
+        historyTrackRequest.setPageIndex(pageIndex);
+        historyTrackRequest.setPageSize(Constants.PAGE_SIZE);
+        historyTrackRequest.setSupplementMode(SupplementMode.no_supplement);//里程填充 无
+        historyTrackRequest.setSortType(SortType.asc);//排序规则
+        historyTrackRequest.setCoordTypeOutput(CoordType.bd09ll);
     }
 
     private void initListener() {
@@ -510,6 +540,10 @@ public class TraceControl {
 
     public void resetTrackStringListener(){
         mTSListener = null;
+    }
+
+    public void resetCurrentLatlngListener(){
+        mLatlngListener = null;
     }
 
     /**

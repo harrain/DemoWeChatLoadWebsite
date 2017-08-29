@@ -9,34 +9,48 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
+import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.trace.api.analysis.DrivingBehaviorResponse;
+import com.baidu.trace.api.analysis.OnAnalysisListener;
+import com.baidu.trace.api.analysis.StayPoint;
+import com.baidu.trace.api.analysis.StayPointRequest;
+import com.baidu.trace.api.analysis.StayPointResponse;
 import com.baidu.trace.api.track.TrackPoint;
+import com.baidu.trace.model.Point;
+import com.baidu.trace.model.StatusCodes;
 import com.example.demowechat.MyApplication;
 import com.example.demowechat.R;
+import com.example.demowechat.rlPart.ArrayListAdapter;
 import com.example.demowechat.rlPart.FileListAdapter;
 import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.utils.AppConstant;
@@ -109,6 +123,46 @@ public class TrackShowDemo extends AppCompatActivity {
     private ArrayList<LatLng> polylineCopy = new ArrayList<>();
     private boolean isEagleEye = false;
     private String date;
+    private List<TrackPoint> mTracks;
+    private Calendar calendar;
+    private SimpleDateFormat sdf;
+    /**
+     * 轨迹分析上一次请求时间
+     */
+    private long lastQueryTime = 0;
+    /**
+     * 轨迹分析  停留点覆盖物集合
+     */
+    private List<Marker> stayPointMarkers = new ArrayList<>();
+    /**
+     * 轨迹分析  停留点集合
+     */
+    private List<Point> stayPoints = new ArrayList<>();
+    /**
+     * 是否查询停留点
+     */
+    private boolean isStayPoint = true;
+    /**
+     * 停留点请求
+     */
+    private StayPointRequest stayPointRequest = new StayPointRequest();
+
+    /**
+     * 轨迹分析监听器
+     */
+    private OnAnalysisListener mAnalysisListener = null;
+    /**
+     * 当前轨迹分析详情框对应的marker
+     */
+    private Marker analysisMarker = null;
+    /**
+     * 轨迹分析详情框布局
+     */
+    private TrackAnalysisInfoLayout trackAnalysisInfoLayout = null;
+    private long start;
+    private long end;
+    private List<ArrayList<LatLng>> latlngContainer;
+    boolean mapMatch = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,20 +176,149 @@ public class TrackShowDemo extends AppCompatActivity {
         date = intent.getStringExtra("date");
         mContext = this;
 
-        mMapView = (MapView) findViewById(R.id.bmapView);
         mTTitle.setText("");
         toolbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         mTBack.setImageResource(R.drawable.back_map);
 
+        mPolylines = new ArrayList<>();
+        polylineOptions = new PolylineOptions();
+        calendar = Calendar.getInstance();
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        initMap(savedInstanceState);
+        initRadioGroup();
+    }
+
+    private void initMap(Bundle savedInstanceState) {
+        mMapView = (MapView) findViewById(R.id.bmapView);
         if (savedInstanceState != null) {
 
             mMapView.onCreate(this, savedInstanceState);
         }
         mBaiduMap = mMapView.getMap();
-
-        mPolylines = new ArrayList<>();
-        polylineOptions = new PolylineOptions();
+        initListener();
+        trackAnalysisInfoLayout = new TrackAnalysisInfoLayout(this, mBaiduMap);
 //        tracesFileNames = new Link<>();
+        mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (marker == mMarkerS){
+                    showTrackPointInfo(marker.getPosition(),1);
+                }else if (marker == mMarkerE){
+                    showTrackPointInfo(marker.getPosition(),mTracks.size()-1);
+                }
+                Bundle bundle = marker.getExtraInfo();
+                if (bundle!=null){
+                    int type = bundle.getInt("type");
+                    if (type == 0){
+                        trackAnalysisInfoLayout.titleText.setText(R.string.track_analysis_stay_title);
+                        trackAnalysisInfoLayout.key1.setText(R.string.stay_start_time);
+                        trackAnalysisInfoLayout.value1.setText(sdf.format(new java.sql.Timestamp(bundle.getLong("startTime") * 1000)));
+                        trackAnalysisInfoLayout.key2.setText(R.string.stay_end_time);
+                        trackAnalysisInfoLayout.value2.setText(sdf.format(new java.sql.Timestamp(bundle.getLong("endTime") * 1000)));
+                        trackAnalysisInfoLayout.key3.setText(R.string.stay_duration);
+                        trackAnalysisInfoLayout.value3.setText(CommonUtil.formatSecond(bundle.getInt("duration")));
+                        trackAnalysisInfoLayout.key4.setText("");
+                        trackAnalysisInfoLayout.value4.setText("");
+                        trackAnalysisInfoLayout.key5.setText("");
+                        trackAnalysisInfoLayout.value5.setText("");
+                        //  保存当前操作的marker
+                        analysisMarker = marker;
+
+                        //创建InfoWindow , 传入 view， 地理坐标， y 轴偏移量
+                        InfoWindow trackAnalysisInfoWindow = new InfoWindow(trackAnalysisInfoLayout.mView, marker.getPosition(), -47);
+                        //显示InfoWindow
+                        mBaiduMap.showInfoWindow(trackAnalysisInfoWindow);
+                    }
+                }
+                return true;
+            }
+        });
+
+        mBaiduMap.setOnMapTouchListener(new BaiduMap.OnMapTouchListener() {
+            @Override
+            public void onTouch(MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    mBaiduMap.hideInfoWindow();
+                }
+            }
+        });
+    }
+
+    private void initRadioGroup(){
+        RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup);
+        group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                if (checkedId == R.id.raw_rb) {
+                    mapMatch = false;
+                    mBaiduMap.clear();
+                    isDrawedStart = false;
+                    obtainLatlngFromEagleEye();
+                }
+                if (checkedId == R.id.match_rb) {
+                    mapMatch = true;
+                    mBaiduMap.clear();
+                    obtainLatlngFromEagleEye();
+                }
+            }
+        });
+    }
+
+    private void showTrackPointInfo(LatLng ll,int index){
+        calendar.setTimeInMillis(mTracks.get(index).getLocTime()*1000);
+        String longitude = String.valueOf(mTracks.get(index).getLocation().getLongitude()).substring(0,8);
+        String latitude = String.valueOf(mTracks.get(index).getLocation().getLatitude()).substring(0,8);
+        String speed = String.valueOf(mTracks.get(index).getSpeed()).substring(0,4);
+        String radius = String.valueOf(mTracks.get(index).getRadius()).substring(0,3);
+        trackAnalysisInfoLayout.titleText.setText("覆盖点详情");
+        trackAnalysisInfoLayout.key1.setText("坐标");
+        trackAnalysisInfoLayout.value1.setText(longitude+","+latitude);
+        trackAnalysisInfoLayout.key2.setText("位置");
+        trackAnalysisInfoLayout.value2.setText("");
+        trackAnalysisInfoLayout.key3.setText("时间");
+        trackAnalysisInfoLayout.value3.setText(sdf.format(calendar.getTime()));
+        trackAnalysisInfoLayout.key4.setText("速度");
+        trackAnalysisInfoLayout.value4.setText(speed+"km/h");
+        trackAnalysisInfoLayout.key5.setText("精度");
+        trackAnalysisInfoLayout.value5.setText(radius+"米");
+        InfoWindow trackAnalysisInfoWindow = new InfoWindow(trackAnalysisInfoLayout.mView, ll, -47);
+        mBaiduMap.showInfoWindow(trackAnalysisInfoWindow);
+    }
+
+    private void showTrackPointInfo(Marker marker,int index){
+        View view = View.inflate(mContext,R.layout.baidumap_infowindow,null);
+
+        RecyclerView rv = (RecyclerView) view.findViewById(R.id.baidumap_infowindow_rv);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+        rv.setLayoutManager(layoutManager);
+        List<String> list = new ArrayList<String>();
+        ArrayListAdapter adapter = new ArrayListAdapter(mContext,list);
+        rv.setAdapter(adapter);
+        rv.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        ImageView closeIv = (ImageView) view.findViewById(R.id.close_iv);
+        closeIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBaiduMap.hideInfoWindow();
+            }
+        });
+        LatLng ll = marker.getPosition();
+        InfoWindow infoWindow = new InfoWindow(view,ll,-47);
+
+
+        calendar.setTimeInMillis(mTracks.get(index).getLocTime()*1000);
+        String longitude = String.valueOf(mTracks.get(index).getLocation().getLongitude()).substring(0,8);
+        String latitude = String.valueOf(mTracks.get(index).getLocation().getLatitude()).substring(0,8);
+        String speed = String.valueOf(mTracks.get(index).getSpeed()*3.6).substring(0,4);
+        String radius = String.valueOf(mTracks.get(index).getRadius()).substring(0,3);
+        list.add("精度:  "+radius+"米");
+        list.add("速度:  "+ speed+"km/h");
+        list.add("时间:  "+sdf.format(calendar.getTime()));
+        list.add("位置:  ");
+        list.add("定位:  "+longitude+","+latitude);
+        adapter.notifyDataSetChanged();
+        mBaiduMap.showInfoWindow(infoWindow);
+        LogUtils.i(tag,"track string "+mTracks.get(index).toString());
     }
 
     @Override
@@ -210,7 +393,7 @@ public class TrackShowDemo extends AppCompatActivity {
         qw = BitmapDescriptorFactory
                 .fromResource(R.drawable.qw);
         MarkerOptions ooA = new MarkerOptions().position(mPolylines.get(0)).icon(qw)
-                .zIndex(9);
+                .zIndex(1);
         mMarkerS = (Marker) (mBaiduMap.addOverlay(ooA));
 
         isDrawedStart = true;
@@ -220,7 +403,7 @@ public class TrackShowDemo extends AppCompatActivity {
         qx = BitmapDescriptorFactory
                 .fromResource(R.drawable.qx);
         MarkerOptions ooB = new MarkerOptions().position(mPolylines.get(mPolylines.size() - 1)).icon(qx)
-                .zIndex(9);
+                .zIndex(2);
         mMarkerE = (Marker) (mBaiduMap.addOverlay(ooB));
         isDrawedEnd = false;
     }
@@ -234,8 +417,8 @@ public class TrackShowDemo extends AppCompatActivity {
     }
 
     private void obtainLatlngFromEagleEye() {
-        final List<TrackPoint> mTracks = new ArrayList<>();
-        final List<ArrayList<LatLng>> latlngContainer = new ArrayList<ArrayList<LatLng>>(10);
+        mTracks = new ArrayList<>();
+        latlngContainer = new ArrayList<ArrayList<LatLng>>(10);
         latlngContainer.add(new ArrayList<LatLng>());
         latlngContainer.add(new ArrayList<LatLng>());
         latlngContainer.add(new ArrayList<LatLng>());
@@ -246,51 +429,149 @@ public class TrackShowDemo extends AppCompatActivity {
         latlngContainer.add(new ArrayList<LatLng>());
         latlngContainer.add(new ArrayList<LatLng>());
         latlngContainer.add(new ArrayList<LatLng>());
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTime dt = DateTime.parse(date,dtf);
+//                DateTime dt1 = DateTime.parse(date,dtf).plusHours(23);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(dt.getYear(),dt.getMonthOfYear()-1,dt.getDayOfMonth(),7,0);
+        start = calendar.getTime().getTime()/1000;
+        calendar.set(dt.getYear(),dt.getMonthOfYear()-1,dt.getDayOfMonth(),23,0);
+        end = calendar.getTime().getTime()/1000;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 final int[] count = {0};
-                DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
-                DateTime dt = DateTime.parse(date,dtf);
-//                DateTime dt1 = DateTime.parse(date,dtf).plusHours(23);
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(dt.getYear(),dt.getMonthOfYear()-1,dt.getDayOfMonth(),7,0);
-                long start = calendar.getTime().getTime()/1000;
-                calendar.set(dt.getYear(),dt.getMonthOfYear()-1,dt.getDayOfMonth(),23,0);
-                long end = calendar.getTime().getTime()/1000;
-
-                TraceControl.getInstance().queryHistoryTrackPoints(start,end,new TraceControl.TrackResultListener() {
-
-                    @Override
-                    public void onObtainTrackPointsList(List trackList, List<TrackPoint> points) {
-                        if (count[0] > 9) {
-                            count[0] = 0;
+                if (mapMatch){
+                    TraceControl.getInstance().queryHistoryTrackPoints(start, end, new TraceControl.TrackResultListener() {
+                        @Override
+                        public void onObtainTrackPointsList(List trackList, List<TrackPoint> points) {
+                            obtainTrackPointsList(count, trackList, points);
                         }
-                        if (latlngContainer.get(count[0]) != null && latlngContainer.get(count[0]).size() > 0) {
-                            latlngContainer.get(count[0]).clear();
+                        @Override
+                        public void onComplete() {
+                            LogUtils.i(tag, "onComplete");
+                            obtainTrackComplete();
                         }
-                        latlngContainer.get(count[0]).addAll(trackList);
+                    });
 
-                        mTracks.addAll(points);
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelableArrayList("polylines", latlngContainer.remove(count[0]));
-                        Message message = Message.obtain();
-                        message.what = 1;
-                        message.setData(bundle);
-                        mHandler.sendMessage(message);
-                        trackList.clear();
-                        count[0]++;
-                    }
-                    @Override
-                    public void onComplete() {
-                        Message message = Message.obtain();
-                        message.what = 2;
-                        mHandler.sendMessage(message);
-                    }
-                });
+                }else {
+                    TraceControl.getInstance().queryHistoryTrackPoints(mapMatch, start, end, new TraceControl.TrackResultListener() {
+                        @Override
+                        public void onObtainTrackPointsList(List trackList, List<TrackPoint> points) {
+                            obtainTrackPointsList(count, trackList, points);
+                        }
+                        @Override
+                        public void onComplete() {
+                            obtainTrackComplete();
+                        }
+                    });
+                }
             }
         }).start();
 
+    }
+
+    private void obtainTrackComplete(){
+        Message message = Message.obtain();
+        message.what = 3;
+        mHandler.sendMessage(message);
+    }
+
+    private void obtainTrackPointsList(int[] count,List trackList, List<TrackPoint> points){
+        if (count[0] > 9) {
+            count[0] = 0;
+        }
+        if (latlngContainer.get(count[0]) != null && latlngContainer.get(count[0]).size() > 0) {
+            latlngContainer.get(count[0]).clear();
+        }
+        latlngContainer.get(count[0]).addAll(trackList);
+
+        mTracks.addAll(points);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("polylines", latlngContainer.remove(count[0]));
+        Message message = Message.obtain();
+        message.what = 1;
+        message.setData(bundle);
+        mHandler.sendMessage(message);
+        trackList.clear();
+        count[0]++;
+    }
+
+    private void initListener() {
+        mAnalysisListener = new OnAnalysisListener() {
+            @Override
+            public void onStayPointCallback(StayPointResponse response) {
+                if (StatusCodes.SUCCESS != response.getStatus()) {
+                    lastQueryTime = 0;
+                    ToastFactory.showShortToast(response.getMessage());
+                    LogUtils.i(tag,response.getMessage());
+                    return;
+                }
+                if (0 == response.getStayPointNum()) {
+                    LogUtils.i(tag,response.getStayPointNum()+"");
+                    return;
+                }
+                stayPoints.addAll(response.getStayPoints());
+                LogUtils.i(tag,"stayPoints size "+stayPoints.size());
+                handleOverlays(stayPointMarkers, stayPoints, isStayPoint);
+            }
+
+            @Override
+            public void onDrivingBehaviorCallback(DrivingBehaviorResponse drivingBehaviorResponse) {
+
+            }
+        };
+
+    }
+
+    private void handleOverlays(List<Marker> markers, List<? extends com.baidu.trace.model.Point> points, boolean
+            isVisible) {
+        if (null == markers || null == points) {
+            return;
+        }
+        for (com.baidu.trace.model.Point point : points) {
+            OverlayOptions overlayOptions = new MarkerOptions()
+                    .position(MapUtil.convertTrace2Map(point.getLocation()))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_gcoding)).zIndex(9).draggable(true);
+            Marker marker = (Marker) mBaiduMap.addOverlay(overlayOptions);
+            Bundle bundle = new Bundle();
+            if (point instanceof StayPoint) {
+                StayPoint stayPoint = (StayPoint) point;
+                bundle.putInt("type", 0);
+                bundle.putLong("startTime", stayPoint.getStartTime());
+                bundle.putLong("endTime", stayPoint.getEndTime());
+                bundle.putInt("duration", stayPoint.getDuration());
+            }
+            marker.setExtraInfo(bundle);
+            markers.add(marker);
+        }
+        handleMarker(markers, isVisible);
+    }
+
+    private void handleMarker(List<Marker> markers, boolean isVisible) {
+        if (null == markers || markers.isEmpty()) {
+            return;
+        }
+        for (Marker marker : markers) {
+            marker.setVisible(isVisible);
+        }
+
+        if (markers.contains(analysisMarker)) {
+            mBaiduMap.hideInfoWindow();
+        }
+
+    }
+
+    /**
+     * 查询停留点
+     */
+    private void queryStayPoint() {
+        TraceControl.getInstance().initRequest(stayPointRequest);
+        stayPointRequest.setEntityName( TraceControl.getInstance().entityName);
+        stayPointRequest.setStartTime(start);
+        stayPointRequest.setEndTime(end);
+        stayPointRequest.setStayTime(Constants.STAY_TIME);
+        TraceControl.getInstance().mClient.queryStayPoint(stayPointRequest, mAnalysisListener);
     }
 
     private void obtainLocationDataFromFile(final String traceTxtPath) {
@@ -469,9 +750,19 @@ public class TrackShowDemo extends AppCompatActivity {
                         LogUtils.i(tag, "2 mPolylines size " + mPolylines.size());
                     }catch (Exception e){
                         LogUtils.e(tag,e.getMessage());
+
+                    }finally {
+                        isDrawedEnd = true;
+                        invalidateMapAndTrace();
+
                     }
+
+                    break;
+                case 3:
+                    LogUtils.i(tag, "handleMessage 3");
                     isDrawedEnd = true;
                     invalidateMapAndTrace();
+                    queryStayPoint();
                     break;
 
             }
@@ -574,10 +865,21 @@ public class TrackShowDemo extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
+            mBaiduMap.hideInfoWindow();
             clearOverlay();
             mMapView.onDestroy();
             mBaiduMap.clear();
             TraceControl.getInstance().resetTrackResultListener();
+
+            if (null != trackAnalysisInfoLayout) {
+                trackAnalysisInfoLayout = null;
+            }
+
+            if (null != stayPoints) {
+                stayPoints.clear();
+            }
+            stayPoints = null;
+            stayPointMarkers = null;
         } catch (Exception e) {
             LogUtils.e(tag, e.getMessage());
         }

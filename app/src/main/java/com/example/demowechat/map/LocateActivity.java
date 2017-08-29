@@ -125,6 +125,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
             if (className.equals("com.example.demowechat.map.TraceServiceImpl")) {
                 if (!SharePrefrenceUtils.getInstance().getNeedLocate()) {
                     isLocated = true;
+                    mTTitle.setText("");
                 } else {
                     isLocated = false;
                     mTTitle.setText("后台持续获取位置坐标中···");
@@ -213,6 +214,16 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        TraceControl.getInstance().queryRealTimeLocation(new TraceControl.CurrentLatlngListener() {
+            @Override
+            public void onObtainCurrentLatlng(double longitude, double latitude, long time) {
+                locationForMap(String.valueOf(longitude),String.valueOf(latitude));
+            }
+        });
+    }
 
     @Override
     protected void onResume() {
@@ -424,6 +435,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
         //取消注册传感器监听
         mSensorManager.unregisterListener(this);
         super.onStop();
+        TraceControl.getInstance().resetCurrentLatlngListener();
     }
 
     @Override

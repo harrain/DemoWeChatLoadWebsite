@@ -25,4 +25,9 @@
     <color name="result_point_color">#C0FFFF00</color>
     <color name="laser_color">#0F0</color>
     <color name="corner_color">#00FF00</color>
+
+    <!-- 对话框分割线 -->
+    <color name="dialog_divide_line">#bababa</color>
+    <color name="layout_title">#008EEF</color>
+    <color name="list_item_desc">#666666</color>
 </resources>

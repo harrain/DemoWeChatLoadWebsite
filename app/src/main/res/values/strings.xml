@@ -9,4 +9,9 @@
     <string name="code_text">请输入生成二维码的文本信息</string>
     <string name="encode_qrcode">点击生成二维码</string>
 
+    <string name="track_analysis_stay_title">停留点详情</string>
+    <string name="stay_start_time">开始时间：</string>
+    <string name="stay_end_time">结束时间：</string>
+    <string name="stay_duration">停留时长：</string>
+
 </resources>

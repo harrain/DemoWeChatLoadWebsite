@@ -302,6 +302,7 @@ public class LatlngFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        isOnCreate = false;
         unbinder.unbind();
     }
 

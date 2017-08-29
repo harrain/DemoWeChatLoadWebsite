@@ -83,4 +83,12 @@ public class CommonUtil {
         return imei;
     }
 
+    public static String formatSecond(int second) {
+        String format = "%1$,02d:%2$,02d:%3$,02d";
+        Integer hours = second / (60 * 60);
+        Integer minutes = second / 60 - hours * 60;
+        Integer seconds = second - minutes * 60 - hours * 60 * 60;
+        Object[] array = new Object[] {hours, minutes, seconds};
+        return String.format(format, array);
+    }
 }

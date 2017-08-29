@@ -32,4 +32,9 @@ public final class Constants {
      */
     public static final String LAST_LOCATION = "last_location";
 
+    /**
+     * 停留点默认停留时间（1分钟）
+     */
+    public static final int STAY_TIME = 60;
+
 }
