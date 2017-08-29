@@ -40,7 +40,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,6 +140,8 @@ public class TraceControl {
     private final String tag = "TraceControl";
     private long mStartTime;
     private long mEndTime;
+    private final Calendar calendar;
+    private final SimpleDateFormat sdf;
 
     public static void init(Context context) {
         if (instance == null) {
@@ -151,6 +155,8 @@ public class TraceControl {
         LogUtils.i(tag,"entity "+entityName);//866146031694122
         initClient();
         mapUtil = MapUtil.getInstance();
+        calendar = Calendar.getInstance();
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     }
 
     public static TraceControl getInstance() {
@@ -323,8 +329,9 @@ public class TraceControl {
                                         trackPoints.add(MapUtil.convertTrace2Map(trackPoint.getLocation()));
                                     }
                                     if (mTSListener!=null) {
-                                        DateTime dt = new DateTime(trackPoint.getLocTime());
-                                        trackStr.add(dt.toString("yyyy-MM-dd hh:mm:ss") + "\t\n" + trackPoint.getLocation().getLongitude() + "-" + trackPoint.getLocation().getLatitude());
+                                        calendar.setTimeInMillis(trackPoint.getLocTime()*1000);
+
+                                        trackStr.add(sdf.format(calendar.getTime()) + "\t\n" + trackPoint.getLocation().getLongitude() + "-" + trackPoint.getLocation().getLatitude());
                                     }
                                 }
                             }

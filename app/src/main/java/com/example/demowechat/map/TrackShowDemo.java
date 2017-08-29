@@ -58,6 +58,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -176,7 +177,6 @@ public class TrackShowDemo extends AppCompatActivity {
             }else {
                 obtainLocationDataFromFile(mPath);
             }
-            isDrawed = true;
         }
     }
 
@@ -251,10 +251,15 @@ public class TrackShowDemo extends AppCompatActivity {
             public void run() {
                 final int[] count = {0};
                 DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
-                DateTime dt = DateTime.parse(date,dtf).plusHours(7);
-                DateTime dt1 = DateTime.parse(date,dtf).plusHours(23);
+                DateTime dt = DateTime.parse(date,dtf);
+//                DateTime dt1 = DateTime.parse(date,dtf).plusHours(23);
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(dt.getYear(),dt.getMonthOfYear()-1,dt.getDayOfMonth(),7,0);
+                long start = calendar.getTime().getTime()/1000;
+                calendar.set(dt.getYear(),dt.getMonthOfYear()-1,dt.getDayOfMonth(),23,0);
+                long end = calendar.getTime().getTime()/1000;
 
-                TraceControl.getInstance().queryHistoryTrackPoints(dt.getMillis()/1000,dt1.getMillis()/1000,new TraceControl.TrackResultListener() {
+                TraceControl.getInstance().queryHistoryTrackPoints(start,end,new TraceControl.TrackResultListener() {
 
                     @Override
                     public void onObtainTrackPointsList(List trackList, List<TrackPoint> points) {

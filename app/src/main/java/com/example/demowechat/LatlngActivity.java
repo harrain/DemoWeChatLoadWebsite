@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -49,6 +50,7 @@ public class LatlngActivity extends AppCompatActivity {
     private ArrayListAdapter adapter;
     private boolean isEagleEye = false;
     private String date;
+    private boolean isOnCreate = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,7 @@ public class LatlngActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (isOnCreate) return;
         if (isEagleEye){
             obtainLatlngFromEagleEye();
         }else {
@@ -86,19 +89,26 @@ public class LatlngActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
             mTTitle.setText("定位坐标("+latlngList.size()+")");
         }
-
+        isOnCreate = true;
     }
 
     private void obtainLatlngFromEagleEye() {
+        latlngList.clear();
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
-        DateTime dt = DateTime.parse(date,dtf).plusHours(7);
-        DateTime dt1 = DateTime.parse(date,dtf).plusHours(23);
-        TraceControl.getInstance().queryHistoryTrackPoints(dt.getMillis()/1000,dt1.getMillis()/1000,new TraceControl.TrackStringListener() {
+        DateTime dt = DateTime.parse(date,dtf);
+//        DateTime dt1 = DateTime.parse(date,dtf).plusHours(23);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(dt.getYear(),dt.getMonthOfYear()-1,dt.getDayOfMonth(),7,0);
+        long start = calendar.getTime().getTime()/1000;
+        calendar.set(dt.getYear(),dt.getMonthOfYear()-1,dt.getDayOfMonth(),23,0);
+        long end = calendar.getTime().getTime()/1000;
+        TraceControl.getInstance().queryHistoryTrackPoints(start,end,new TraceControl.TrackStringListener() {
             @Override
             public void onObtainTrackStringList(List<String> trackList) {
                 latlngList.addAll(trackList);
                 adapter.notifyDataSetChanged();
                 mTTitle.setText("定位坐标("+latlngList.size()+")");
+                trackList.clear();
             }
         });
     }

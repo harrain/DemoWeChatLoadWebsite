@@ -56,8 +56,10 @@ public class LatlngFragment extends Fragment {
     private LatlngFragmentAdapter adapter;
 
     private boolean isEagleEye = false;
+    private boolean isOnCreate = false;
     private SimpleDateFormat sdf;
     private Calendar calendar;
+    private DateTime[] dt;
 
     public LatlngFragment() {
 
@@ -128,6 +130,7 @@ public class LatlngFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        if (isOnCreate) return;
         mTracesData.clear();
         if (isEagleEye){
             loadTrackFromEagleEye();
@@ -136,15 +139,17 @@ public class LatlngFragment extends Fragment {
             adapter.notifyDataSetChanged();
             ((MainActivity) mContext).setToolbarTitle("定位文件(" + mTracesData.size() + ")");
         }
-
+        isOnCreate = true;
     }
 
     private void loadTrackFromEagleEye() {
-//        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
 //        final DateTime[] dts = new DateTime[2];
 //
 //        dts[0] = DateTime.parse("2017-08-28 07:00",dtf);
 //        dts[1] = DateTime.parse("2017-08-28 23:00",dtf);
+        dt = new DateTime[1];
+        dt[0] = DateTime.parse("2017-08-24",dtf);
         sdf = new SimpleDateFormat("yyyy-MM-dd");
         calendar = Calendar.getInstance();
         calendar.set(2017,7,24,7,0);
@@ -155,8 +160,8 @@ public class LatlngFragment extends Fragment {
         dts[0] = calendar.getTime().getTime()/1000;
         calendar.set(2017,7,24,23,0);
         dts[1] = calendar.getTime().getTime()/1000;
-        final int[] i = {24};
-        getTrack(dts, t, i);
+//        final int[] i = {0};
+        getTrack(dts, t);
 
     }
 
@@ -189,7 +194,7 @@ public class LatlngFragment extends Fragment {
         });
     }
 
-    private void getTrack(final Long[] dts, final String[] t, final int[] i) {
+    private void getTrack(final Long[] dts, final String[] t) {
         TraceControl.getInstance().queryDistance(dts[0],dts[1], new TraceControl.DistanceListener() {
                     @Override
                     public void onObtainDistance(double distance) {
@@ -200,15 +205,14 @@ public class LatlngFragment extends Fragment {
                             ((MainActivity) mContext).setToolbarTitle("鹰眼轨迹(" + mTracesData.size() + ")");
                         }
 
-                        i[0]++;
-
-                        if (i[0] <= DateTime.now().getDayOfMonth()){
-                            calendar.set(2017,7,i[0],7,0);
+                        if (dt[0].isBeforeNow()){
+                            dt[0] = dt[0].plusDays(1);
+                            calendar.set(dt[0].getYear(),dt[0].getMonthOfYear()-1,dt[0].getDayOfMonth(),7,0);
                             dts[0] = calendar.getTime().getTime()/1000;
                             t[0] = sdf.format(calendar.getTime());
-                            calendar.set(2017,7,i[0],23,0);
+                            calendar.set(dt[0].getYear(),dt[0].getMonthOfYear()-1,dt[0].getDayOfMonth(),23,0);
                             dts[1] = calendar.getTime().getTime()/1000;
-                            getTrack(dts, t, i);
+                            getTrack(dts, t);
                         }
                     }
                 });
