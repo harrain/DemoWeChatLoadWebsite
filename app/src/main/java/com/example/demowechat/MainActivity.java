@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                                     permissionName = "存储";
                                     break;
                                 case Manifest.permission.READ_PHONE_STATE:
-                                    permissionName = "访问手机安全码";
+                                    permissionName = "设备信息";
                                     break;
                             }
                             LogUtils.i(TAG, "!granted");
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         if (!SharePrefrenceUtils.getInstance().getAddWhiteList()) {
             IntentWrapper.whiteListMatters(this, "行驶轨迹追踪服务的持续运行");
             if (PermissionsUtil.getManufacturer().equals("vivo")) {
-                AlertDialogUtil.showAlertDialog(mContext, "应用后台计算服务需要 ‘自启动’权限", "点击 [确认] 打开自启动开关", new AlertDialogUtil.AlertListener() {
+                AlertDialogUtil.showAlertDialog(mContext, "后台定位服务需要 ‘自启动’权限", "点击 [确认] 将对应的‘自启动’开关打开", new AlertDialogUtil.AlertListener() {
                     @Override
                     public void positiveResult(DialogInterface dialog, int which) {
                         dialog.dismiss();

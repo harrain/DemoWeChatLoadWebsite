@@ -10,4 +10,5 @@
     <dimen name="me_item_height">50dp</dimen>
     <dimen name="profile_nickname_tvsize">16sp</dimen>
     <dimen name="profile_account_tvsize">12sp</dimen>
+    <dimen name="itemdecoration_height">20dp</dimen>
 </resources>

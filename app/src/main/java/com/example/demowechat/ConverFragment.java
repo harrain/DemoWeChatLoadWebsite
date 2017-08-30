@@ -39,6 +39,7 @@ public class ConverFragment extends Fragment {
     SwipeMenuRecyclerView rl;
     GalaryInfoAdapter adapter;
     private static final String TAG = "ConverFragment";
+    private boolean isOnCreate = true;
 
     public ConverFragment() {
 
@@ -47,7 +48,7 @@ public class ConverFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pics = new Link<>();
+
     }
 
     @Override
@@ -55,7 +56,7 @@ public class ConverFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_conver,null,false);
         mContext = getActivity();
-
+        pics = new Link<>();
         rl = (SwipeMenuRecyclerView) view.findViewById(R.id.rl);
 //        GridLayoutManager layoutManager = new GridLayoutManager(mContext,3);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
@@ -67,7 +68,6 @@ public class ConverFragment extends Fragment {
         adapter = new GalaryInfoAdapter(mContext,pics);
         rl.setAdapter(adapter);
 
-        loadFromLocal();
 //        lv = (ListView) view.findViewById(R.id.lv);
 //        list= new ArrayList<>();
 //
@@ -93,6 +93,11 @@ public class ConverFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        if (isOnCreate){
+            loadFromLocal();
+            isOnCreate = false;
+        }
+
         notifyDataSetChanged();
     }
 
@@ -218,6 +223,14 @@ public class ConverFragment extends Fragment {
             return name.substring(20, name.indexOf(".jpeg"));
         }
         return "";
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        isOnCreate = true;
+        pics = null;
+        LogUtils.i(TAG,"onDestroyView");
     }
 
     class Pic{

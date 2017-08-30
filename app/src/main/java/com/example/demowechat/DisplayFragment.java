@@ -1,8 +1,10 @@
 package com.example.demowechat;
 
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -70,11 +72,13 @@ public class DisplayFragment extends Fragment {
         mItemList.add(new MeFragmentAdapter.ItemModel(MeFragmentAdapter.TEXTONLY_LAYOUT,new String[]{"关于应用"}));
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void initRecyclerView() {
         LogUtils.i(tag,"shuju "+mItemList.size());
         LinearLayoutManager lm = new LinearLayoutManager(mContext);
         meRv.setLayoutManager(lm);
         DividerItemDecoration decor = new DividerItemDecoration(mContext,DividerItemDecoration.VERTICAL);
+//        decor.setDrawable(getResources().getDrawable(R.drawable.itemdecoration_rv,null));//分割条Drawable
         meRv.addItemDecoration(decor);
         MeFragmentAdapter adapter = new MeFragmentAdapter(mContext,mItemList);
         adapter.setOnClickListener(new BaseAdapter.OnClickListener() {

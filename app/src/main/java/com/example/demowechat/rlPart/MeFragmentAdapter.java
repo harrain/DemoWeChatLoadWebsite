@@ -14,7 +14,6 @@ import com.example.demowechat.rlPart.holder.EmptyHolder;
 import com.example.demowechat.rlPart.holder.HeadLayoutHolder;
 import com.example.demowechat.rlPart.holder.TextOnOffHolder;
 import com.example.demowechat.rlPart.holder.TextOnlyHolder;
-import com.example.demowechat.utils.LogUtils;
 
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class MeFragmentAdapter extends BaseAdapter<List<MeFragmentAdapter.ItemMo
 
     @Override
     public int getItemViewType(int position) {
-        LogUtils.i(tag,"itemType "+mItems.get(position).itemType );
+//        LogUtils.i(tag,"itemType "+mItems.get(position).itemType );
         return mItems.get(position).itemType;
     }
 

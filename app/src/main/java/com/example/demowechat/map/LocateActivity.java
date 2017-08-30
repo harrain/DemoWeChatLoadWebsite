@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -65,6 +66,8 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
     Toolbar toolbar;
     @BindView(R.id.locate_more_iv)
     FloatingActionButton mMoreIv;
+    @BindView(R.id.tip_tv)
+    TextView tipTv;
     private boolean isSelected = false;
     private List<View> list = new ArrayList<>();
 
@@ -116,7 +119,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
 
         registerLocationBroadcastReceiver();
         animHeight = DeviceInfoUtils.getScreenHeight(mContext) / 10;
-
+        mTTitle.setText("GPS定位");
         ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningServiceInfo> infos = am.getRunningServices(100);
         for (ActivityManager.RunningServiceInfo info : infos) {
@@ -125,18 +128,13 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
             if (className.equals("com.example.demowechat.map.TraceServiceImpl")) {
                 if (!SharePrefrenceUtils.getInstance().getNeedLocate()) {
                     isLocated = true;
-                    mTTitle.setText("");
                 } else {
                     isLocated = false;
-                    mTTitle.setText("后台持续获取位置坐标中···");
                 }
                 return;
             }
 
         }
-
-
-
     }
 
     private void registerLocationBroadcastReceiver() {
@@ -195,6 +193,10 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
         if (mMapView == null) {
             return;
         }
+        if (TextUtils.isEmpty(longitude) || TextUtils.isEmpty(latitude)){
+            tipTv.setVisibility(View.VISIBLE);
+            return;
+        }
         mCurrentLat = Double.parseDouble(latitude);
         mCurrentLon = Double.parseDouble(longitude);
 
@@ -204,6 +206,7 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
                 .direction(mCurrentDirection).latitude(mCurrentLat)
                 .longitude(mCurrentLon).build();
         mBaiduMap.setMyLocationData(locData);
+
         if (isFirstLoc) {
             isFirstLoc = false;
             LatLng ll = new LatLng(mCurrentLat,
@@ -212,11 +215,14 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
             builder.target(ll).zoom(20.0f);//target 设置地图中心点（会显示位置图标） ； zoom 设置缩放级别
             mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));//animateMapStatus 以动画方式更新地图状态，动画耗时 300 ms
         }
+        mTTitle.setText("后台持续获取位置坐标中···");
+        tipTv.setVisibility(View.INVISIBLE);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        tipTv.setVisibility(View.VISIBLE);
         TraceControl.getInstance().queryRealTimeLocation(new TraceControl.CurrentLatlngListener() {
             @Override
             public void onObtainCurrentLatlng(double longitude, double latitude, long time) {
@@ -270,17 +276,13 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
 
                 SharePrefrenceUtils.getInstance().setNeedLocate(true);
 //                LogUtils.e(tag, "SharePrefrenceUtils" + SharePrefrenceUtils.getInstance().getNeedLocate());
-
 //                mBtnStarService.setEnabled(false);
 //                mBtnStarService.setClickable(false);
 //                mBtnStarService.setBackgroundColor(getResources().getColor(R.color.light_grey));
                 startService(new Intent(this, TraceServiceImpl.class));
                 mBtnStarService.setVisibility(View.INVISIBLE);
                 mBtnStopService.setVisibility(View.VISIBLE);
-
-                mTTitle.setText("后台持续获取位置坐标中···");
 //                bindService(intent,sc,BIND_AUTO_CREATE);
-
                 break;
             case R.id.btn_white:
                 IntentWrapper.whiteListMatters(this, "后台定位");
@@ -294,14 +296,12 @@ public class LocateActivity extends AppCompatActivity implements View.OnClickLis
 //                mBtnStopService.setBackgroundColor(getResources().getColor(R.color.light_grey));
                 mBtnStarService.setVisibility(View.VISIBLE);
                 mBtnStopService.setVisibility(View.INVISIBLE);
-
                 SharePrefrenceUtils.getInstance().setNeedLocate(false);
 //                LogUtils.e(tag, "SharePrefrenceUtils" + SharePrefrenceUtils.getInstance().getNeedLocate());
                 TraceServiceImpl.stopService();
-                mTTitle.setText("");
+                mTTitle.setText("GPS定位");
 //                stopService(intent);
 //                mTTitle.setText("行驶轨迹追踪服务");
-
                 break;
             case R.id.locate_more_iv:
                 if (!isSelected) {

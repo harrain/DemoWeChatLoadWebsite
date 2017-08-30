@@ -15,6 +15,8 @@
     <color name="Transparent">#00000000</color>
     <color name="Gray">#eeeeee</color>
     <color name="dark_grey">#6c6b6b</color>
+
+    <!--rv的分割条ItemDecoration底色，MeFragment的空白区背景色-->
     <color name="light_grey">#90efeeee</color>
     <color name="light_blue">#aa3a89ea</color>
 

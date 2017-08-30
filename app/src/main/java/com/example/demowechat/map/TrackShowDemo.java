@@ -26,6 +26,7 @@ import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -40,6 +41,12 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.baidu.trace.api.analysis.DrivingBehaviorResponse;
 import com.baidu.trace.api.analysis.OnAnalysisListener;
 import com.baidu.trace.api.analysis.StayPoint;
@@ -85,7 +92,7 @@ import butterknife.OnClick;
 /**
  * 轨迹运行demo展示
  */
-public class TrackShowDemo extends AppCompatActivity {
+public class TrackShowDemo extends AppCompatActivity implements OnGetGeoCoderResultListener {
     @BindView(R.id.scanner_toolbar_back)
     ImageView mTBack;
     @BindView(R.id.scanner_toolbar_title)
@@ -162,7 +169,9 @@ public class TrackShowDemo extends AppCompatActivity {
     private long start;
     private long end;
     private List<ArrayList<LatLng>> latlngContainer;
-    boolean mapMatch = true;
+    volatile boolean mapMatch = true;
+    GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
+    private Marker mClickMarker = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,6 +195,9 @@ public class TrackShowDemo extends AppCompatActivity {
         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         initMap(savedInstanceState);
         initRadioGroup();
+        // 初始化搜索模块，注册事件监听
+        mSearch = GeoCoder.newInstance();
+        mSearch.setOnGetGeoCodeResultListener(this);
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -202,9 +214,16 @@ public class TrackShowDemo extends AppCompatActivity {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 if (marker == mMarkerS){
-                    showTrackPointInfo(marker.getPosition(),1);
+                    mClickMarker = mMarkerS;
+                    mSearch.reverseGeoCode(new ReverseGeoCodeOption()
+                            .location(MapUtil.convertTrace2Map(mTracks.get(0).getLocation())));
+//                    LogUtils.i(tag,"mClickMarker = mMarkerS");
+
                 }else if (marker == mMarkerE){
-                    showTrackPointInfo(marker.getPosition(),mTracks.size()-1);
+                    mClickMarker = mMarkerE;
+                    mSearch.reverseGeoCode(new ReverseGeoCodeOption()
+                            .location(MapUtil.convertTrace2Map(mTracks.get(mTracks.size()-1).getLocation())));
+
                 }
                 Bundle bundle = marker.getExtraInfo();
                 if (bundle!=null){
@@ -264,17 +283,32 @@ public class TrackShowDemo extends AppCompatActivity {
         });
     }
 
-    private void showTrackPointInfo(LatLng ll,int index){
+    private void showTrackPointInfo(LatLng ll,String address,int index){
+//        LogUtils.i(tag,"showTrackPointInfo");
         calendar.setTimeInMillis(mTracks.get(index).getLocTime()*1000);
-        String longitude = String.valueOf(mTracks.get(index).getLocation().getLongitude()).substring(0,8);
-        String latitude = String.valueOf(mTracks.get(index).getLocation().getLatitude()).substring(0,8);
-        String speed = String.valueOf(mTracks.get(index).getSpeed()).substring(0,4);
-        String radius = String.valueOf(mTracks.get(index).getRadius()).substring(0,3);
+        String latitude = String.valueOf(mTracks.get(index).getLocation().getLatitude());
+        if (latitude.length()>8){
+            latitude = latitude.substring(0,8);
+        }
+        String longitude = String.valueOf(mTracks.get(index).getLocation().getLongitude());
+        if (longitude.length()>8){
+            longitude = longitude.substring(0,8);
+        }
+        String speed = String.valueOf(mTracks.get(index).getSpeed());
+        if (speed.length()>4){
+            speed = speed.substring(0,4);
+        }
+        String radius = String.valueOf(mTracks.get(index).getRadius());
+        if (radius.length()>4){
+            radius = radius.substring(0,4);
+        }
         trackAnalysisInfoLayout.titleText.setText("覆盖点详情");
         trackAnalysisInfoLayout.key1.setText("坐标");
         trackAnalysisInfoLayout.value1.setText(longitude+","+latitude);
         trackAnalysisInfoLayout.key2.setText("位置");
-        trackAnalysisInfoLayout.value2.setText("");
+        if (address!=null) {
+            trackAnalysisInfoLayout.value2.setText(address);
+        }
         trackAnalysisInfoLayout.key3.setText("时间");
         trackAnalysisInfoLayout.value3.setText(sdf.format(calendar.getTime()));
         trackAnalysisInfoLayout.key4.setText("速度");
@@ -304,7 +338,6 @@ public class TrackShowDemo extends AppCompatActivity {
         });
         LatLng ll = marker.getPosition();
         InfoWindow infoWindow = new InfoWindow(view,ll,-47);
-
 
         calendar.setTimeInMillis(mTracks.get(index).getLocTime()*1000);
         String longitude = String.valueOf(mTracks.get(index).getLocation().getLongitude()).substring(0,8);
@@ -455,7 +488,8 @@ public class TrackShowDemo extends AppCompatActivity {
                     });
 
                 }else {
-                    TraceControl.getInstance().queryHistoryTrackPoints(mapMatch, start, end, new TraceControl.TrackResultListener() {
+                    LogUtils.i(tag,"mapmatch false");
+                    TraceControl.getInstance().queryHistoryTrackPoints(false, start, end, new TraceControl.TrackResultListener() {
                         @Override
                         public void onObtainTrackPointsList(List trackList, List<TrackPoint> points) {
                             obtainTrackPointsList(count, trackList, points);
@@ -768,6 +802,31 @@ public class TrackShowDemo extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
+
+    }
+
+    @Override
+    public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
+//        LogUtils.i(tag,"onGetReverseGeoCodeResult");
+        if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
+            Toast.makeText(mContext, "抱歉，未能获得地理位置信息", Toast.LENGTH_LONG)
+                    .show();
+        }
+        if (mClickMarker == mMarkerS){
+
+            try {
+                showTrackPointInfo(mMarkerS.getPosition(), result.getAddress(), 0);
+            }catch (Exception e){e.printStackTrace();}
+        }else if (mClickMarker == mMarkerE){
+            try {
+                showTrackPointInfo(mMarkerE.getPosition(), result.getAddress(), mTracks.size()-1);
+            }catch (Exception e){e.printStackTrace();}
+
+        }
+    }
 
     public static boolean isInteger(String str) {
         Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");

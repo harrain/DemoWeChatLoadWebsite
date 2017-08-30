@@ -99,7 +99,7 @@ public class WaterMarkOperation {
                 public void onLocateCompleted(String longitude, String latitude) {
                     LogUtils.i(tag, "requestLocation "+"经度：" + longitude + "--" + "纬度：" + latitude);
                     dataAfterOperation(longitude, latitude);
-                    LocationRequest.getInstance().stop();
+
                 }
             });
         }
@@ -299,6 +299,7 @@ public class WaterMarkOperation {
     public void release() throws Exception{
 //        releaseLocationService();
 //        lr.releaseLocate();
+        LocationRequest.getInstance().stop();
         if(watermarkBitmap!=null) {
             watermarkBitmap.recycle();
         }

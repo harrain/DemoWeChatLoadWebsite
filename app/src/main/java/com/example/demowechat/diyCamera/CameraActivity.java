@@ -388,7 +388,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                             msg.setData(bundle);
                             mHandler.sendMessage(msg);
                             try {
-//                                waterMarkOperation.release();
+                                waterMarkOperation.release();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

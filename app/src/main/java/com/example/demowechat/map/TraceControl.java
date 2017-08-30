@@ -22,6 +22,7 @@ import com.baidu.trace.api.track.SupplementMode;
 import com.baidu.trace.api.track.TrackPoint;
 import com.baidu.trace.model.BaseRequest;
 import com.baidu.trace.model.CoordType;
+import com.baidu.trace.model.LocationMode;
 import com.baidu.trace.model.OnCustomAttributeListener;
 import com.baidu.trace.model.OnTraceListener;
 import com.baidu.trace.model.ProcessOption;
@@ -165,6 +166,7 @@ public class TraceControl {
 
     public void initClient() {
         mClient = new LBSTraceClient(mContext);
+        mClient.setLocationMode(LocationMode.Device_Sensors);
         mTrace = new Trace(serviceId, entityName);
 
         trackConf = mContext.getSharedPreferences("track_conf", MODE_PRIVATE);
@@ -278,7 +280,7 @@ public class TraceControl {
         processOption.setNeedMapMatch(true);// 绑路
         processOption.setTransportMode(TransportMode.walking);// 交通方式为步行
         distanceRequest.setProcessOption(processOption);// 设置纠偏选项
-        distanceRequest.setSupplementMode(SupplementMode.no_supplement);// 里程填充方式为无
+        distanceRequest.setSupplementMode(SupplementMode.driving);// 里程填充方式为无
         mClient.queryDistance(distanceRequest, trackListener);// 查询里程
 
     }
@@ -290,7 +292,7 @@ public class TraceControl {
         processOption.setNeedDenoise(true);//去燥
         processOption.setNeedMapMatch(true);//绑路
         processOption.setNeedVacuate(true);//抽稀
-
+        LogUtils.i(tag,"needMapMatch "+true);
         historyTrackRequest.setProcessOption(processOption);
         historyTrackRequest.setProcessed(true);//纠偏
         historyTrackRequest.setEntityName(entityName);
@@ -298,7 +300,7 @@ public class TraceControl {
         historyTrackRequest.setEndTime(mEndTime);
         historyTrackRequest.setPageIndex(pageIndex);
         historyTrackRequest.setPageSize(Constants.PAGE_SIZE);
-        historyTrackRequest.setSupplementMode(SupplementMode.no_supplement);//里程填充 无
+        historyTrackRequest.setSupplementMode(SupplementMode.driving);//里程填充 无
         historyTrackRequest.setSortType(SortType.asc);//排序规则
         historyTrackRequest.setCoordTypeOutput(CoordType.bd09ll);
     }
@@ -310,7 +312,7 @@ public class TraceControl {
         processOption.setNeedDenoise(true);//去燥
         processOption.setNeedMapMatch(needMapMatch);//绑路
         processOption.setNeedVacuate(true);//抽稀
-
+        LogUtils.i(tag,"needMapMatch "+needMapMatch);
         historyTrackRequest.setProcessOption(processOption);
         historyTrackRequest.setProcessed(true);//纠偏
         historyTrackRequest.setEntityName(entityName);
@@ -318,7 +320,7 @@ public class TraceControl {
         historyTrackRequest.setEndTime(mEndTime);
         historyTrackRequest.setPageIndex(pageIndex);
         historyTrackRequest.setPageSize(Constants.PAGE_SIZE);
-        historyTrackRequest.setSupplementMode(SupplementMode.no_supplement);//里程填充 无
+        historyTrackRequest.setSupplementMode(SupplementMode.driving);//里程填充 无
         historyTrackRequest.setSortType(SortType.asc);//排序规则
         historyTrackRequest.setCoordTypeOutput(CoordType.bd09ll);
     }

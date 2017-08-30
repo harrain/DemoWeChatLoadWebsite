@@ -142,9 +142,9 @@ public class LocationRequest {
             mCurrentLon = String.valueOf(location.getLongitude());
             mCurrentAccracy = String.valueOf(location.getRadius());
             LogUtils.i("BDLocationListener", "经度：" + mCurrentLon + "--" + "纬度：" + mCurrentLat);
-            if (!oneLocate && mListener != null) {
+            /*if (!oneLocate && mListener != null) {
                 mListener.onLocateCompleted(mCurrentLon, mCurrentLat);
-            }
+            }*/
             if (oneLocate && oneListener!=null){
                 oneListener.onLocateCompleted(mCurrentLon, mCurrentLat);
             }

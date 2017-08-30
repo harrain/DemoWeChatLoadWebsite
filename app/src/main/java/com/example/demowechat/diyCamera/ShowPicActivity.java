@@ -126,7 +126,7 @@ public class ShowPicActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-//            mWaterMarkOperation.release();
+            mWaterMarkOperation.release();
         } catch (Exception e) {
             e.printStackTrace();
         }
