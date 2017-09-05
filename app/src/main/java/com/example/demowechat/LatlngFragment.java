@@ -17,8 +17,8 @@ import com.example.demowechat.map.TraceControl;
 import com.example.demowechat.map.TrackShowDemo;
 import com.example.demowechat.rlPart.LatlngFragmentAdapter;
 import com.example.demowechat.rlPart.base.BaseAdapter;
-import com.example.demowechat.utils.AppConstant;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.AppConstant;
+import com.example.applibrary.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 
 import org.joda.time.DateTime;

@@ -22,12 +22,12 @@ import android.widget.Toast;
 
 import com.example.demowechat.R;
 import com.example.demowechat.operation.WaterMarkOperation;
-import com.example.demowechat.utils.AppConstant;
+import com.example.applibrary.AppConstant;
 import com.example.demowechat.utils.BitmapUtils;
 import com.example.demowechat.utils.CameraUtil;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
-import com.example.demowechat.utils.ToastFactory;
+import com.example.applibrary.ToastFactory;
 
 import java.io.File;
 import java.lang.reflect.Field;

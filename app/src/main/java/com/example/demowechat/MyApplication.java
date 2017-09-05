@@ -7,15 +7,15 @@ import android.util.Log;
 
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
+import com.example.applibrary.AppConstant;
+import com.example.applibrary.LogUtils;
+import com.example.applibrary.ToastFactory;
 import com.example.demowechat.map.CommonUtil;
 import com.example.demowechat.map.TraceControl;
 import com.example.demowechat.map.TraceServiceImpl;
 import com.example.demowechat.utils.AppConfig;
-import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.CrashUtils;
 import com.example.demowechat.utils.FileUtil;
-import com.example.demowechat.utils.LogUtils;
-import com.example.demowechat.utils.ToastFactory;
 import com.tbs.webview.APIWebviewTBS;
 import com.xdandroid.hellodaemon.DaemonEnv;
 
@@ -49,7 +49,11 @@ public class MyApplication extends Application {
         entityName = CommonUtil.getImei(this);
 
         // 若为创建独立进程，则不初始化成员变量
-        if ("com.baidu.track:remote".equals(CommonUtil.getCurProcessName(this))) {
+        if ("com.baidu.location:location".equals(CommonUtil.getCurProcessName(this))) {
+            return;
+        }
+
+        if ("com.baidu.track:trace".equals(CommonUtil.getCurProcessName(this))) {
             return;
         }
 
@@ -59,6 +63,7 @@ public class MyApplication extends Application {
 
 //        CrashReport.initCrashReport(this, "900011702", AppConfig.DEBUG);//bugly
         LogUtils.init(this, AppConfig.TAG, AppConfig.DEBUG);//初始化LOG
+        ToastFactory.init(context);
         ToastFactory.setIsToast(true);
 
 // 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
@@ -69,10 +74,11 @@ public class MyApplication extends Application {
         TraceControl.init(this);
         TraceControl.getInstance().startTrace();
 
-        //个人封装，针对升级----开始
+        //个人封装，针对升级----开始  腾讯tbs浏览服务
         APIWebviewTBS mAPIWebviewTBS= APIWebviewTBS.getAPIWebview();
         mAPIWebviewTBS.initTbs(getApplicationContext());
         //个人封装，针对升级----结束
+
 
         CrashUtils.init(FileUtil.createFile(AppConstant.CRASH_DIR));
 

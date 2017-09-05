@@ -30,6 +30,7 @@
                 android:layout_height="30dp" />
             <TextView
                 android:text="照片"
+                android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -49,6 +50,7 @@
                 android:layout_height="30dp" />
             <TextView
                 android:text="轨迹"
+                android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -68,6 +70,7 @@
                 android:layout_height="30dp" />
             <TextView
                 android:text="鹰眼"
+                android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -90,6 +93,7 @@
 
             <TextView
                 android:text="定位"
+                android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -109,6 +113,7 @@
                 android:layout_height="30dp" />
             <TextView
                 android:text="我的"
+                android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

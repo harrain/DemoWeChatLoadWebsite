@@ -25,7 +25,7 @@ import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.R;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 
 
 /**

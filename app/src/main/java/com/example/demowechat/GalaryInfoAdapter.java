@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.demowechat.utils.Link;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 import com.example.demowechat.widget.SwipeItemLayout;
 
 import java.io.File;

@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 
 import com.example.demowechat.rlPart.MeFragmentAdapter;
 import com.example.demowechat.rlPart.base.BaseAdapter;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;

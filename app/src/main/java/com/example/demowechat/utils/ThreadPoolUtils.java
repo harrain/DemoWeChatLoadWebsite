@@ -2,6 +2,8 @@ package com.example.demowechat.utils;
 
 import android.support.annotation.IntDef;
 
+import com.example.applibrary.LogUtils;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collection;

@@ -32,9 +32,9 @@ import com.baidu.trace.model.StatusCodes;
 import com.baidu.trace.model.TraceLocation;
 import com.baidu.trace.model.TransportMode;
 import com.example.demowechat.MyApplication;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 import com.example.demowechat.utils.NetworkUtils;
-import com.example.demowechat.utils.ToastFactory;
+import com.example.applibrary.ToastFactory;
 
 import org.joda.time.DateTime;
 

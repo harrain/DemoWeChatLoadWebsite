@@ -23,22 +23,23 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import com.example.applibrary.AppConstant;
+import com.example.applibrary.LogUtils;
+import com.example.applibrary.ToastFactory;
 import com.example.demowechat.diyCamera.ShowPicActivity;
 import com.example.demowechat.listener.PermissionResultListener;
 import com.example.demowechat.map.LocateActivity;
 import com.example.demowechat.map.TrackShowDemo;
 import com.example.demowechat.utils.AlertDialogUtil;
-import com.example.demowechat.utils.AppConstant;
 import com.example.demowechat.utils.CameraUtil;
-import com.example.demowechat.utils.LogUtils;
 import com.example.demowechat.utils.NetworkUtils;
 import com.example.demowechat.utils.PermissionsUtil;
 import com.example.demowechat.utils.SharePrefrenceUtils;
-import com.example.demowechat.utils.ToastFactory;
 import com.google.zxing.activity.CaptureActivity;
 import com.google.zxing.activity.QRCodeCreateActivity;
 import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+import com.tbs.webview.WebsiteShowActivity;
 import com.xdandroid.hellodaemon.IntentWrapper;
 
 import java.io.File;

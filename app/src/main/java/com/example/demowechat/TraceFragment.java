@@ -34,13 +34,13 @@ import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.rlPart.base.BaseAdapter;
 import com.example.demowechat.rlPart.FileListAdapter;
-import com.example.demowechat.utils.AppConstant;
+import com.example.applibrary.AppConstant;
 import com.example.demowechat.utils.Link;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.example.demowechat.utils.ThreadPoolUtils;
-import com.example.demowechat.utils.ToastFactory;
+import com.example.applibrary.ToastFactory;
 import com.example.demowechat.widget.SwipeMenuRecyclerView;
 
 import java.io.BufferedReader;

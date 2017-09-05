@@ -12,6 +12,8 @@ import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.view.Surface;
 
+import com.example.applibrary.AppConstant;
+import com.example.applibrary.LogUtils;
 import com.example.demowechat.diyCamera.CameraActivity;
 
 import java.util.Collections;

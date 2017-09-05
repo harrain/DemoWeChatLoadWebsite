@@ -14,8 +14,8 @@ import android.widget.TextView;
 
 import com.example.demowechat.map.TraceControl;
 import com.example.demowechat.rlPart.ArrayListAdapter;
-import com.example.demowechat.utils.LogUtils;
-import com.example.demowechat.utils.ToastFactory;
+import com.example.applibrary.LogUtils;
+import com.example.applibrary.ToastFactory;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;

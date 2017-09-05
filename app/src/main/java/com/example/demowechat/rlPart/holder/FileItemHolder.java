@@ -11,7 +11,7 @@ import com.example.demowechat.rlPart.base.AdapterDataOperation;
 import com.example.demowechat.rlPart.base.AdapterLinkOperation;
 import com.example.demowechat.rlPart.base.BaseMyHolder;
 import com.example.demowechat.widget.SwipeItemLayout;
-import com.example.demowechat.utils.AppConstant;
+import com.example.applibrary.AppConstant;
 import com.example.demowechat.utils.Link;
 
 import java.io.File;

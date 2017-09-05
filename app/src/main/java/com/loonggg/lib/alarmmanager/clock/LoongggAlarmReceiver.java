@@ -6,7 +6,7 @@ import android.content.Intent;
 
 import com.example.demowechat.MyApplication;
 import com.example.demowechat.map.TraceServiceImpl;
-import com.example.demowechat.utils.AppConstant;
+import com.example.applibrary.AppConstant;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 
 /**

@@ -51,9 +51,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".WebsiteShowActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" />
+
         <activity android:name=".ImageActivity"
             android:screenOrientation="portrait"/>
         <activity
@@ -69,13 +67,7 @@
             android:name=".map.TrackShowDemo"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
-        <activity
-            android:name="com.google.zxing.activity.CaptureActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
-        <activity
-            android:name="com.google.zxing.activity.QRCodeCreateActivity"
-            android:screenOrientation="portrait" />
+
         <activity
             android:name=".map.LocateActivity"
             android:screenOrientation="portrait" />
@@ -97,11 +89,7 @@
             android:name=".LatlngActivity"
             android:screenOrientation="portrait" />
 
-        <receiver android:name="com.loonggg.lib.alarmmanager.clock.LoongggAlarmReceiver">
-            <intent-filter>
-                <action android:name="com.loonggg.alarm.clock" />
-            </intent-filter>
-        </receiver>
+
 
         <activity android:name=".DeviceActivity"
             android:screenOrientation="portrait"/>

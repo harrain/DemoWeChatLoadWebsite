@@ -18,10 +18,10 @@ import android.text.TextUtils;
 
 import com.example.demowechat.map.LocationRequest;
 import com.example.demowechat.utils.BitmapUtils;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 import com.example.demowechat.utils.NumberValidationUtil;
 import com.example.demowechat.utils.ProgressDialogUtil;
-import com.example.demowechat.utils.ToastFactory;
+import com.example.applibrary.ToastFactory;
 
 import java.io.File;
 

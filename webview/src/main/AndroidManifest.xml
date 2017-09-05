@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+
+    package="com.tbs.webview">
+
+    <application
+        android:theme="@style/AppTheme"
+        android:allowBackup="true" android:label="@string/app_name"
+        android:supportsRtl="true">
+        <activity
+            android:name="com.tbs.webview.WebsiteShowActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
+    </application>
+
+</manifest>

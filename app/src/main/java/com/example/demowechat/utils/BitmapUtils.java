@@ -22,6 +22,8 @@ import android.media.MediaScannerConnection;
 import android.util.Log;
 import android.view.View;
 
+import com.example.demowechat.utils.SystemUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;

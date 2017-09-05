@@ -36,10 +36,10 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.example.demowechat.R;
 import com.example.demowechat.utils.AlertDialogUtil;
-import com.example.demowechat.utils.AppConstant;
+import com.example.applibrary.AppConstant;
 import com.example.demowechat.utils.DeviceInfoUtils;
 import com.example.demowechat.utils.GpsUtil;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 import com.example.demowechat.utils.SharePrefrenceUtils;
 import com.xdandroid.hellodaemon.IntentWrapper;
 

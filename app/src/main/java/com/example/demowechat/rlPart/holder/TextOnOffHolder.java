@@ -10,7 +10,7 @@ import com.example.demowechat.R;
 import com.example.demowechat.rlPart.MeFragmentAdapter;
 import com.example.demowechat.rlPart.base.AdapterDataOperation;
 import com.example.demowechat.rlPart.base.BaseMyHolder;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 
 import java.util.List;
 

@@ -7,7 +7,7 @@ import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.example.demowechat.MyApplication;
-import com.example.demowechat.utils.LogUtils;
+import com.example.applibrary.LogUtils;
 
 /**
  * baiduMap定位类
