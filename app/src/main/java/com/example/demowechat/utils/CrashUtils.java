@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 
+import com.example.applibrary.SharePrefrenceUtils;
 import com.example.demowechat.MyApplication;
 
 import java.io.File;

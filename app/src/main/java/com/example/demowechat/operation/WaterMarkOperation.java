@@ -16,12 +16,12 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 
-import com.example.demowechat.map.LocationRequest;
-import com.example.demowechat.utils.BitmapUtils;
+import com.baidu.baidumap.LocationRequest;
 import com.example.applibrary.LogUtils;
-import com.example.demowechat.utils.NumberValidationUtil;
-import com.example.demowechat.utils.ProgressDialogUtil;
+import com.example.applibrary.NumberValidationUtil;
+import com.example.applibrary.ProgressDialogUtil;
 import com.example.applibrary.ToastFactory;
+import com.example.demowechat.utils.BitmapUtils;
 
 import java.io.File;
 

@@ -7,7 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.demowechat.utils.DeviceInfoUtils;
+import com.example.applibrary.DeviceInfoUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

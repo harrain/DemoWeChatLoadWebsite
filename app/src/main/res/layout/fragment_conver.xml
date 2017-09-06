@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
-    <com.example.demowechat.widget.SwipeMenuRecyclerView
+    <com.example.applibrary.widget.SwipeMenuRecyclerView
         android:id="@+id/rl"
         android:scrollbars="vertical"
         android:scrollbarSize="3dp"

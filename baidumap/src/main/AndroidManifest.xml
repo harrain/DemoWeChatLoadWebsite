@@ -1,0 +1,38 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+
+    package="com.baidu.baidumap">
+
+    <application
+        android:name=".MapApplication"
+
+        android:allowBackup="true" android:label="@string/app_name"
+        android:supportsRtl="true">
+
+        <activity
+            android:name="com.baidu.baidumap.LocationDemo"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="地图定位"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.baidu.baidumap.TrackShowDemo"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.baidu.baidumap.LocateActivity"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":location" />
+
+        <service
+            android:name="com.baidu.trace.LBSTraceService"
+            android:enabled="true"
+            android:process=":trace"
+            />
+
+    </application>
+
+</manifest>

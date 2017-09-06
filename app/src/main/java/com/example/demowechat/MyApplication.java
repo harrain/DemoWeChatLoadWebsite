@@ -5,14 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.baidu.baidumap.CommonUtil;
+import com.baidu.baidumap.TraceControl;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.example.applibrary.AppConstant;
 import com.example.applibrary.LogUtils;
 import com.example.applibrary.ToastFactory;
-import com.example.demowechat.map.CommonUtil;
-import com.example.demowechat.map.TraceControl;
-import com.example.demowechat.map.TraceServiceImpl;
+import com.example.applibrary.Utils;
 import com.example.demowechat.utils.AppConfig;
 import com.example.demowechat.utils.CrashUtils;
 import com.example.demowechat.utils.FileUtil;
@@ -65,8 +65,9 @@ public class MyApplication extends Application {
         LogUtils.init(this, AppConfig.TAG, AppConfig.DEBUG);//初始化LOG
         ToastFactory.init(context);
         ToastFactory.setIsToast(true);
+        Utils.init(context);
 
-// 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
+        // 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
         SDKInitializer.initialize(getApplicationContext());
         //自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
         //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。

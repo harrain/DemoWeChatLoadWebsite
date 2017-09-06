@@ -17,9 +17,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.example.applibrary.AppConstant;
-import com.example.demowechat.utils.Link;
+import com.example.applibrary.Link;
 import com.example.applibrary.LogUtils;
-import com.example.demowechat.widget.SwipeMenuRecyclerView;
+import com.example.applibrary.widget.SwipeMenuRecyclerView;
 
 import java.io.File;
 

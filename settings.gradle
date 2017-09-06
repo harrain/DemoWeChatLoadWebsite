@@ -1,1 +1,1 @@
-include ':app', ':zxing', ':applibrary', ':webview'
+include ':app', ':zxing', ':applibrary', ':webview', ':baidumap'

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.applibrary.widget.SwipeItemLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/file_swipe_layout"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height">
+
+    <include
+        android:id="@+id/left_menu"
+        layout="@layout/rv_leftmenu_tv"/>
+
+    <include
+        android:id="@+id/right_menu"
+        layout="@layout/rv_rightmenu_tv"/>
+
+    <TextView
+        android:id="@+id/file_tv"
+        android:textSize="16sp"
+        android:text="xxxxx"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingLeft="16dp"
+        />
+
+
+
+</com.example.applibrary.widget.SwipeItemLayout>

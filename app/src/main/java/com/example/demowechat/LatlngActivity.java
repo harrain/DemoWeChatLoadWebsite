@@ -12,10 +12,10 @@ import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.demowechat.map.TraceControl;
-import com.example.demowechat.rlPart.ArrayListAdapter;
+import com.baidu.baidumap.TraceControl;
 import com.example.applibrary.LogUtils;
 import com.example.applibrary.ToastFactory;
+import com.example.applibrary.rlPart.ArrayListAdapter;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;

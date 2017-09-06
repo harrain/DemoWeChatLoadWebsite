@@ -12,9 +12,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.baidu.baidumap.LocationDemo;
 import com.bumptech.glide.Glide;
-import com.example.demowechat.map.LocationDemo;
-import com.example.demowechat.utils.NumberValidationUtil;
+import com.example.applibrary.NumberValidationUtil;
 
 
 /**

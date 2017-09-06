@@ -4,10 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.example.demowechat.MyApplication;
-import com.example.demowechat.map.TraceServiceImpl;
 import com.example.applibrary.AppConstant;
-import com.example.demowechat.utils.SharePrefrenceUtils;
+import com.example.applibrary.SharePrefrenceUtils;
+import com.example.demowechat.MyApplication;
+import com.example.demowechat.TraceServiceImpl;
 
 /**
  * Created by loongggdroid on 2016/3/21.

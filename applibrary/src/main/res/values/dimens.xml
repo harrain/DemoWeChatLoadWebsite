@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="list_item_icon_size">35dp</dimen>
+    <dimen name="horizontal_margin">16dp</dimen>
+    <dimen name="me_item_text_size">16sp</dimen>
+    <dimen name="me_item_height">50dp</dimen>
+    <dimen name="profile_nickname_tvsize">16sp</dimen>
+    <dimen name="profile_account_tvsize">12sp</dimen>
+    <dimen name="itemdecoration_height">20dp</dimen>
+    <dimen name="list_item_height">70dp</dimen>
+    <dimen name="swipe_item_menu_width">120dp</dimen>
+</resources>

@@ -13,13 +13,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.demowechat.map.TraceControl;
-import com.example.demowechat.map.TrackShowDemo;
-import com.example.demowechat.rlPart.LatlngFragmentAdapter;
-import com.example.demowechat.rlPart.base.BaseAdapter;
+import com.baidu.baidumap.TraceControl;
+import com.baidu.baidumap.TrackShowDemo;
 import com.example.applibrary.AppConstant;
 import com.example.applibrary.LogUtils;
-import com.example.demowechat.utils.SharePrefrenceUtils;
+import com.example.applibrary.SharePrefrenceUtils;
+import com.example.applibrary.rlPart.base.BaseAdapter;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;

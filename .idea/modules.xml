@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/DemoWeChat.iml" filepath="$PROJECT_DIR$/DemoWeChat.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/applibrary/applibrary.iml" filepath="$PROJECT_DIR$/applibrary/applibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/baidumap/baidumap.iml" filepath="$PROJECT_DIR$/baidumap/baidumap.iml" />
       <module fileurl="file://$PROJECT_DIR$/webview/webview.iml" filepath="$PROJECT_DIR$/webview/webview.iml" />
       <module fileurl="file://$PROJECT_DIR$/zxing/zxing.iml" filepath="$PROJECT_DIR$/zxing/zxing.iml" />
     </modules>

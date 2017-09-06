@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    >
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="true" />
+
+    <include layout="@layout/scanner_toolbar"
+        android:id="@+id/titlebar"/>
+
+    <Button
+        android:id="@+id/button1"
+        android:background="@color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titlebar"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:id="@+id/tip_tv"
+        android:text="室内无法GPS定位"
+        android:layout_below="@id/titlebar"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:visibility="gone"
+        android:id="@+id/btn_white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_shape"
+        android:padding="5dp"
+        android:layout_marginBottom="@dimen/float_button_menu_marginBottom"
+        android:layout_marginRight="16dp"
+        android:text="跳转自启动管理"
+        android:onClick="onClick"/>
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="启动定位服务"
+        android:onClick="onClick"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_shape"
+        android:padding="5dp"
+        android:layout_marginBottom="@dimen/float_button_menu_marginBottom"
+        android:layout_marginRight="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btn_stop"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="停止定位服务"
+        android:onClick="onClick"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_shape"
+        android:padding="5dp"
+        android:layout_marginBottom="@dimen/float_button_menu_marginBottom"
+        android:layout_marginRight="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/locate_more_iv"
+        app:elevation="10dp"
+        app:backgroundTint="@color/white"
+        app:rippleColor="#d4237a"
+        android:src="@drawable/settings_float"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="@dimen/float_button_menu_marginBottom"
+        android:layout_marginRight="13dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!--<ImageView-->
+        <!--android:id="@+id/locate_more_iv"-->
+        <!--android:src="@drawable/more_gray"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_marginBottom="@dimen/float_button_menu_marginBottom"-->
+        <!--android:layout_marginRight="13dp"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content" />-->
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+</RelativeLayout>

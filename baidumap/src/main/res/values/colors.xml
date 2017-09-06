@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#ffffff</color>
+    <!-- 对话框分割线 -->
+    <color name="dialog_divide_line">#bababa</color>
+    <color name="layout_title">#008EEF</color>
+    <color name="list_item_desc">#666666</color>
+</resources>

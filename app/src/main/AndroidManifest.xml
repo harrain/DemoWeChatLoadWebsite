@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.demowechat">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -32,6 +33,7 @@
 
     <application
         android:name=".MyApplication"
+        tools:replace="android:name"
         android:allowBackup="true"
         android:icon="@mipmap/app_icon"
         android:label="@string/app_name"
@@ -58,32 +60,9 @@
             android:name=".diyCamera.CameraActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".diyCamera.ShowPicActivity" />
-        <activity
-            android:name=".map.LocationDemo"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="地图定位"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".map.TrackShowDemo"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
 
-        <activity
-            android:name=".map.LocateActivity"
-            android:screenOrientation="portrait" />
 
-        <service
-            android:name="com.baidu.location.f"
-            android:enabled="true"
-            android:process=":location" />
-
-        <service
-            android:name="com.baidu.trace.LBSTraceService"
-            android:enabled="true"
-            android:process=":trace"
-            />
-
-        <service android:name=".map.TraceServiceImpl" />
+        <service android:name=".TraceServiceImpl" />
 
         <activity
             android:name=".LatlngActivity"

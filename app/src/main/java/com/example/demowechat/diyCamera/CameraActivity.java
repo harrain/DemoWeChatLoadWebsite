@@ -26,7 +26,7 @@ import com.example.applibrary.AppConstant;
 import com.example.demowechat.utils.BitmapUtils;
 import com.example.demowechat.utils.CameraUtil;
 import com.example.applibrary.LogUtils;
-import com.example.demowechat.utils.SharePrefrenceUtils;
+import com.example.applibrary.SharePrefrenceUtils;
 import com.example.applibrary.ToastFactory;
 
 import java.io.File;
